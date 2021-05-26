@@ -4,6 +4,12 @@
   "publisher": "foxglove",
   "description": "Foxglove Studio Extension Manager",
   "license": "MIT",
+  "keywords": [
+    "foxglove",
+    "robotics",
+    "ros",
+    "visualization"
+  ],
   "main": "dist/api.js",
   "typings": "dist/api.d.ts",
   "bin": "dist/fox",
