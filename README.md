@@ -11,7 +11,7 @@ Foxglove Studio allows developers to create extensions, or custom code that is l
 Make sure you have [Node.js](https://nodejs.org/) 14 or newer installed and the [yarn](https://yarnpkg.com/) package manager (`npm install -g yarn`). In a terminal, go into the directory where you keep source code (ex: `cd ~/Code`) and run the following command:
 
 ```
-npx fox helloworld
+npx @foxglove/fox create helloworld
 ```
 
 Feel free to choose an extension name other than _helloworld_. Otherwise, this will create a folder named _helloworld_ containing your extension. Run a one-time initialization step:
