@@ -1,0 +1,61 @@
+{
+  "name": "@foxglove/fox",
+  "version": "0.1.0",
+  "publisher": "foxglove",
+  "description": "Foxglove Studio Extension Manager",
+  "license": "MIT",
+  "main": "dist/api.js",
+  "typings": "dist/api.d.ts",
+  "bin": "dist/fox",
+  "files": [
+    "dist",
+    "template"
+  ],
+  "scripts": {
+    "build": "tsc && yarn copy-fox",
+    "copy-fox": "ncp bin/fox dist/fox",
+    "fox": "node dist/fox",
+    "lint:ci": "eslint --report-unused-disable-directives .",
+    "lint": "eslint --report-unused-disable-directives --fix .",
+    "prepack": "yarn build",
+    "prepublishOnly": "yarn lint:ci && yarn test",
+    "test": "jest",
+    "watch": "yarn copy-fox && tsc --watch"
+  },
+  "engines": {
+    "node": ">= 14"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/mkdirp": "^1",
+    "@types/ncp": "^2",
+    "@types/node": "^14",
+    "@types/rimraf": "^3",
+    "@types/tmp": "^0.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "add": "^2.0.6",
+    "esbuild": "^0.12.3",
+    "esbuild-jest": "^0.5.0",
+    "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.3",
+    "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-prettier": "^3.4.0",
+    "jest": "^27.0.1",
+    "prettier": "^2.3.0",
+    "tmp": "^0.2.1",
+    "typescript": "4.2.4",
+    "yarn": "^1.22.10"
+  },
+  "dependencies": {
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "commander": "7.2.0",
+    "jszip": "3.6.0",
+    "mkdirp": "1.0.4",
+    "ncp": "2.0.0",
+    "rimraf": "3.0.2",
+    "sanitize-filename": "1.6.3",
+    "webpack": "^5.37.1"
+  }
+}

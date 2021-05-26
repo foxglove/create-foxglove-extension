@@ -1,2 +1,3 @@
 # fox
-Foxglove Studio Extension Manager
+
+> _The Foxglove Studio Extension Manager_
