@@ -4,7 +4,7 @@
   "description": "",
   "publisher": "unknown",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "main": "./dist/extension.js",
   "scripts": {
     "foxglove:prepublish": "fox build --mode production",
