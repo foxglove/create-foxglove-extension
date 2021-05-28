@@ -9,8 +9,8 @@
   "scripts": {
     "foxglove:prepublish": "fox build --mode production",
     "build": "fox build",
-    "package": "fox build --mode production && fox package",
-    "local-install": "fox build && fox install",
+    "package": "fox package",
+    "local-install": "fox install",
     "pretest": "fox pretest"
   },
   "devDependencies": {
