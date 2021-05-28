@@ -10,7 +10,7 @@
     "foxglove:prepublish": "fox build --mode production",
     "build": "fox build",
     "package": "fox build --mode production && fox package",
-    "install-extension": "fox build && fox install",
+    "local-install": "fox build && fox install",
     "pretest": "fox pretest"
   },
   "devDependencies": {
