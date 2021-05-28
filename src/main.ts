@@ -1,4 +1,4 @@
-import program from "commander";
+import program, { Option } from "commander";
 
 import { buildCommand } from "./build";
 import { createCommand } from "./create";
@@ -21,8 +21,9 @@ module.exports = function (argv: string[]): void {
   program
     .command("build")
     .description("Build an extension, preparing it for packaging or installation")
+    .addOption(new Option("--mode [mode]", "Build mode").choices(["development", "production"]))
     .option("--cwd [cwd]", "Directory to run the build command in")
-    .action(({ cwd }) => main(buildCommand({ cwd })));
+    .action(({ mode, cwd }) => main(buildCommand({ mode, cwd })));
 
   program
     .command("package")
