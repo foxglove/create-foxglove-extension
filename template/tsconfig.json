@@ -1,24 +1,14 @@
 {
+  "extends": "@foxglove/fox/tsconfig/tsconfig.json",
+
   "include": ["./src/**/*"],
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "module": "commonjs",
-    "target": "es2019",
-    "lib": ["es2019"],
 
-    "allowJs": true,
-    "composite": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "newLine": "lf",
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-
-    // be as strict as possible, but no stricter
-    "strict": true,
+    // Additional TypeScript error reporting checks are enabled by default to improve code quality.
+    // Enable/disable these checks as necessary to suit your coding preferences or work with
+    // existing code
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,

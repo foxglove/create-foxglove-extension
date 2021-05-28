@@ -14,7 +14,8 @@
     "pretest": "fox pretest"
   },
   "devDependencies": {
-    "@foxglove/fox": "0.1.0",
-    "@foxglove/studio": "0.1.0"
+    "@foxglove/fox": "0.2.0",
+    "@foxglove/studio": "0.1.0",
+    "@types/react": "17.0.8"
   }
 }
