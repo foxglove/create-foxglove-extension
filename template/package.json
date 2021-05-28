@@ -4,7 +4,7 @@
   "description": "",
   "publisher": "unknown",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "engines": {
     "@foxglove/studio": ">=0.1.0"
   },
