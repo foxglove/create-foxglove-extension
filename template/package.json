@@ -9,13 +9,14 @@
   "scripts": {
     "foxglove:prepublish": "fox build --mode production",
     "build": "fox build",
-    "package": "fox build --mode production && fox package",
-    "install-extension": "fox build && fox install",
+    "package": "fox package",
+    "local-install": "fox install",
     "pretest": "fox pretest"
   },
   "devDependencies": {
     "@foxglove/fox": "0.2.0",
     "@foxglove/studio": "0.1.0",
-    "@types/react": "17.0.8"
+    "@types/react": "17.0.8",
+    "typescript": "4.3.2"
   }
 }

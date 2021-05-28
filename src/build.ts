@@ -6,11 +6,13 @@ import webpackConfig from "./webpackConfigExtension";
 
 export interface BuildOptions {
   readonly entryPoint?: string;
+  readonly mode?: "development" | "production";
   readonly cwd?: string;
 }
 
 export async function buildCommand(options: BuildOptions = {}): Promise<void> {
-  const env = process.env.NODE_ENV === "production" ? "production" : "development";
+  const env =
+    options.mode ?? (process.env.NODE_ENV === "production" ? "production" : "development");
   const extensionPath = path.resolve((options.cwd ?? process.cwd()).replace(/"$/, ""));
   const entryPoint = options.entryPoint ?? "./src/index.ts";
 
