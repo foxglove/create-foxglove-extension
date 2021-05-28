@@ -5,9 +5,6 @@
   "publisher": "unknown",
   "version": "0.0.0",
   "license": "UNLICENSED",
-  "engines": {
-    "@foxglove/studio": ">=0.1.0"
-  },
   "main": "./dist/extension.js",
   "scripts": {
     "foxglove:prepublish": "fox build --mode production",
