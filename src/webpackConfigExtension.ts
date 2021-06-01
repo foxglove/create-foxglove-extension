@@ -23,10 +23,11 @@ export default (
     },
     devtool: isDev ? "eval-source-map" : "source-map",
     externals: {
-      "@foxglove/studio": "studio",
+      // we target browsers with Object.assign available so don't need this baggage
       "object-assign": "Object.assign",
+      "@foxglove/studio": "@foxglove/studio",
       react: "react",
-      "react-dom": "reactDom",
+      "react-dom": "react-dom",
     },
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx"],
