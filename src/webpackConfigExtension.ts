@@ -23,8 +23,6 @@ export default (
     },
     devtool: isDev ? "eval-source-map" : "source-map",
     externals: {
-      // we target browsers with Object.assign available so don't need this baggage
-      "object-assign": "Object.assign",
       "@foxglove/studio": "@foxglove/studio",
       react: "react",
       "react-dom": "react-dom",
