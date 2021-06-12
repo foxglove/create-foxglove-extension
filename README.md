@@ -4,7 +4,7 @@
 
 ## Introduction
 
-[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels, and in the future it will support custom file formats or data sources and more. Extensions are authored in TypeScript using the `@foxglove/studio` SDK. User interface extensions such as custom panels are based on [React](https://reactjs.org/) and [Fluent UI](https://developer.microsoft.com/en-us/fluentui#/).
+[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels, and in the future it will support custom file formats or data sources and more. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
 
 ## Creating Your First Extension
 

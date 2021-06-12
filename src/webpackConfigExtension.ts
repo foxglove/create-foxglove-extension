@@ -24,8 +24,6 @@ export default (
     devtool: isDev ? "eval-source-map" : "source-map",
     externals: {
       "@foxglove/studio": "@foxglove/studio",
-      react: "react",
-      "react-dom": "react-dom",
     },
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx"],
