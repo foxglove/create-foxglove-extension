@@ -9,7 +9,7 @@ let tmpdir: string;
 jest.mock("./log.ts", () => ({
   info: jest.fn(),
   fatal: jest.fn((msg) => {
-    throw new Error(`fatal() called: ${msg}`);
+    throw new Error(`fatal() called: ${String(msg)}`);
   }),
 }));
 
