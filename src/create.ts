@@ -1,3 +1,4 @@
+import { spawn } from "child_process";
 import { constants } from "fs";
 import { access, readdir, readFile, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
@@ -5,6 +6,26 @@ import * as path from "path";
 import sanitize from "sanitize-filename";
 
 import { info } from "./log";
+
+const DEPENDENCIES = [
+  "@foxglove/eslint-plugin",
+  "@foxglove/fox",
+  "@foxglove/studio",
+  "@types/react",
+  "@types/react-dom",
+  "@typescript-eslint/eslint-plugin",
+  "@typescript-eslint/parser",
+  "eslint-config-prettier",
+  "eslint-plugin-import",
+  "eslint-plugin-prettier",
+  "eslint-plugin-react-hooks",
+  "eslint-plugin-react",
+  "eslint",
+  "prettier",
+  "react",
+  "react-dom",
+  "typescript",
+];
 
 export interface CreateOptions {
   readonly name: string;
@@ -34,6 +55,8 @@ export async function createCommand(options: CreateOptions): Promise<void> {
     const dstFile = path.resolve(extensionDir, file);
     await copyTemplateFile(srcFile, dstFile, replacements);
   }
+
+  await installDependencies(extensionDir, DEPENDENCIES);
 
   info(`Created Foxglove Studio extension "${name}" at ${extensionDir}`);
 }
@@ -76,4 +99,24 @@ async function copyTemplateFile(
   }
   await mkdirp(path.dirname(dst));
   await writeFile(dst, contents);
+}
+
+async function installDependencies(extensionDir: string, deps: string[]): Promise<void> {
+  const command = "yarnpkg";
+  const args = ["add", "--exact", "--cwd", extensionDir, "--dev", ...deps];
+
+  info(`${command} ${args.join(" ")}`);
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(command, args, {
+      shell: true,
+      stdio: "inherit",
+      env: { ...process.env },
+    });
+    child.on("close", (code) => {
+      if (code !== 0) {
+        return reject(new Error(`yarnpkg exited with code ${code ?? "<null>"}`));
+      }
+      resolve();
+    });
+  });
 }

@@ -6,6 +6,8 @@ import { createCommand } from "./create";
 
 let tmpdir: string;
 
+jest.setTimeout(60 * 1000);
+
 jest.mock("./log.ts", () => ({
   info: jest.fn(),
   fatal: jest.fn((msg) => {
@@ -28,7 +30,8 @@ describe("createCommand", () => {
     const dirs = contents.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
     const files = contents.filter((entry) => entry.isFile()).map((entry) => entry.name);
 
-    expect(dirs).toHaveLength(1);
+    expect(dirs).toHaveLength(2);
+    expect(dirs).toContain("node_modules");
     expect(dirs).toContain("src");
 
     expect(files).toContain("CHANGELOG.md");
@@ -36,8 +39,10 @@ describe("createCommand", () => {
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
 
-    const packageJson = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
-    expect(packageJson.includes("${NAME}")).not.toBeTruthy();
-    expect(packageJson.includes("extension-test"));
+    const packageJsonStr = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
+    expect(packageJsonStr.includes("${NAME}")).not.toBeTruthy();
+    expect(packageJsonStr.includes("extension-test"));
+    const packageJson = JSON.parse(packageJsonStr) as Record<string, unknown>;
+    expect(typeof (packageJson.devDependencies as Record<string, string>).react).toEqual("string");
   });
 });
