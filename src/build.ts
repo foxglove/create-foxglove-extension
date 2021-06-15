@@ -21,18 +21,19 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     info("Building...");
     compiler.run((err, result) => {
-      compiler.close(() => {});
-      if (err) {
-        return reject(err.message);
-      }
-      if (result == undefined) {
-        return reject(new Error(`build did not produce any output`));
-      }
-      if (result.hasErrors()) {
-        return reject(new Error(`build failed: ${getErrorOutput(result?.compilation)}`));
-      }
-      info("Build complete");
-      resolve();
+      compiler.close(() => {
+        if (err) {
+          return reject(err.message);
+        }
+        if (result == undefined) {
+          return reject(new Error(`build did not produce any output`));
+        }
+        if (result.hasErrors()) {
+          return reject(new Error(`build failed: ${getErrorOutput(result?.compilation)}`));
+        }
+        info("Build complete");
+        resolve();
+      });
     });
   });
 }
@@ -40,11 +41,11 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
 function getErrorOutput(compilation: webpack.Compilation): string {
   const warnings = compilation
     .getWarnings()
-    .map((warning) => `${warning}`)
+    .map((warning) => `${String(warning)}`)
     .join("\n");
   const errors = compilation
     .getErrors()
-    .map((error) => `${error}`)
+    .map((error) => `${String(error)}`)
     .join("\n");
   let output = "";
   if (warnings.length > 0) {

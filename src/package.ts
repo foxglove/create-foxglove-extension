@@ -73,7 +73,7 @@ async function readManifest(extensionPath: string): Promise<PackageManifest> {
   try {
     pkg = JSON.parse(await readFile(pkgPath, { encoding: "utf8" }));
   } catch (err) {
-    throw new Error(`Failed to load ${pkgPath}: ${err}`);
+    throw new Error(`Failed to load ${pkgPath}: ${String(err)}`);
   }
 
   const manifest = pkg as PackageManifest;
@@ -115,7 +115,9 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
       shell: true,
       stdio: "inherit",
     });
-    child.on("exit", (code) => (code === 0 ? c() : e(`${tool} failed with exit code ${code}`)));
+    child.on("exit", (code) =>
+      code === 0 ? c() : e(`${tool} failed with exit code ${code ?? "<null>"}`),
+    );
     child.on("error", e);
   });
 }

@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 export function info(message: unknown, ...args: unknown[]): void {
   console.log(message, ...args);
 }
