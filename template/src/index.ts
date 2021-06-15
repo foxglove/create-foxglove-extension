@@ -1,7 +1,6 @@
-import { ExtensionActivate } from "@foxglove/studio";
+import { ExtensionContext } from "@foxglove/studio";
+import { initExamplePanel } from "./ExamplePanel.tsx";
 
-import { ExamplePanel } from "./ExamplePanel";
-
-export const activate: ExtensionActivate = (ctx) => {
-  ctx.registerPanel({ name: "ExamplePanel", component: ExamplePanel });
-};
+export function activate(extensionContext: ExtensionContext) {
+  extensionContext.registerPanel({ name: "example-panel", initPanel: initExamplePanel });
+}
