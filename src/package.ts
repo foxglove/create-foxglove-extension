@@ -12,6 +12,10 @@ import { info } from "./log";
 
 const cpR = promisify(ncp);
 
+// An arbitrary but fixed date is used for zip file modification timestamps to
+// produce deterministic .foxe files
+const MOD_DATE = new Date("2021-01-01");
+
 export interface PackageManifest {
   name: string;
   publisher?: string;
@@ -52,7 +56,7 @@ export async function packageCommand(options: PackageOptions = {}): Promise<void
     options.packagePath ?? join(extensionPath, getPackageDirname(pkg) + ".foxe"),
   );
 
-  await writeFoxe(files, packagePath);
+  await writeFoxe(extensionPath, files, packagePath);
 }
 
 export async function installCommand(options: InstallOptions = {}): Promise<void> {
@@ -163,17 +167,17 @@ async function collect(extensionPath: string, pkg: PackageManifest): Promise<str
     .sort();
 }
 
-async function writeFoxe(files: string[], outputFile: string): Promise<void> {
+async function writeFoxe(baseDir: string, files: string[], outputFile: string): Promise<void> {
   const zip = new JSZip();
   for (const file of files) {
-    if (await isDirectory(file)) {
-      await addDirToZip(zip, file);
+    if (await isDirectory(join(baseDir, file))) {
+      await addDirToZip(zip, baseDir, file);
     } else {
-      addFileToZip(zip, file);
+      addFileToZip(zip, baseDir, file);
     }
   }
 
-  info(`Archiving files into ${outputFile}`);
+  info(`Writing archive to ${outputFile}`);
   return new Promise((c, e) => {
     zip
       .generateNodeStream({ type: "nodebuffer", streamFiles: true })
@@ -229,20 +233,23 @@ function rmdir(dirname: string): Promise<void> {
   return new Promise<void>((c, e) => rimraf(dirname, (err) => (err != undefined ? e(err) : c())));
 }
 
-async function addDirToZip(zip: JSZip, dirname: string): Promise<void> {
-  const entries = await readdir(dirname, { withFileTypes: true });
+async function addDirToZip(zip: JSZip, baseDir: string, dirname: string): Promise<void> {
+  const fullPath = join(baseDir, dirname);
+  const entries = await readdir(fullPath, { withFileTypes: true });
   for (const entry of entries) {
     const entryPath = join(dirname, entry.name);
     if (entry.isFile()) {
-      addFileToZip(zip, entryPath);
+      addFileToZip(zip, baseDir, entryPath);
     } else if (entry.isDirectory()) {
-      await addDirToZip(zip, entryPath);
+      await addDirToZip(zip, baseDir, entryPath);
     }
   }
 }
 
-function addFileToZip(zip: JSZip, filename: string) {
-  zip.file<"stream">(filename, createReadStream(filename), { createFolders: true });
+function addFileToZip(zip: JSZip, baseDir: string, filename: string) {
+  const fullPath = join(baseDir, filename);
+  info(`archiving ${fullPath}`);
+  zip.file<"stream">(filename, createReadStream(fullPath), { createFolders: true, date: MOD_DATE });
 }
 
 function getPackageDirname(pkg: PackageManifest): string {
