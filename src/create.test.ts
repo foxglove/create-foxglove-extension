@@ -6,7 +6,7 @@ import { createCommand } from "./create";
 
 let tmpdir: string;
 
-jest.setTimeout(30 * 1000);
+jest.setTimeout(60 * 1000);
 
 jest.mock("./log.ts", () => ({
   info: jest.fn(),
