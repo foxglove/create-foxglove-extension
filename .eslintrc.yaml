@@ -10,7 +10,6 @@ plugins:
 
 extends:
   - plugin:@foxglove/base
-  - plugin:@foxglove/react
 
 overrides:
   - files: ["*.ts", "*.tsx"]
