@@ -36,8 +36,10 @@ describe("createCommand", () => {
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
 
-    const packageJson = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
-    expect(packageJson.includes("${NAME}")).not.toBeTruthy();
-    expect(packageJson.includes("extension-test"));
+    const packageJsonStr = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
+    expect(packageJsonStr.includes("${NAME}")).not.toBeTruthy();
+    expect(packageJsonStr.includes("extension-test"));
+    const packageJson = JSON.parse(packageJsonStr) as Record<string, unknown>;
+    expect(typeof (packageJson.devDependencies as Record<string, string>).react).toEqual("string");
   });
 });
