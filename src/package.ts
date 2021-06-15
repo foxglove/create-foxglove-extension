@@ -12,9 +12,9 @@ import { info } from "./log";
 
 const cpR = promisify(ncp);
 
-// An arbitrary but fixed date is used for zip file modification timestamps to
-// produce deterministic .foxe files
-const MOD_DATE = new Date("2021-01-01");
+// A fixed date is used for zip file modification timestamps to
+// produce deterministic .foxe files. Foxglove birthday.
+const MOD_DATE = new Date("2021-02-03");
 
 export interface PackageManifest {
   name: string;
