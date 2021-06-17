@@ -1,12 +1,12 @@
 import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
   const [topics, setTopics] = useState<readonly Topic[] | undefined>();
   const [messages, setMessages] = useState<readonly MessageEvent<unknown>[] | undefined>();
 
-  const doneRenderRef = useRef<(() => void) | undefined>();
+  const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
   // We use a layout effect to setup render handling for our panel. We also setup some topic subscriptions.
   useLayoutEffect(() => {
@@ -21,7 +21,9 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
       // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
       // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
-      doneRenderRef.current = done;
+      //
+      // Set the done callback into a state variable to trigger a re-render.
+      setRenderDone(done);
 
       // We may have new topics - since we are also watching for messages in the current frame, topics may not have changed
       // It is up to you to determine the correct action when state has not changed.
@@ -46,7 +48,10 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     context.subscribe(["/some/topic"]);
   }, []);
 
-  doneRenderRef.current?.();
+  // invoke the done callback once the render is complete
+  useEffect(() => {
+    renderDone?.();
+  }, [renderDone]);
 
   return (
     <>

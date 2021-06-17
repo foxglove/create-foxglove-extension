@@ -3,6 +3,7 @@ import * as path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { createCommand } from "./create";
+import { packageCommand } from "./package";
 
 let tmpdir: string;
 
@@ -44,5 +45,8 @@ describe("createCommand", () => {
     expect(packageJsonStr.includes("extension-test"));
     const packageJson = JSON.parse(packageJsonStr) as Record<string, unknown>;
     expect(typeof (packageJson.devDependencies as Record<string, string>).react).toEqual("string");
+
+    // make sure the skeleton package is buildable and packagable
+    await packageCommand({ cwd: destDir });
   });
 });
