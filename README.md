@@ -1,6 +1,6 @@
 # fox
 
-> _The Foxglove Studio Extension Manager_
+> _The Foxglove Studio Extension SDK_
 
 ## Introduction
 
