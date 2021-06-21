@@ -3,9 +3,11 @@
   "displayName": "${NAME}",
   "description": "",
   "publisher": "unknown",
+  "homepage": "",
   "version": "0.0.0",
   "license": "UNLICENSED",
   "main": "./dist/extension.js",
+  "keywords": [],
   "scripts": {
     "build": "fox build",
     "foxglove:prepublish": "fox build --mode production",
