@@ -3,7 +3,7 @@ import program, { Option } from "commander";
 import { buildCommand } from "./build";
 import { createCommand } from "./create";
 import { fatal } from "./log";
-import { installCommand, packageCommand } from "./package";
+import { installCommand, packageCommand, publishCommand } from "./package";
 
 function main(task: Promise<void>): void {
   task.catch(fatal);
@@ -41,6 +41,18 @@ module.exports = function (argv: string[]): void {
     .option("--cwd [cwd]", "Directory to run the install command in")
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     .action(({ cwd }) => main(installCommand({ cwd })));
+
+  program
+    .command("publish")
+    .description(
+      "Create an extensions.json entry for a released extension. This can be added to the https://github.com/foxglove/studio-extension-marketplace repository",
+    )
+    .option("--foxe <foxe>", "URL of the published .foxe file")
+    .option("--cwd [cwd]", "Directory containing the extension package.json file")
+    .option("--version [version]", "Version of the published .foxe file")
+    .option("--readme [readme]", "URL of the extension README.md file")
+    .option("--changelog [changelog]", "URL of the extension CHANGELOG.md file")
+    .action((options) => main(publishCommand(options)));
 
   program.on("command:*", ([_cmd]: string) => {
     program.outputHelp({ error: true });
