@@ -10,6 +10,10 @@
     "ros",
     "visualization"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxglove/fox.git"
+  },
   "main": "dist/api.js",
   "typings": "dist/api.d.ts",
   "bin": "dist/fox",
