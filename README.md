@@ -40,3 +40,7 @@ yarn package
 ```
 
 This will produce a _.foxe_ file such as `helloworld-0.0.0.foxe`. This is essentially a ZIP archive containing your extension manifest and compiled code that can be opened by the Foxglove Studio application, which will unpack it and install it to the `~/.foxglove-studio/extensions` folder. Stay tuned for future instructions on how to publish Foxglove Studio extensions to a registry so other users can easily search for and install your extension.
+
+## Stay in touch
+
+Join our [Slack channel](https://foxglove.dev/join-slack) to ask questions, share feedback, and stay up to date on what our team is working on.
