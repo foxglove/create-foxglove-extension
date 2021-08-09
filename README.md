@@ -43,4 +43,4 @@ This will produce a _.foxe_ file such as `helloworld-0.0.0.foxe`. This is essent
 
 ## Stay in touch
 
-Join our [Slack channel](https://foxglove.dev/join-slack) to ask questions, share feedback, and stay up-to-date on what our team is working on.
+Join our [Slack channel](https://foxglove.dev/join-slack) to ask questions, share feedback, and stay up to date on what our team is working on.
