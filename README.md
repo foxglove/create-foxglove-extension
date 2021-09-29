@@ -2,6 +2,8 @@
 
 > _The Foxglove Studio Extension Manager_
 
+[![npm version](https://img.shields.io/npm/v/@foxglove/fox.svg?style=flat)](https://www.npmjs.com/package/@foxglove/fox)
+
 ## Introduction
 
 [Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels, and in the future it will support custom file formats or data sources and more. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
