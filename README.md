@@ -13,7 +13,7 @@
 Make sure you have [Node.js](https://nodejs.org/) 14 or newer installed and the [yarn](https://yarnpkg.com/) package manager (`npm install -g yarn`). In a terminal, go into the directory where you keep source code (ex: `cd ~/Code`) and run the following command:
 
 ```
-npx @foxglove/fox create helloworld
+npx @foxglove/fox@latest create helloworld
 ```
 
 Feel free to choose an extension name other than _helloworld_. Otherwise, this will create a folder named _helloworld_ containing your extension. Run a one-time initialization step:
