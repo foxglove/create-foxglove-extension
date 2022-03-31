@@ -13,8 +13,8 @@ export interface BuildOptions {
 
 function objectIsWebpackConfig(
   obj: unknown,
-): o is { webpack: (config: webpack.Configuration) => webpack.Configuration } {
-  return typeof o === "object" && o != undefined && "webpack" in o;
+): obj is { webpack: (config: webpack.Configuration) => webpack.Configuration } {
+  return typeof obj === "object" && obj != undefined && "webpack" in obj;
 }
 
 export async function buildCommand(options: BuildOptions = {}): Promise<void> {
