@@ -1,8 +1,9 @@
+import { existsSync } from "fs";
 import * as path from "path";
 import webpack from "webpack";
 
 import { info } from "./log";
-import webpackConfig from "./webpackConfigExtension";
+import buildWebpackConfig from "./webpackConfigExtension";
 
 export interface BuildOptions {
   readonly entryPoint?: string;
@@ -10,13 +11,28 @@ export interface BuildOptions {
   readonly cwd?: string;
 }
 
+function objectIsWebpackConfig(
+  obj: unknown,
+): obj is { webpack: (config: webpack.Configuration) => webpack.Configuration } {
+  return typeof obj === "object" && obj != undefined && "webpack" in obj;
+}
+
 export async function buildCommand(options: BuildOptions = {}): Promise<void> {
   const env =
     options.mode ?? (process.env.NODE_ENV === "production" ? "production" : "development");
   const extensionPath = path.resolve((options.cwd ?? process.cwd()).replace(/"$/, ""));
   const entryPoint = options.entryPoint ?? "./src/index.ts";
+  const configPath = path.join(extensionPath, "config.ts");
 
-  const compiler = webpack(webpackConfig(extensionPath, entryPoint, env));
+  let webpackConfig = buildWebpackConfig(extensionPath, entryPoint, env);
+  if (existsSync(configPath)) {
+    info(`Using config file at ${configPath}`);
+    const config: unknown = await import(configPath);
+    if (objectIsWebpackConfig(config)) {
+      webpackConfig = config.webpack(webpackConfig);
+    }
+  }
+  const compiler = webpack(webpackConfig);
 
   return new Promise<void>((resolve, reject) => {
     info("Building...");
