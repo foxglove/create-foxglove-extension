@@ -33,7 +33,20 @@ This should create a folder under your home directory such as `~/.foxglove-studi
 
 If you just want to confirm your code compiles without installing it locally, run `yarn build`.
 
-You can customize the build and install process by editing your `./config.ts` file.
+You can customize the build and install process by editing your `./config.ts` file. The config file should
+look something like this:
+
+```
+module.exports = {
+  webpack: (config) => {
+    config.module.rules.push({
+       test: /\.css$/i,
+       use: ["style-loader", "css-loader"],
+    });
+    return config;
+  },
+};
+```
 
 ## Publishing Your Extension
 
