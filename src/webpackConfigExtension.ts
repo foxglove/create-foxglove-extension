@@ -7,17 +7,17 @@ export default (
   entryPoint: string,
   env: string | undefined,
 ): Configuration => {
-  extensionPath = path.resolve(extensionPath);
+  const resolvedExtensionPath = path.resolve(extensionPath);
   const isDev = env == undefined || env === "development";
-  const configFile = path.join(extensionPath, "tsconfig.json");
+  const configFile = path.join(resolvedExtensionPath, "tsconfig.json");
 
   const config: Configuration = {
     target: "web",
     mode: isDev ? "development" : "production",
-    context: extensionPath,
+    context: resolvedExtensionPath,
     entry: entryPoint,
     output: {
-      path: path.join(extensionPath, "dist"),
+      path: path.join(resolvedExtensionPath, "dist"),
       filename: "extension.js",
       libraryTarget: "commonjs2",
     },

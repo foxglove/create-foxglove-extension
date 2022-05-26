@@ -262,7 +262,7 @@ async function writeFoxe(baseDir: string, files: string[], outputFile: string): 
   }
 
   info(`Writing archive to ${outputFile}`);
-  return new Promise((c, e) => {
+  return await new Promise((c, e) => {
     zip
       .generateNodeStream({ type: "nodebuffer", streamFiles: true })
       .pipe(createWriteStream(outputFile, { encoding: "binary" }) as NodeJS.WritableStream)
@@ -313,8 +313,10 @@ async function isDirectory(pathname: string): Promise<boolean> {
   return (await stat(pathname)).isDirectory();
 }
 
-function rmdir(dirname: string): Promise<void> {
-  return new Promise<void>((c, e) => rimraf(dirname, (err) => (err != undefined ? e(err) : c())));
+async function rmdir(dirname: string): Promise<void> {
+  return await new Promise<void>((c, e) =>
+    rimraf(dirname, (err) => (err != undefined ? e(err) : c())),
+  );
 }
 
 async function addDirToZip(zip: JSZip, baseDir: string, dirname: string): Promise<void> {

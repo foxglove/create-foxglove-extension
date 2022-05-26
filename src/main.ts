@@ -3,7 +3,7 @@ import program, { Option } from "commander";
 import { buildCommand } from "./build";
 import { createCommand } from "./create";
 import { fatal } from "./log";
-import { installCommand, packageCommand, publishCommand } from "./package";
+import { installCommand, packageCommand, publishCommand, PublishOptions } from "./package";
 
 function main(task: Promise<void>): void {
   task.catch(fatal);
@@ -52,7 +52,7 @@ module.exports = function (argv: string[]): void {
     .option("--version [version]", "Version of the published .foxe file")
     .option("--readme [readme]", "URL of the extension README.md file")
     .option("--changelog [changelog]", "URL of the extension CHANGELOG.md file")
-    .action((options) => main(publishCommand(options)));
+    .action((options: PublishOptions) => main(publishCommand(options)));
 
   program.on("command:*", ([_cmd]: string) => {
     program.outputHelp({ error: true });

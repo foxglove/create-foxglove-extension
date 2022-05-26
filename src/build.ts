@@ -34,7 +34,7 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
   }
   const compiler = webpack(webpackConfig);
 
-  return new Promise<void>((resolve, reject) => {
+  return await new Promise<void>((resolve, reject) => {
     info("Building...");
     compiler.run((err, result) => {
       compiler.close(() => {
