@@ -1,15 +1,13 @@
+extends:
+  - plugin:@foxglove/base
+  - plugin:@foxglove/jest
+
 env:
   node: true
 
 ignorePatterns:
   - dist
   - template
-
-plugins:
-  - jest
-
-extends:
-  - plugin:@foxglove/base
 
 overrides:
   - files: ["*.ts", "*.tsx"]

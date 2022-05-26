@@ -73,13 +73,13 @@ async function exists(filename: string): Promise<boolean> {
 async function listFiles(baseDir: string, curDir?: string): Promise<string[]> {
   let output: string[] = [];
 
-  curDir ??= baseDir;
-  const contents = await readdir(curDir, { withFileTypes: true });
+  const curOrBaseDir = curDir ?? baseDir;
+  const contents = await readdir(curOrBaseDir, { withFileTypes: true });
   for (const entry of contents) {
     if (entry.isDirectory()) {
-      output = output.concat(await listFiles(baseDir, path.join(curDir, entry.name)));
+      output = output.concat(await listFiles(baseDir, path.join(curOrBaseDir, entry.name)));
     } else if (entry.isFile()) {
-      output.push(path.relative(baseDir, path.join(curDir, entry.name)));
+      output.push(path.relative(baseDir, path.join(curOrBaseDir, entry.name)));
     }
   }
 
