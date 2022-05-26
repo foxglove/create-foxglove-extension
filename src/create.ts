@@ -24,7 +24,7 @@ const DEPENDENCIES = [
   "prettier",
   "react",
   "react-dom",
-  "typescript",
+  "typescript@4.6.x",
 ];
 
 export interface CreateOptions {
