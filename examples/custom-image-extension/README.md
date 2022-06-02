@@ -3,4 +3,4 @@
 ## _A Foxglove Studio Extension_
 
 This is a simple [Foxglove Studio](http://foxglove.dev/studio) extension panel that demonstrates
-rendering compressed image messages.
+rendering compressed image messages and subscribing to a topic selected by the user.

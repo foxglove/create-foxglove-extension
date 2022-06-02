@@ -1,14 +1,19 @@
-extends:
-  - plugin:@foxglove/base
-  - plugin:@foxglove/jest
+root: true
 
 env:
-  node: true
+  browser: true
+  es2020: true
+  node: false
 
 ignorePatterns:
   - dist
-  - examples
-  - template
+
+plugins:
+  - jest
+
+extends:
+  - plugin:@foxglove/base
+  - plugin:@foxglove/react
 
 overrides:
   - files: ["*.ts", "*.tsx"]
