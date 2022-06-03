@@ -54,10 +54,25 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   }, [renderDone]);
 
   return (
-    <>
-      <div>{topics?.join(",")}</div>
+    <div style={{ padding: "1rem" }}>
+      <h2>Welcome to your new extension panel!</h2>
+      <p>
+        Check the{" "}
+        <a href="https://foxglove.dev/docs/studio/extensions/getting-started">documentation</a> for
+        more details on building extension panels for Foxglove Studio.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
+        <b style={{ borderBottom: "1px solid" }}>Topic</b>
+        <b style={{ borderBottom: "1px solid" }}>Datatype</b>
+        {(topics ?? []).map((topic) => (
+          <>
+            <div key={topic.name}>{topic.name}</div>
+            <div key={topic.datatype}>{topic.datatype}</div>
+          </>
+        ))}
+      </div>
       <div>{messages?.length}</div>
-    </>
+    </div>
   );
 }
 
