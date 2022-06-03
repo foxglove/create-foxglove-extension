@@ -95,7 +95,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
           ))}
         </select>
       </div>
-      <canvas width={480} height={480} ref={canvasRef} />;
+      <canvas width={480} height={480} ref={canvasRef} />
     </div>
   );
 }
