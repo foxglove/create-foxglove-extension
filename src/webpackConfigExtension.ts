@@ -18,6 +18,7 @@ export default (
     entry: entryPoint,
     output: {
       path: path.join(resolvedExtensionPath, "dist"),
+      publicPath: "@FOXGLOVE_EXTENSION_PATH_PREFIX@/dist/",
       filename: "extension.js",
       libraryTarget: "commonjs2",
     },
