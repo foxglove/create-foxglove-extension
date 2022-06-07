@@ -1,8 +1,9 @@
 import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
+import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
 
-type ImageMessage = MessageEvent<{ data: Uint8Array; format: string }>;
+type ImageMessage = MessageEvent<CompressedImage>;
 
 // Draws the compressed image data into our canvas.
 async function drawImageOnCanvas(imgData: Uint8Array, canvas: HTMLCanvasElement, format: string) {

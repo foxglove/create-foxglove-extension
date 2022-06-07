@@ -38,6 +38,28 @@
     ts-loader "9.3.0"
     webpack "5.72.1"
 
+"@foxglove/rosmsg-msgs-common@^1.0.4":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@foxglove/rosmsg-msgs-common/-/rosmsg-msgs-common-1.1.1.tgz#d006438360dff441c6e160716715f8829c1e1b8f"
+  integrity sha512-0/MrG/SAOGly9oIOOaQt5I4nxBzl3+4KOT2Z76vUt5201bGnLWG+vxh/CjsQId2qp2ZH6Hy9vpgzwJ5/PW7Oig==
+  dependencies:
+    "@foxglove/rosmsg" "^2.0.0 || ^3.0.0"
+
+"@foxglove/rosmsg@^2.0.0 || ^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@foxglove/rosmsg/-/rosmsg-3.0.0.tgz#10ce39e42dab6804977cda297d0d317649184a16"
+  integrity sha512-AAb3DMlLcuntUyEDBioDhbjdbKivC1hj7Gnu7QXX8ce+R50V8xs5sfxccsjE6N0Qs+eQxuzLhT2kW3mNXT/gbg==
+  dependencies:
+    md5-typescript "^1.0.5"
+
+"@foxglove/schemas@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@foxglove/schemas/-/schemas-0.1.2.tgz#75580ca1e084298b42f2119285891ada5ff36e6a"
+  integrity sha512-CAHq3ik3JFtZU+stad7XwUnkfzS3DlXmDSuWKoHqZgoUyiJllCFgwX3nCW0lrHKZDQKhXFxWvDDhvNFCaRcqfA==
+  dependencies:
+    "@foxglove/rosmsg-msgs-common" "^1.0.4"
+    tslib "^2"
+
 "@foxglove/studio@1.13.1":
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/@foxglove/studio/-/studio-1.13.1.tgz#c139f2c587474c102fba25809decb22524accfe0"
@@ -1451,6 +1473,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+md5-typescript@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/md5-typescript/-/md5-typescript-1.0.5.tgz#68c0b24dff8e5d3162e498fa9893b63be72e038f"
+  integrity sha512-ovAc4EtiNt2dY8JPhPr/wkC9h4U5k/nuClNVcG0Ga3V1rMlYpAY24ZaaymFXJlz+ccJ6UMPo3FSaVKe7czBsXw==
+
 merge-stream@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/merge-stream/-/merge-stream-2.0.0.tgz#52823629a14dd00c9770fb6ad47dc6310f2c1f60"
@@ -2105,6 +2132,11 @@ tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
+
+tslib@^2:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
 tsutils@^3.21.0:
   version "3.21.0"
