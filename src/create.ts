@@ -17,6 +17,7 @@ const DEPENDENCIES = [
   "@typescript-eslint/parser",
   "eslint-config-prettier",
   "eslint-plugin-import",
+  "eslint-plugin-jest",
   "eslint-plugin-prettier",
   "eslint-plugin-react-hooks",
   "eslint-plugin-react",
