@@ -2,6 +2,8 @@ import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglo
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
 import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
+import PngIcon from "./icon.png";
+import SvgIcon from "./icon.svg";
 
 type ImageMessage = MessageEvent<CompressedImage>;
 
@@ -84,17 +86,21 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
   return (
     <div style={{ height: "100%", padding: "1rem" }}>
-      <div
-        style={{ paddingBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "baseline" }}
-      >
+      <div style={{ paddingBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
         <label>Choose a topic to render:</label>
-        <select value={imageTopic} onChange={(event) => setImageTopic(event.target.value)}>
+        <select
+          value={imageTopic}
+          onChange={(event) => setImageTopic(event.target.value)}
+          style={{ flex: 1 }}
+        >
           {imageTopics.map((topic) => (
             <option key={topic.name} value={topic.name}>
               {topic.name}
             </option>
           ))}
         </select>
+        <img src={PngIcon} style={{ width: "1.5rem", height: "1.5rem" }} />
+        <img src={SvgIcon} style={{ width: "1.5rem", height: "1.5rem" }} />
       </div>
       <canvas width={480} height={480} ref={canvasRef} />
     </div>
