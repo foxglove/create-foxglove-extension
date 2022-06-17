@@ -16,7 +16,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     //
     // Without a render handler your panel will never receive updates.
     //
-    // The render handler could be invoked as often as 60hz during playback if fields are changing often.
+    // The render handler could be invoked as often as 360hz during playback if fields are changing often.
     context.onRender = (renderState: RenderState, done) => {
       // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
       // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
