@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
 import PngIcon from "./icon.png";
 import SvgIcon from "./icon.svg";
+import DynamicIconComponent from "./DynamicIconComponent";
 
 type ImageMessage = MessageEvent<CompressedImage>;
 
@@ -101,6 +102,9 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
         </select>
         <img src={PngIcon} style={{ width: "1.5rem", height: "1.5rem" }} />
         <img src={SvgIcon} style={{ width: "1.5rem", height: "1.5rem" }} />
+        <DynamicIconComponent fill="red" width="1rem" height="1rem" />
+        <DynamicIconComponent fill="green" />
+        <DynamicIconComponent fill="blue" width="2rem" height="2rem" />
       </div>
       <canvas width={480} height={480} ref={canvasRef} />
     </div>

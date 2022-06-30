@@ -3,7 +3,7 @@
   "displayName": "Foxglove Example Custom Image Extension Panel",
   "description": "",
   "publisher": "Foxglove",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
