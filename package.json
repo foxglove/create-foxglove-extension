@@ -1,8 +1,8 @@
 {
-  "name": "@foxglove/fox",
-  "version": "0.4.3",
+  "name": "create-foxglove-extension",
+  "version": "0.5.0",
   "publisher": "foxglove",
-  "description": "Foxglove Studio Extension Manager",
+  "description": "Create and package Foxglove Studio extensions",
   "license": "MIT",
   "keywords": [
     "foxglove",
@@ -12,26 +12,27 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/foxglove/fox.git"
+    "url": "https://github.com/foxglove/create-foxglove-extension.git"
   },
-  "main": "dist/api.js",
-  "typings": "dist/api.d.ts",
-  "bin": "dist/fox",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "bin": {
+    "create-foxglove-extension": "dist/bin/create-foxglove-extension.js",
+    "foxglove-extension": "dist/bin/foxglove-extension.js"
+  },
   "files": [
     "dist",
     "template",
     "tsconfig"
   ],
   "scripts": {
-    "build": "tsc && yarn copy-fox",
-    "copy-fox": "ncp bin/fox dist/fox",
-    "fox": "node dist/fox",
+    "build": "tsc",
     "lint:ci": "eslint --report-unused-disable-directives .",
     "lint": "eslint --report-unused-disable-directives --fix .",
     "prepack": "yarn build",
     "prepublishOnly": "yarn lint:ci && yarn test",
     "test": "jest",
-    "watch": "yarn copy-fox && tsc --watch"
+    "watch": "tsc --watch"
   },
   "engines": {
     "node": ">= 14"
@@ -66,7 +67,7 @@
   },
   "dependencies": {
     "clean-webpack-plugin": "4.0.0",
-    "commander": "7.2.0",
+    "commander": "9.3.0",
     "jszip": "3.10.0",
     "mkdirp": "1.0.4",
     "ncp": "2.0.0",

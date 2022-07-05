@@ -9,12 +9,12 @@
   "main": "./dist/extension.js",
   "keywords": [],
   "scripts": {
-    "build": "fox build",
-    "foxglove:prepublish": "fox build --mode production",
+    "build": "foxglove-extension build",
+    "foxglove:prepublish": "foxglove-extension build --mode production",
     "lint:ci": "eslint --report-unused-disable-directives .",
     "lint": "eslint --report-unused-disable-directives --fix .",
-    "local-install": "fox install",
-    "package": "fox package",
-    "pretest": "fox pretest"
+    "local-install": "foxglove-extension install",
+    "package": "foxglove-extension package",
+    "pretest": "foxglove-extension pretest"
   }
 }

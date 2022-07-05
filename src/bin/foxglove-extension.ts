@@ -1,9 +1,7 @@
-import program, { Option } from "commander";
+import { program, Option } from "commander";
 
-import { buildCommand } from "./build";
-import { createCommand } from "./create";
-import { fatal } from "./log";
-import { installCommand, packageCommand, publishCommand, PublishOptions } from "./package";
+import { buildCommand, installCommand, packageCommand, publishCommand, PublishOptions } from "..";
+import { fatal } from "../log";
 
 function main(task: Promise<void>): void {
   task.catch(fatal);
@@ -11,13 +9,6 @@ function main(task: Promise<void>): void {
 
 module.exports = function (argv: string[]): void {
   program.usage("<command> [options]");
-
-  program
-    .command("create <name>")
-    .description("Create a new extension")
-    .option("--cwd [cwd]", "Directory to create the extension in")
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    .action((name, { cwd }) => main(createCommand({ name, cwd })));
 
   program
     .command("build")
