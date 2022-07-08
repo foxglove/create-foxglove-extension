@@ -67,6 +67,7 @@ type State = {
     topic?: string;
   };
   appearance: {
+    displayDataTypes: boolean;
     indentWidth: string;
     theme: string;
   };
@@ -86,6 +87,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
         topic: partialState.data?.topic ?? "/pose",
       },
       appearance: {
+        displayDataTypes: partialState.appearance?.displayDataTypes ?? true,
         theme: partialState.appearance?.theme ?? "rjv-default",
         indentWidth: partialState.appearance?.indentWidth ?? "2",
       },
@@ -149,6 +151,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
                 { value: "4", label: "4" },
                 { value: "8", label: "8" },
               ],
+            },
+            displayDataTypes: {
+              label: "Display DataTypes",
+              input: "boolean",
+              value: state.appearance.displayDataTypes,
             },
           },
         },
@@ -219,6 +226,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       >
         <ReactJson
           src={messages ?? {}}
+          displayDataTypes={state.appearance.displayDataTypes}
           theme={state.appearance.theme as ThemeKeys}
           indentWidth={Number(state.appearance.indentWidth)}
         />
