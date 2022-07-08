@@ -1,0 +1,46 @@
+{
+  "name": "foxglove-panel-settings-example",
+  "displayName": "Foxglove Panel Settings Example",
+  "description": "This is an example of the use of the settings api in an extension panel.",
+  "publisher": "foxglove",
+  "homepage": "",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "main": "./dist/extension.js",
+  "keywords": [],
+  "scripts": {
+    "build": "foxglove-extension build",
+    "foxglove:prepublish": "foxglove-extension build --mode production",
+    "lint:ci": "eslint --report-unused-disable-directives .",
+    "lint": "eslint --report-unused-disable-directives --fix .",
+    "local-install": "foxglove-extension install",
+    "package": "foxglove-extension package",
+    "pretest": "foxglove-extension pretest"
+  },
+  "devDependencies": {
+    "@foxglove/eslint-plugin": "0.20.0",
+    "@foxglove/studio": "1.17.0",
+    "@types/lodash": "4.14.182",
+    "@types/react": "18.0.15",
+    "@types/react-dom": "18.0.6",
+    "@typescript-eslint/eslint-plugin": "5.30.5",
+    "@typescript-eslint/parser": "5.30.5",
+    "create-foxglove-extension": "0.5.1",
+    "eslint": "8.19.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jest": "26.5.3",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-react": "7.30.1",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "immer": "9.0.15",
+    "lodash": "4.17.21",
+    "prettier": "2.7.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "4.6.x"
+  },
+  "dependencies": {
+    "react-json-view": "1.21.3"
+  }
+}
