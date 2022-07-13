@@ -4,7 +4,7 @@
   "description": "This is an example of the use of the settings api in an extension panel.",
   "publisher": "foxglove",
   "homepage": "",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "UNLICENSED",
   "main": "./dist/extension.js",
   "keywords": [],
@@ -19,12 +19,12 @@
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "0.20.0",
-    "@foxglove/studio": "1.17.0",
+    "@foxglove/studio": "1.17.1",
     "@types/lodash": "4.14.182",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
-    "@typescript-eslint/eslint-plugin": "5.30.5",
-    "@typescript-eslint/parser": "5.30.5",
+    "@typescript-eslint/eslint-plugin": "5.30.6",
+    "@typescript-eslint/parser": "5.30.6",
     "create-foxglove-extension": "0.5.1",
     "eslint": "8.19.0",
     "eslint-config-prettier": "8.5.0",
@@ -39,6 +39,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-json-view": "1.21.3",
-    "typescript": "4.6.x"
+    "typescript": "4.7.4"
   }
 }
