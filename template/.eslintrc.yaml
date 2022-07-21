@@ -15,6 +15,10 @@ extends:
   - plugin:@foxglove/base
   - plugin:@foxglove/react
 
+rules:
+  react-hooks/exhaustive-deps:
+    - error
+
 overrides:
   - files: ["*.ts", "*.tsx"]
     extends:

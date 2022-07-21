@@ -9,7 +9,6 @@ import {
   SphereGeometry,
   WebGLRenderer,
 } from "three";
-
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 // Sets up our panel and our context onRender function.
@@ -68,6 +67,6 @@ function setup3dPanel(context: PanelExtensionContext) {
   animate();
 }
 
-export function initThreeDeePanel(context: PanelExtensionContext) {
+export function initThreeDeePanel(context: PanelExtensionContext): void {
   setup3dPanel(context);
 }
