@@ -1,17 +1,20 @@
+import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
 import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
-import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
+
+import DynamicIconComponent from "./DynamicIconComponent";
 import PngIcon from "./icon.png";
 import SvgIcon from "./icon.svg";
-import DynamicIconComponent from "./DynamicIconComponent";
 
 type ImageMessage = MessageEvent<CompressedImage>;
 
 // Draws the compressed image data into our canvas.
 async function drawImageOnCanvas(imgData: Uint8Array, canvas: HTMLCanvasElement, format: string) {
   const ctx = canvas.getContext("2d");
-  if (ctx == undefined) return;
+  if (ctx == undefined) {
+    return;
+  }
 
   // Create a bitmap from our raw compressed image data.
   const blob = new Blob([imgData], { type: `image/${format}` });
@@ -46,7 +49,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     if (imageTopic) {
       context.subscribe([imageTopic]);
     }
-  }, [imageTopic]);
+  }, [context, imageTopic]);
 
   // Choose our first available image topic as a default once we have a list of topics available.
   useEffect(() => {
@@ -78,7 +81,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
     context.watch("topics");
     context.watch("currentFrame");
-  }, []);
+  }, [context]);
 
   // Call our done function at the end of each render.
   useEffect(() => {
@@ -111,6 +114,6 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   );
 }
 
-export function initExamplePanel(context: PanelExtensionContext) {
+export function initExamplePanel(context: PanelExtensionContext): void {
   ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
 }

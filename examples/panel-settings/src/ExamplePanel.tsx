@@ -5,10 +5,10 @@ import {
   MessageEvent,
   SettingsTreeAction,
 } from "@foxglove/studio";
+import produce from "immer";
+import { set } from "lodash";
 import { useLayoutEffect, useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
-import { set } from "lodash";
-import produce from "immer";
 import ReactJson, { ThemeKeys } from "react-json-view";
 
 const ThemeOptions = [
@@ -86,19 +86,22 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   });
 
   // Respond to actions from the settings editor to update our state.
-  const actionHandler = useCallback((action: SettingsTreeAction) => {
-    if (action.action === "update") {
-      const { path, value } = action.payload;
-      // We use a combination of immer and lodash to produce a new state object
-      // so react will re-render our panel.
-      setState(produce((draft) => set(draft, path, value)));
+  const actionHandler = useCallback(
+    (action: SettingsTreeAction) => {
+      if (action.action === "update") {
+        const { path, value } = action.payload;
+        // We use a combination of immer and lodash to produce a new state object
+        // so react will re-render our panel.
+        setState(produce((draft) => set(draft, path, value)));
 
-      // If the topic was changed update our subscriptions.
-      if (path[1] === "topic") {
-        context.subscribe([value as string]);
+        // If the topic was changed update our subscriptions.
+        if (path[1] === "topic") {
+          context.subscribe([value as string]);
+        }
       }
-    }
-  }, []);
+    },
+    [context],
+  );
 
   // Update the settings editor every time our state or the list of available topics changes.
   useEffect(() => {
@@ -152,7 +155,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
         },
       },
     });
-  }, [actionHandler, state, topics]);
+  }, [context, actionHandler, state, topics]);
 
   // We use a layout effect to setup render handling for our panel. We also setup some topic subscriptions.
   useLayoutEffect(() => {
@@ -177,11 +180,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
       // currentFrame has messages on subscribed topics since the last render call
       if (renderState.currentFrame) {
-        if (Array.isArray(renderState.currentFrame)) {
-          setMessages(renderState.currentFrame[0]);
-        } else {
-          setMessages(renderState.currentFrame);
-        }
+        setMessages(renderState.currentFrame);
       }
     };
 
@@ -199,7 +198,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     if (state.data.topic) {
       context.subscribe([state.data.topic]);
     }
-  }, []);
+  }, [context, state.data.topic]);
 
   // invoke the done callback once the render is complete
   useEffect(() => {
@@ -226,6 +225,6 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   );
 }
 
-export function initExamplePanel(context: PanelExtensionContext) {
+export function initExamplePanel(context: PanelExtensionContext): void {
   ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
 }
