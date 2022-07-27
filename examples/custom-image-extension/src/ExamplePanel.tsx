@@ -9,6 +9,10 @@ import SvgIcon from "./icon.svg";
 
 type ImageMessage = MessageEvent<CompressedImage>;
 
+type PanelState = {
+  topic?: string;
+};
+
 // Draws the compressed image data into our canvas.
 async function drawImageOnCanvas(imgData: Uint8Array, canvas: HTMLCanvasElement, format: string) {
   const ctx = canvas.getContext("2d");
@@ -36,7 +40,10 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [imageTopic, setImageTopic] = useState<undefined | string>();
+  // Restore our state from the layout via the context.initialState property.
+  const [state, setState] = useState<PanelState>(() => {
+    return context.initialState as PanelState;
+  });
 
   // Filter all of our topics to find the ones with a CompresssedImage message.
   const imageTopics = useMemo(
@@ -46,17 +53,22 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
   // Subscribe to the new image topic when a new topic is chosen.
   useEffect(() => {
-    if (imageTopic) {
-      context.subscribe([imageTopic]);
+    if (state.topic) {
+      context.subscribe([state.topic]);
     }
-  }, [context, imageTopic]);
+  }, [context, state.topic]);
 
   // Choose our first available image topic as a default once we have a list of topics available.
   useEffect(() => {
-    if (imageTopic == undefined) {
-      setImageTopic(imageTopics[0]?.name);
+    if (state.topic == undefined) {
+      setState({ topic: imageTopics[0]?.name });
     }
-  }, [imageTopic, imageTopics]);
+  }, [state.topic, imageTopics]);
+
+  // Save our state to the layout when the topic changes.
+  useEffect(() => {
+    context.saveState({ topic: state.topic });
+  }, [state.topic]);
 
   // Every time we get a new image message draw it to the canvas.
   useEffect(() => {
@@ -93,8 +105,8 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       <div style={{ paddingBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
         <label>Choose a topic to render:</label>
         <select
-          value={imageTopic}
-          onChange={(event) => setImageTopic(event.target.value)}
+          value={state.topic}
+          onChange={(event) => setState({ topic: event.target.value })}
           style={{ flex: 1 }}
         >
           {imageTopics.map((topic) => (
