@@ -27,7 +27,7 @@ export default (
     },
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx"],
-      // The spirit of the fallback configuration is to do the expected thing when encountering a
+      // The spirit of our fallback configuration is to do the expected thing when encountering a
       // native nodejs require.
       //
       // i.e. It wouldn't be surprising the `fs` module doesn't work since there's no file system in
