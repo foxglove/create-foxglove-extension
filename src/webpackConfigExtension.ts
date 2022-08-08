@@ -27,6 +27,21 @@ export default (
     },
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx"],
+      // The spirit of our fallback configuration is to do the expected thing when encountering a
+      // native nodejs require.
+      //
+      // i.e. It wouldn't be surprising the `fs` module doesn't work since there's no file system in
+      // extensions but it would be surprising the `path` doesn't work since thats just string
+      // manipulation.
+      fallback: {
+        path: require.resolve("path-browserify"),
+
+        // Since extensions don't have file-system access we disable any fallback for importing `fs`
+        // This improves the out-of-the-box experience when importing files that require('fs') (i.e.
+        // generated emscripten js loaders) without having to make a custom configuration to disable
+        // fs fallback.
+        fs: false,
+      },
     },
     module: {
       rules: [
