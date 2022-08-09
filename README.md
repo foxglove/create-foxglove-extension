@@ -4,7 +4,7 @@
 
 ## Introduction
 
-[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels, and in the future it will support custom file formats or data sources and more. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
+[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
 
 ## Creating Your First Extension
 
@@ -56,9 +56,9 @@ yarn package
 
 This will produce a _.foxe_ file such as `helloworld-0.0.0.foxe`. This is essentially a ZIP archive containing your extension manifest and compiled code that can be opened by the Foxglove Studio application, which will unpack it and install it to the `~/.foxglove-studio/extensions` folder. Stay tuned for future instructions on how to publish Foxglove Studio extensions to a registry so other users can easily search for and install your extension.
 
-## Example Panels
+## Examples
 
-You can find examples of different kinds of extension panels in the `./examples` directory.
+You can find examples of different kinds of extensions in the `./examples` directory.
 
 ## Stay in touch
 
