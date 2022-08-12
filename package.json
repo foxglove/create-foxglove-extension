@@ -23,6 +23,7 @@
   "files": [
     "dist",
     "template",
+    "template/.gitignore",
     "tsconfig"
   ],
   "scripts": {
