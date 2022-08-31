@@ -51,9 +51,12 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     [topics],
   );
 
-  // Subscribe to the new image topic when a new topic is chosen.
   useEffect(() => {
+    // Save our state to the layout when the topic changes.
+    context.saveState({ topic: state.topic });
+
     if (state.topic) {
+      // Subscribe to the new image topic when a new topic is chosen.
       context.subscribe([state.topic]);
     }
   }, [context, state.topic]);
@@ -64,11 +67,6 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       setState({ topic: imageTopics[0]?.name });
     }
   }, [state.topic, imageTopics]);
-
-  // Save our state to the layout when the topic changes.
-  useEffect(() => {
-    context.saveState({ topic: state.topic });
-  }, [state.topic]);
 
   // Every time we get a new image message draw it to the canvas.
   useEffect(() => {
