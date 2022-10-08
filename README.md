@@ -46,6 +46,12 @@ module.exports = {
 };
 ```
 
+You can speed up compile time during development by editing your package.json in your extension by changing
+ `"foxglove:prepublish": "foxglove-extension build --mode production"` 
+to 
+`"foxglove:prepublish": "foxglove-extension build --mode development"`
+which will speed up compile time from ~20seconds to ~5seconds. You will also be able to set breakpoints in your chrome dev tools source panel because it does not compile your code to binary.
+
 ## Publishing Your Extension
 
 All of the metadata for your extension is contained in the _package.json_ file. Before publishing, make sure you have set `name`, `publisher`, `version`, and `description`. When you are ready to distribute your extension, run:
