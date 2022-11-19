@@ -25,6 +25,14 @@ jobs:
           - name: test
             command: yarn run test --maxWorkers=100%
 
+          # Run the bin scripts to make sure they run successfully
+          # Unit tests don't run the _bin_ scripts so this serves as safety net that the scripts run
+          - name: sample run
+            command: |
+              yarn run tsc
+              node dist/bin/foxglove-extension.js --help
+              node dist/bin/create-foxglove-extension sample
+
     name: ${{ matrix.config.name }} (${{ matrix.os }})
 
     steps:
