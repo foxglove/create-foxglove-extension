@@ -21,7 +21,10 @@ export default (
       filename: "extension.js",
       libraryTarget: "commonjs2",
     },
-    devtool: isDev ? "eval-source-map" : "source-map",
+    // Always use the eval-source-map option so the source map is included in the source file.
+    // Because studio _evals_ the extension script to run it - the source map must be inline with
+    // the source file. Using a separate source map file does not work.
+    devtool: "eval-source-map",
     externals: {
       "@foxglove/studio": "@foxglove/studio",
     },
