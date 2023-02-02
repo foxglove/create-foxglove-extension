@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { createHash } from "crypto";
 import { createReadStream, createWriteStream } from "fs";
-import { mkdir, readFile, readdir, stat } from "fs/promises";
+import { mkdir, readFile, readdir, stat, realpath } from "fs/promises";
 import JSZip from "jszip";
 import ncp from "ncp";
 import fetch from "node-fetch";
@@ -279,16 +279,24 @@ async function install(
   process.chdir(extensionPath);
 
   const dirName = getPackageDirname(pkg);
-  const destDir = join(homedir(), ".foxglove-studio", "extensions", dirName);
+  const homeDir = homedir();
+  const snapDataDir = await realpath(join(homedir(), "snap", "foxglove-studio", "current"));
 
-  await rmdir(destDir);
-  await mkdir(destDir, { recursive: true });
+  for (const dir of [homeDir, snapDataDir]) {
+    if (!isDirectory(dir)) {
+      continue;
+    }
 
-  info(`Copying files to ${destDir}`);
-  for (const file of files) {
-    const target = join(destDir, file);
-    info(`${file} -> ${target}`);
-    await cpR(file, target, { stopOnErr: true });
+    const destDir = join(dir, ".foxglove-studio", "extensions", dirName);
+    await rmdir(destDir);
+    await mkdir(destDir, { recursive: true });
+
+    info(`Copying files to ${destDir}`);
+    for (const file of files) {
+      const target = join(destDir, file);
+      info(`  - ${file} -> ${target}`);
+      await cpR(file, target, { stopOnErr: true });
+    }
   }
 }
 
