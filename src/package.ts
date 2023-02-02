@@ -283,7 +283,7 @@ async function install(
   const snapDataDir = await realpath(join(homedir(), "snap", "foxglove-studio", "current"));
 
   for (const dir of [homeDir, snapDataDir]) {
-    if (!isDirectory(dir)) {
+    if (!(await isDirectory(dir))) {
       continue;
     }
 
