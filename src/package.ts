@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { createHash } from "crypto";
 import { createReadStream, createWriteStream } from "fs";
-import { mkdir, readFile, readdir, stat, realpath } from "fs/promises";
+import { mkdir, readFile, readdir, stat } from "fs/promises";
 import JSZip from "jszip";
 import ncp from "ncp";
 import fetch from "node-fetch";
@@ -11,7 +11,7 @@ import rimraf from "rimraf";
 import { promisify } from "util";
 
 import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
-import { info } from "./log";
+import { info, warn } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -280,10 +280,15 @@ async function install(
 
   const dirName = getPackageDirname(pkg);
   const homeDir = homedir();
-  const snapDataDir = await realpath(join(homedir(), "snap", "foxglove-studio", "current"));
+  const snapDataDir = join(homedir(), "snap", "foxglove-studio", "current");
 
   for (const dir of [homeDir, snapDataDir]) {
-    if (!(await isDirectory(dir))) {
+    try {
+      if (!(await isDirectory(dir))) {
+        continue;
+      }
+    } catch (err) {
+      warn(`Skipping installation into ${dir}: Directory not found`);
       continue;
     }
 
