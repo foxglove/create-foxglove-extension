@@ -11,7 +11,7 @@ import rimraf from "rimraf";
 import { promisify } from "util";
 
 import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
-import { info, warn } from "./log";
+import { info } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -287,8 +287,7 @@ async function install(
       if (!(await isDirectory(dir))) {
         continue;
       }
-    } catch (err) {
-      warn(`Skipping installation into ${dir}: Directory not found`);
+    } catch (_err) {
       continue;
     }
 
