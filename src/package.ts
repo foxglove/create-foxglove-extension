@@ -11,7 +11,7 @@ import rimraf from "rimraf";
 import { promisify } from "util";
 
 import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
-import { info } from "./log";
+import { fatal, info } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -279,16 +279,34 @@ async function install(
   process.chdir(extensionPath);
 
   const dirName = getPackageDirname(pkg);
-  const destDir = join(homedir(), ".foxglove-studio", "extensions", dirName);
+  const defaultStudioDir = join(homedir(), ".foxglove-studio");
+  const snapStudioDir = join(homedir(), "snap", "foxglove-studio", "current", ".foxglove-studio");
 
-  await rmdir(destDir);
-  await mkdir(destDir, { recursive: true });
+  let installed = false;
+  for (const studioDir of [defaultStudioDir, snapStudioDir]) {
+    try {
+      if (!(await isDirectory(studioDir))) {
+        continue;
+      }
+    } catch (_err) {
+      continue;
+    }
 
-  info(`Copying files to ${destDir}`);
-  for (const file of files) {
-    const target = join(destDir, file);
-    info(`${file} -> ${target}`);
-    await cpR(file, target, { stopOnErr: true });
+    const destDir = join(studioDir, "extensions", dirName);
+    await rmdir(destDir);
+    await mkdir(destDir, { recursive: true });
+
+    info(`Copying files to ${destDir}`);
+    for (const file of files) {
+      const target = join(destDir, file);
+      info(`  - ${file} -> ${target}`);
+      await cpR(file, target, { stopOnErr: true });
+    }
+    installed = true;
+  }
+
+  if (!installed) {
+    fatal(`Failed to install extension: Unable to detect Studio installation.`);
   }
 }
 
