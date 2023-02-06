@@ -47,7 +47,7 @@ function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.
         console.error(error);
       }
     },
-    [context],
+    [context.callService],
   );
 
   return (
