@@ -1,5 +1,5 @@
 {
-  "name": "foxglove-example-custom-image-extension-panel",
+  "name": "foxglove-extension-demo",
   "displayName": "Foxglove Example Custom Image Extension Panel",
   "description": "",
   "publisher": "Foxglove",
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@foxglove/eslint-plugin": "0.20.0",
     "@foxglove/schemas": "0.2.0",
-    "@foxglove/studio": "1.17.1",
+    "@foxglove/studio": "1.43.0",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
     "@typescript-eslint/eslint-plugin": "5.30.6",

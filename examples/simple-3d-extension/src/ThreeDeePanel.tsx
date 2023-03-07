@@ -1,4 +1,4 @@
-import { PanelExtensionContext, RenderState } from "@foxglove/studio";
+import { RenderState, ExtensionPanelRegistration } from "@foxglove/studio";
 import {
   AmbientLight,
   Mesh,
@@ -12,7 +12,7 @@ import {
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 // Sets up our panel and our context onRender function.
-function setup3dPanel(context: PanelExtensionContext) {
+export const initThreeDeePanel: ExtensionPanelRegistration["initPanel"] = (context) => {
   // Create core scene components.
   const renderer = new WebGLRenderer();
   renderer.setClearColor(0x111111, 1);
@@ -65,8 +65,9 @@ function setup3dPanel(context: PanelExtensionContext) {
   }
 
   animate();
-}
 
-export function initThreeDeePanel(context: PanelExtensionContext): void {
-  setup3dPanel(context);
-}
+  // Return a cleanup function to run when the panel is removed
+  return () => {
+    renderer.dispose();
+  };
+};
