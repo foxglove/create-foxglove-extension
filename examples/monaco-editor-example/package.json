@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "0.20.0",
-    "@foxglove/studio": "1.21.0",
+    "@foxglove/studio": "1.43.0",
     "@monaco-editor/react": "4.4.5",
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",

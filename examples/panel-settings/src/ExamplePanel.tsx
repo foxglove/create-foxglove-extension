@@ -1,5 +1,6 @@
 import {
   PanelExtensionContext,
+  ExtensionPanelRegistration,
   RenderState,
   Topic,
   MessageEvent,
@@ -225,6 +226,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   );
 }
 
-export function initExamplePanel(context: PanelExtensionContext): void {
+export const initExamplePanel: ExtensionPanelRegistration["initPanel"] = (context) => {
   ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
-}
+
+  // Return a function to run when the panel is removed
+  return () => {
+    ReactDOM.unmountComponentAtNode(context.panelElement);
+  };
+};
