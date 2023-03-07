@@ -96,7 +96,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
         // If the topic was changed update our subscriptions.
         if (path[1] === "topic") {
-          context.subscribe([value as string]);
+          context.subscribe([{ topic: value as string }]);
         }
       }
     },
@@ -196,7 +196,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
     // Subscribe to our initial topic.
     if (state.data.topic) {
-      context.subscribe([state.data.topic]);
+      context.subscribe([{ topic: state.data.topic }]);
     }
   }, [context, state.data.topic]);
 
