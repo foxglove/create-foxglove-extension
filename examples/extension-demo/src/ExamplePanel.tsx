@@ -53,7 +53,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
     if (state.topic) {
       // Subscribe to the new image topic when a new topic is chosen.
-      context.subscribe([state.topic]);
+      context.subscribe([{ topic: state.topic }]);
     }
   }, [context, state.topic]);
 
