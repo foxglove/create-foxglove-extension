@@ -293,7 +293,7 @@ async function install(
     }
 
     const destDir = join(studioDir, "extensions", dirName);
-    await rmdir(destDir);
+    await rimraf(destDir);
     await mkdir(destDir, { recursive: true });
 
     info(`Copying files to ${destDir}`);
@@ -329,12 +329,6 @@ async function pathExists(filename: string, fileType: FileType): Promise<boolean
 
 async function isDirectory(pathname: string): Promise<boolean> {
   return (await stat(pathname)).isDirectory();
-}
-
-async function rmdir(dirname: string): Promise<void> {
-  return await new Promise<void>((c, e) =>
-    rimraf(dirname, (err) => (err != undefined ? e(err) : c())),
-  );
 }
 
 async function addDirToZip(zip: JSZip, baseDir: string, dirname: string): Promise<void> {
