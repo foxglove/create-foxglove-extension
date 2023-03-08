@@ -1,4 +1,4 @@
-import { PanelExtensionContext, ExtensionPanelRegistration, RenderState } from "@foxglove/studio";
+import { PanelExtensionContext, RenderState } from "@foxglove/studio";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import ReactJson from "react-json-view";
@@ -107,11 +107,11 @@ function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.
   );
 }
 
-export const initCallServicePanel: ExtensionPanelRegistration["initPanel"] = (context) => {
+export function initCallServicePanel(context: PanelExtensionContext): () => void {
   ReactDOM.render(<CallServicePanel context={context} />, context.panelElement);
 
   // Return a function to run when the panel is removed
   return () => {
     ReactDOM.unmountComponentAtNode(context.panelElement);
   };
-};
+}

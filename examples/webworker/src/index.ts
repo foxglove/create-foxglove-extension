@@ -1,8 +1,8 @@
-import { ExtensionContext, ExtensionPanelRegistration } from "@foxglove/studio";
+import { ExtensionContext, PanelExtensionContext } from "@foxglove/studio";
 
 import PanelWorker from "./Panel.worker";
 
-const initPanel: ExtensionPanelRegistration["initPanel"] = (context) => {
+function initPanel(context: PanelExtensionContext): () => void {
   const result = new PanelWorker();
   result.addEventListener("message", (msg) => {
     const msgDiv = document.createElement("div");
@@ -14,7 +14,7 @@ const initPanel: ExtensionPanelRegistration["initPanel"] = (context) => {
   return () => {
     result.terminate();
   };
-};
+}
 
 export function activate(extensionContext: ExtensionContext): void {
   extensionContext.registerPanel({

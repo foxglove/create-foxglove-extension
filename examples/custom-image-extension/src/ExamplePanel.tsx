@@ -1,11 +1,5 @@
 import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
-import {
-  PanelExtensionContext,
-  ExtensionPanelRegistration,
-  RenderState,
-  Topic,
-  MessageEvent,
-} from "@foxglove/studio";
+import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
 
@@ -130,11 +124,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   );
 }
 
-export const initExamplePanel: ExtensionPanelRegistration["initPanel"] = (context) => {
+export function initExamplePanel(context: PanelExtensionContext): () => void {
   ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
 
   // Return a function to run when the panel is removed
   return () => {
     ReactDOM.unmountComponentAtNode(context.panelElement);
   };
-};
+}
