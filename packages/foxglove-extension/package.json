@@ -1,0 +1,40 @@
+{
+  "name": "@foxglove/extension-scripts",
+  "version": "0.8.0",
+  "publisher": "foxglove",
+  "description": "Scripts for building and Foxglove Studio extensions",
+  "license": "MIT",
+  "keywords": [
+    "foxglove",
+    "robotics",
+    "ros",
+    "visualization"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxglove/create-foxglove-extension.git"
+  },
+  "bin": {
+    "foxglove-extension": "dist/bin/foxglove-extension.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">= 14"
+  },
+  "dependencies": {
+    "clean-webpack-plugin": "4.0.0",
+    "commander": "10.0.0",
+    "jszip": "3.10.1",
+    "mkdirp": "2.1.5",
+    "ncp": "2.0.0",
+    "node-fetch": "2.6.9",
+    "path-browserify": "1.0.1",
+    "rimraf": "4.3.1",
+    "ts-loader": "9.4.2",
+    "webpack": "5.75.0"
+  }
+}

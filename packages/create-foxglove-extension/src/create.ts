@@ -10,11 +10,11 @@ import { info } from "./log";
 const DEPENDENCIES = [
   "@foxglove/eslint-plugin",
   "@foxglove/studio",
+  "@foxglove/extension-scripts",
   "@types/react-dom",
   "@types/react",
   "@typescript-eslint/eslint-plugin",
   "@typescript-eslint/parser",
-  "create-foxglove-extension",
   "eslint-config-prettier",
   "eslint-plugin-import",
   "eslint-plugin-jest",

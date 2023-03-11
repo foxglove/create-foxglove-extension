@@ -1,0 +1,10 @@
+{
+  "include": ["./src/**/*.ts"],
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020"],
+    "rootDir": "./src",
+    "outDir": "./dist"
+  }
+}

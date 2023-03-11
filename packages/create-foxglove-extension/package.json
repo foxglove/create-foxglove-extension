@@ -1,0 +1,32 @@
+{
+  "name": "create-foxglove-extension",
+  "version": "0.8.0",
+  "publisher": "foxglove",
+  "description": "Create Foxglove Studio extensions",
+  "license": "MIT",
+  "keywords": [
+    "foxglove",
+    "robotics",
+    "ros",
+    "visualization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxglove/create-foxglove-extension.git"
+  },
+  "bin": {
+    "create-foxglove-extension": "dist/bin/create-foxglove-extension.js"
+  },
+  "files": [
+    "dist",
+    "template",
+    "template/.gitignore",
+    "tsconfig"
+  ],
+  "engines": {
+    "node": ">= 14"
+  },
+  "dependencies": {
+    "sanitize-filename": "1.6.3"
+  }
+}

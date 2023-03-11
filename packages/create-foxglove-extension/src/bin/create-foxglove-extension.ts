@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { program } from "commander";
 
-import { createCommand } from "..";
+import { createCommand } from "../create";
 
 program
   .description("Creates a new Foxglove Studio extension")

@@ -1,6 +1,5 @@
 {
-  "extends": "create-foxglove-extension/tsconfig/tsconfig.json",
-
+  "extends": "foxglove-extension/tsconfig/tsconfig.json",
   "include": ["./src/**/*"],
   "compilerOptions": {
     "rootDir": "./src",

@@ -1,31 +1,13 @@
 {
-  "name": "create-foxglove-extension",
-  "version": "0.8.0",
-  "publisher": "foxglove",
-  "description": "Create and package Foxglove Studio extensions",
+  "name": "root",
+  "private": true,
+  "version": "0.0.0",
   "license": "MIT",
-  "keywords": [
-    "foxglove",
-    "robotics",
-    "ros",
-    "visualization"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/foxglove/create-foxglove-extension.git"
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   },
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "bin": {
-    "create-foxglove-extension": "dist/bin/create-foxglove-extension.js",
-    "foxglove-extension": "dist/bin/foxglove-extension.js"
-  },
-  "files": [
-    "dist",
-    "template",
-    "template/.gitignore",
-    "tsconfig"
-  ],
   "scripts": {
     "build": "tsc",
     "lint:ci": "eslint --report-unused-disable-directives .",
@@ -65,18 +47,5 @@
     "tmp": "0.2.1",
     "typescript": "4.9.5",
     "yarn": "1.22.19"
-  },
-  "dependencies": {
-    "clean-webpack-plugin": "4.0.0",
-    "commander": "10.0.0",
-    "jszip": "3.10.1",
-    "mkdirp": "2.1.5",
-    "ncp": "2.0.0",
-    "node-fetch": "2.6.9",
-    "path-browserify": "1.0.1",
-    "rimraf": "4.3.1",
-    "sanitize-filename": "1.6.3",
-    "ts-loader": "9.4.2",
-    "webpack": "5.75.0"
   }
 }
