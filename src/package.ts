@@ -11,7 +11,7 @@ import rimraf from "rimraf";
 import { promisify } from "util";
 
 import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
-import { fatal, info } from "./log";
+import { info } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -279,34 +279,35 @@ async function install(
   process.chdir(extensionPath);
 
   const dirName = getPackageDirname(pkg);
-  const defaultStudioDir = join(homedir(), ".foxglove-studio");
-  const snapStudioDir = join(homedir(), "snap", "foxglove-studio", "current", ".foxglove-studio");
 
-  let installed = false;
-  for (const studioDir of [defaultStudioDir, snapStudioDir]) {
-    try {
-      if (!(await isDirectory(studioDir))) {
-        continue;
-      }
-    } catch (_err) {
-      continue;
-    }
-
-    const destDir = join(studioDir, "extensions", dirName);
-    await rimraf(destDir);
-    await mkdir(destDir, { recursive: true });
-
-    info(`Copying files to ${destDir}`);
-    for (const file of files) {
-      const target = join(destDir, file);
-      info(`  - ${file} -> ${target}`);
-      await cpR(file, target, { stopOnErr: true });
-    }
-    installed = true;
+  // The snap package does not use the regular _home_ directory but instead uses a separate snap
+  // application directory to limit filesystem access.
+  //
+  // We look for this app directory as a signal that the user installed the snap package rather than
+  // the deb package. If we detect a snap installation directory, we install to the snap path and
+  // exit.
+  const snapAppDir = join(homedir(), "snap", "foxglove-studio", "current");
+  if (await isDirectory(snapAppDir)) {
+    info(`Detected snap install at ${snapAppDir}`);
+    const extensionDir = join(snapAppDir, ".foxglove-studio", "extensions", dirName);
+    await copyFiles(files, extensionDir);
+    return;
   }
 
-  if (!installed) {
-    fatal(`Failed to install extension: Unable to detect Studio installation.`);
+  // If there is no snap install present then we install to the home directory
+  const defaultExtensionDir = join(homedir(), ".foxglove-studio", "extensions", dirName);
+  await copyFiles(files, defaultExtensionDir);
+}
+
+async function copyFiles(files: string[], destDir: string): Promise<void> {
+  await rimraf(destDir);
+  await mkdir(destDir, { recursive: true });
+
+  info(`Copying files to ${destDir}`);
+  for (const file of files) {
+    const target = join(destDir, file);
+    info(`  - ${file} -> ${target}`);
+    await cpR(file, target, { stopOnErr: true });
   }
 }
 
@@ -328,7 +329,12 @@ async function pathExists(filename: string, fileType: FileType): Promise<boolean
 }
 
 async function isDirectory(pathname: string): Promise<boolean> {
-  return (await stat(pathname)).isDirectory();
+  try {
+    return (await stat(pathname)).isDirectory();
+  } catch (_) {
+    // ignore any error from stat and assume not a directory
+  }
+  return false;
 }
 
 async function addDirToZip(zip: JSZip, baseDir: string, dirname: string): Promise<void> {
