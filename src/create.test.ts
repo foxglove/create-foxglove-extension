@@ -48,5 +48,11 @@ describe("createCommand", () => {
 
     // make sure the skeleton package is buildable and packagable
     await packageCommand({ cwd: destDir });
+
+    // make sure we don't generate unneeded .d.ts files
+    const builtContents = await readdir(path.join(destDir, "dist"), { withFileTypes: true });
+    const builtFiles = builtContents.filter((entry) => entry.isFile()).map((entry) => entry.name);
+    expect(builtFiles).not.toContain("ExamplePanel.d.ts");
+    expect(builtFiles).not.toContain("index.d.ts");
   });
 });
