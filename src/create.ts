@@ -105,19 +105,20 @@ async function copyTemplateFile(
 }
 
 async function installDependencies(extensionDir: string, deps: string[]): Promise<void> {
-  const command = "yarnpkg";
-  const args = ["add", "--exact", "--cwd", extensionDir, "--dev", ...deps];
+  const command = "npm";
+  const args = ["install", "--save-exact", "--save-dev", ...deps];
 
   info(`${command} ${args.join(" ")}`);
   await new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, {
       shell: true,
       stdio: "inherit",
+      cwd: extensionDir,
       env: { ...process.env },
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        return reject(new Error(`yarnpkg exited with code ${code ?? "<null>"}`));
+        return reject(new Error(`npm exited with code ${code ?? "<null>"}`));
       }
       resolve();
     });
