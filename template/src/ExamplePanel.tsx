@@ -1,10 +1,16 @@
-import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
-import { useLayoutEffect, useEffect, useState } from "react";
+import {
+  Immutable,
+  MessageEvent,
+  PanelExtensionContext,
+  RenderState,
+  Topic,
+} from "@foxglove/studio";
+import { useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
-  const [topics, setTopics] = useState<readonly Topic[] | undefined>();
-  const [messages, setMessages] = useState<readonly MessageEvent<unknown>[] | undefined>();
+  const [topics, setTopics] = useState<Immutable<Topic[]> | undefined>();
+  const [messages, setMessages] = useState<Immutable<MessageEvent[]> | undefined>();
 
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
@@ -17,7 +23,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     // Without a render handler your panel will never receive updates.
     //
     // The render handler could be invoked as often as 60hz during playback if fields are changing often.
-    context.onRender = (renderState: RenderState, done) => {
+    context.onRender = (renderState: Immutable<RenderState>, done) => {
       // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
       // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
       // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
