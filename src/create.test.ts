@@ -39,6 +39,8 @@ describe("createCommand", () => {
     expect(files).toContain("package.json");
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
+    expect(files).toContain("package-lock.json");
+    expect(files).not.toContain("yarn.lock");
 
     const packageJsonStr = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
     expect(packageJsonStr).not.toContain("${NAME}");

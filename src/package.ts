@@ -193,10 +193,10 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
     return;
   }
 
-  info(`Executing prepublish script 'yarn run foxglove:prepublish'...`);
+  info(`Executing prepublish script 'npm run foxglove:prepublish'...`);
 
   await new Promise<void>((c, e) => {
-    const tool = "yarn";
+    const tool = "npm";
     const cwd = extensionPath;
     const child = spawn(tool, ["run", "foxglove:prepublish"], {
       cwd,
