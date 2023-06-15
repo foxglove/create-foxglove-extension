@@ -13,10 +13,13 @@ export function activate(extensionContext: ExtensionContext): void {
       console.log({ globalVariables });
       const varVal = globalVariables["foo"] ?? "back";
       return new Map([
-        ["/CAM_FRONT/image_rect_compressed", ["/remapped_cam_front/image_rect_compressed"]],
-        ["/CAM_FRONT/camera_info", ["/remapped_cam_front/camera_info"]],
-        ["/CAM_BACK/image_rect_compressed", [`/remapped_cam_${varVal}/image_rect_compressed`]],
-        ["/CAM_BACK/camera_info", [`/remapped_cam_${varVal}/camera_info`]],
+        ["/imu", "/pose"], // this will be flagged as an problem by the player
+        ["/odom", "/remapped_odom"],
+        ["/map", "/remapped_odom"], // this will be flagged as an problem by the player
+        ["/CAM_FRONT/image_rect_compressed", "/remapped_cam_front/image_rect_compressed"],
+        ["/CAM_FRONT/camera_info", "/remapped_cam_front/camera_info"],
+        ["/CAM_BACK/image_rect_compressed", `/remapped_cam_${varVal}/image_rect_compressed`],
+        ["/CAM_BACK/camera_info", `/remapped_cam_${varVal}/camera_info`],
       ]);
     },
   );
