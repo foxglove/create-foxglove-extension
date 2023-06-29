@@ -1,26 +1,30 @@
 import { ExtensionContext } from "@foxglove/studio";
 
 export function activate(extensionContext: ExtensionContext): void {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-  (extensionContext as any).registerTopicMapper(
+  // Register a topic alias function that takes the current list of datasource topics and
+  // global variables and outputs a list of topic aliases.
+  (extensionContext as any).registerTopicAliases(
     ({
-      topics: _,
+      topics,
       globalVariables,
     }: {
-      topics: string[];
+      topics: { name: string; schemaName?: string }[];
       globalVariables: Record<string, string>;
     }) => {
-      console.log({ globalVariables });
-      const varVal = globalVariables["foo"] ?? "back";
-      return new Map([
-        ["/imu", "/pose"], // this will be flagged as an problem by the player
-        ["/odom", "/remapped_odom"],
-        ["/map", "/remapped_odom"], // this will be flagged as an problem by the player
-        ["/CAM_FRONT/image_rect_compressed", "/remapped_cam_front/image_rect_compressed"],
-        ["/CAM_FRONT/camera_info", "/remapped_cam_front/camera_info"],
-        ["/CAM_BACK/image_rect_compressed", `/remapped_cam_${varVal}/image_rect_compressed`],
-        ["/CAM_BACK/camera_info", `/remapped_cam_${varVal}/camera_info`],
-      ]);
+      // Output a list of aliased topics, in this case influenced by the current value of
+      // the global variable `device`.
+      const device = globalVariables["device"] ?? "default";
+      const bulkAliasedTopics = topics.map((topic) => {
+        return {
+          sourceTopicName: topic.name,
+          name: `/bulk_aliases${topic.name}`,
+        };
+      });
+      return [
+        { sourceTopicName: "/imu", name: `/aliased_imu_${device}` },
+        { sourceTopicName: "/odom", name: "/aliased_odom" },
+        ...bulkAliasedTopics,
+      ];
     },
   );
 }
