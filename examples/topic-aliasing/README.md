@@ -5,6 +5,9 @@
 This is an example of a topic alias Foxglove Studio extension. Topic alias extensions
 dynamically alias data source topics to topics with new names of your choosing.
 
+This example automatically remaps all topics as well as remapping a specific topic
+selected by the user by setting the `camera` global variable.
+
 ## Develop
 
 Extension development uses the `npm` package manager to install development dependencies
