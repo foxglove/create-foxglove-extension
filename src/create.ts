@@ -18,7 +18,7 @@ const DEPENDENCIES = [
   "eslint-config-prettier",
   "eslint-plugin-import",
   "eslint-plugin-jest",
-  "eslint-plugin-prettier",
+  "eslint-plugin-prettier@4",
   "eslint-plugin-react-hooks",
   "eslint-plugin-react",
   "eslint-plugin-filenames",
