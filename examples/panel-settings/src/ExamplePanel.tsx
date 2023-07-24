@@ -55,7 +55,9 @@ const ThemeOptions = [
 // persist to the layout.
 type State = {
   data: {
+    label: string;
     topic?: string;
+    visible: boolean;
   };
   appearance: {
     displayDataTypes: boolean;
@@ -75,7 +77,9 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     const partialState = context.initialState as Partial<State>;
     return {
       data: {
+        label: partialState.data?.label ?? "Data",
         topic: partialState.data?.topic ?? "/pose",
+        visible: partialState.data?.visible ?? true,
       },
       appearance: {
         displayDataTypes: partialState.appearance?.displayDataTypes ?? true,
@@ -90,8 +94,10 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     (action: SettingsTreeAction) => {
       if (action.action === "update") {
         const { path, value } = action.payload;
-        // We use a combination of immer and lodash to produce a new state object
-        // so react will re-render our panel.
+        // We use a combination of immer and lodash to produce a new state object so react will
+        // re-render our panel. Because our data node contains a label & and visibility property
+        // this will handle editing the label and toggling the node visibility without any special
+        // handling.
         setState(produce((draft) => set(draft, path, value)));
 
         // If the topic was changed update our subscriptions.
@@ -115,7 +121,13 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       actionHandler,
       nodes: {
         data: {
-          label: "Data",
+          // Our label comes from the label in our state and will update to reflect changes to the
+          // value in state.
+          label: state.data.label,
+          // Setting this to true allows the user to edit the label of this node.
+          renamable: true,
+          // A non-undefined value here allows the user to toggle the visibility of this node.
+          visible: state.data.visible,
           icon: "Cube",
           fields: {
             topic: {
@@ -157,25 +169,25 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     });
   }, [context, actionHandler, state, topics]);
 
-  // We use a layout effect to setup render handling for our panel. We also setup some topic subscriptions.
+  // We use a layout effect to setup render handling for our panel. We also setup some topic
+  // subscriptions.
   useLayoutEffect(() => {
-    // The render handler is run by the broader studio system during playback when your panel
-    // needs to render because the fields it is watching have changed. How you handle rendering depends on your framework.
-    // You can only setup one render handler - usually early on in setting up your panel.
-    //
-    // Without a render handler your panel will never receive updates.
-    //
-    // The render handler could be invoked as often as 60hz during playback if fields are changing often.
+    // The render handler is run by the broader studio system during playback when your panel needs
+    // to render because the fields it is watching have changed. How you handle rendering depends on
+    // your framework. You can only setup one render handler - usually early on in setting up your
+    // panel.  Without a render handler your panel will never receive updates.  The render handler
+    // could be invoked as often as 60hz during playback if fields are changing often.
     context.onRender = (renderState: RenderState, done) => {
-      // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
-      // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
-      // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
-      //
-      // Set the done callback into a state variable to trigger a re-render.
+      // render functions receive a _done_ callback. You MUST call this callback to indicate your
+      // panel has finished rendering. Your panel will not receive another render callback until
+      // _done_ is called from a prior render. If your panel is not done rendering before the next
+      // render call, studio shows a notification to the user that your panel is delayed.  Set the
+      // done callback into a state variable to trigger a re-render.
       setRenderDone(() => done);
 
-      // We may have new topics - since we are also watching for messages in the current frame, topics may not have changed
-      // It is up to you to determine the correct action when state has not changed.
+      // We may have new topics - since we are also watching for messages in the current frame,
+      // topics may not have changed It is up to you to determine the correct action when state has
+      // not changed.
       setTopics(renderState.topics);
 
       // currentFrame has messages on subscribed topics since the last render call
@@ -184,8 +196,9 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       }
     };
 
-    // After adding a render handler, you must indicate which fields from RenderState will trigger updates.
-    // If you do not watch any fields then your panel will never render since the panel context will assume you do not want any updates.
+    // After adding a render handler, you must indicate which fields from RenderState will trigger
+    // updates. If you do not watch any fields then your panel will never render since the panel
+    // context will assume you do not want any updates.
 
     // tell the panel context that we care about any update to the _topic_ field of RenderState
     context.watch("topics");
