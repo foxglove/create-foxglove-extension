@@ -353,7 +353,12 @@ async function addDirToZip(zip: JSZip, baseDir: string, dirname: string): Promis
 function addFileToZip(zip: JSZip, baseDir: string, filename: string) {
   const fullPath = join(baseDir, filename);
   info(`archiving ${fullPath}`);
-  zip.file<"stream">(filename, createReadStream(fullPath), { createFolders: true, date: MOD_DATE });
+  // zip file paths must use / as separator.
+  const zipFilename = filename.replace(/\\/g, "/");
+  zip.file<"stream">(zipFilename, createReadStream(fullPath), {
+    createFolders: true,
+    date: MOD_DATE,
+  });
 }
 
 function inDirectory(directory: string, pathname: string): boolean {
