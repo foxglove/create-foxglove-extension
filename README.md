@@ -4,9 +4,9 @@
 
 ## Introduction
 
-[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create
-extensions, or custom code that is loaded and executed inside the Foxglove Studio
-application. This can be used to add custom panels. Extensions are authored in TypeScript
+[Foxglove](https://foxglove.dev) allows developers to create
+[extensions](https://docs.foxglove.dev/docs/visualization/extensions/introduction), or custom code
+that is loaded and executed inside the Foxglove application. Extensions are authored in TypeScript
 using the `@foxglove/studio` SDK.
 
 ## Creating Your First Extension
@@ -29,10 +29,10 @@ npm install
 
 This installs all of the dependencies needed to edit and build the extension. You can use
 any editor to work on this project, although [VSCode](https://code.visualstudio.com/) is
-the best supported IDE for authoring Foxglove Studio extensions. Look at the files
+the best supported IDE for authoring Foxglove extensions. Look at the files
 `src/index.ts` and `src/ExamplePanel.tsx` for a simple example of creating a React element
 and registering it as a custom panel. To build and install this extension into your local
-Foxglove Studio extensions folder, run:
+Foxglove extensions folder, run:
 
 ```sh
 npm run local-install
@@ -40,11 +40,11 @@ npm run local-install
 
 This should create a folder under your home directory such as
 `~/.foxglove-studio/extensions/unknown.helloworld-0.0.0` containing your compiled
-extension. Start Foxglove Studio. If everything succeeded, you should be able to add a new
-panel in Foxglove Studio named _"ExamplePanel"_. Each time you make a change to your
+extension. Start Foxglove. If everything succeeded, you should be able to add a new
+panel in Foxglove named _"ExamplePanel"_. Each time you make a change to your
 extension, you will need to run `npm run local-install` again to build it and copy the
-build output to the Foxglove Studio extensions folder in your home directory. You can
-either reload Foxglove Studio or close and reopen it to load your latest extension code.
+build output to the Foxglove extensions folder in your home directory. You can
+either reload Foxglove or close and reopen it to load your latest extension code.
 
 If you just want to confirm your code compiles without installing it locally, run `npm run build`.
 
@@ -75,9 +75,9 @@ npm run package
 
 This will produce a _.foxe_ file such as `helloworld-0.0.0.foxe`. This is essentially a
 ZIP archive containing your extension manifest and compiled code that can be opened by the
-Foxglove Studio application, which will unpack it and install it to the
+Foxglove application, which will unpack it and install it to the
 `~/.foxglove-studio/extensions` folder. Stay tuned for future instructions on how to
-publish Foxglove Studio extensions to a registry so other users can easily search for and
+publish Foxglove extensions to a registry so other users can easily search for and
 install your extension.
 
 ## Examples

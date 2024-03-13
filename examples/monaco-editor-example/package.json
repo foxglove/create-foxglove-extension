@@ -1,7 +1,7 @@
 {
   "name": "monaco-editor-example",
   "displayName": "Foxglove Monaco Editor Example",
-  "description": "Example of embedding the Monoco editor in a Foxglove Studio extension.",
+  "description": "Example of embedding the Monoco editor in a Foxglove extension panel.",
   "publisher": "Foxglove",
   "homepage": "https://foxglove.dev",
   "version": "1.0.0",
