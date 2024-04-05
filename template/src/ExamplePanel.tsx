@@ -63,11 +63,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
         <b style={{ borderBottom: "1px solid" }}>Topic</b>
-        <b style={{ borderBottom: "1px solid" }}>Datatype</b>
+        <b style={{ borderBottom: "1px solid" }}>Schema name</b>
         {(topics ?? []).map((topic) => (
           <>
             <div key={topic.name}>{topic.name}</div>
-            <div key={topic.datatype}>{topic.datatype}</div>
+            <div key={topic.schemaName}>{topic.schemaName}</div>
           </>
         ))}
       </div>

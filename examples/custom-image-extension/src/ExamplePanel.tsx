@@ -47,7 +47,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 
   // Filter all of our topics to find the ones with a CompresssedImage message.
   const imageTopics = useMemo(
-    () => (topics ?? []).filter((topic) => topic.datatype === "sensor_msgs/CompressedImage"),
+    () => (topics ?? []).filter((topic) => topic.schemaName === "sensor_msgs/CompressedImage"),
     [topics],
   );
 
