@@ -36,7 +36,7 @@ program
 program
   .command("publish")
   .description(
-    "Create an extensions.json entry for a released extension. This can be added to the https://github.com/foxglove/studio-extension-marketplace repository",
+    "Create an extensions.json entry for a released extension. This can be added to the https://github.com/foxglove/extension-registry repository",
   )
   .option("--foxe <foxe>", "URL of the published .foxe file")
   .option("--cwd [cwd]", "Directory containing the extension package.json file")
