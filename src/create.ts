@@ -9,7 +9,7 @@ import { info } from "./log";
 
 const DEPENDENCIES = [
   "@foxglove/eslint-plugin@^1",
-  "@foxglove/studio@^1",
+  "@foxglove/extension@^2",
   "@types/react@^18",
   "@types/react-dom@^18",
   "@typescript-eslint/eslint-plugin@^6",

@@ -1,4 +1,4 @@
-import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/studio";
+import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
 import { useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
