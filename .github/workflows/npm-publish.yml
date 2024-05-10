@@ -7,6 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      # https://docs.npmjs.com/generating-provenance-statements#publishing-packages-with-provenance-via-github-actions
+      id-token: write
+
     steps:
       - uses: actions/checkout@v2.3.4
         with:
@@ -15,10 +20,10 @@ jobs:
       - name: Configure Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 16.x
+          node-version: 20.x
           registry-url: https://registry.npmjs.org/
 
       - run: yarn install --immutable
-      - run: npm publish --access public
+      - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLISH_TOKEN}}
