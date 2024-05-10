@@ -7,7 +7,7 @@
 [Foxglove](https://foxglove.dev) allows developers to create
 [extensions](https://docs.foxglove.dev/docs/visualization/extensions/introduction), or custom code
 that is loaded and executed inside the Foxglove application. Extensions are authored in TypeScript
-using the `@foxglove/studio` SDK.
+using the `@foxglove/extension` SDK.
 
 ## Creating Your First Extension
 
