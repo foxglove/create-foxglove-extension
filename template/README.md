@@ -34,6 +34,6 @@ This command will package the extension into a `.foxe` file in the local directo
 
 ## Publish
 
-You can publish the extension for the public marketplace or privately for your organization.
+You can publish the extension to the public registry or privately for your organization.
 
 See documentation here: https://docs.foxglove.dev/docs/visualization/extensions/publish/#packaging-your-extension
