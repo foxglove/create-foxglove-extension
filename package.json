@@ -1,6 +1,6 @@
 {
   "name": "create-foxglove-extension",
-  "version": "0.8.6",
+  "version": "1.0.0",
   "publisher": "foxglove",
   "description": "Create and package Foxglove extensions",
   "license": "MIT",
