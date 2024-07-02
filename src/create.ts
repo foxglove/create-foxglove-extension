@@ -14,7 +14,7 @@ const DEPENDENCIES = [
   "@types/react-dom@^18",
   "@typescript-eslint/eslint-plugin@^6",
   "@typescript-eslint/parser@^6",
-  "create-foxglove-extension@^0",
+  "create-foxglove-extension@^1",
   "eslint@^8",
   "eslint-config-prettier@^8",
   "eslint-plugin-es@^4",
