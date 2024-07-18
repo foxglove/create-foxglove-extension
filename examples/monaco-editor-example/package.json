@@ -25,7 +25,7 @@
     "@types/react-dom": "18.0.6",
     "@typescript-eslint/eslint-plugin": "5.33.0",
     "@typescript-eslint/parser": "5.33.0",
-    "create-foxglove-extension": "0.5.1",
+    "create-foxglove-extension": "1.0.2",
     "eslint": "8.21.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
