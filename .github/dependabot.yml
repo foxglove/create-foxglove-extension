@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories:
+      - "/"
+      - "examples/*"
+    schedule:
+      interval: daily
+    # security updates do not obey this limit
+    open-pull-requests-limit: 0
