@@ -264,7 +264,7 @@ async function writeFoxe(baseDir: string, files: string[], outputFile: string): 
   info(`Writing archive to ${outputFile}`);
   return await new Promise((c, e) => {
     zip
-      .generateNodeStream({ type: "nodebuffer", streamFiles: true })
+      .generateNodeStream({ type: "nodebuffer", streamFiles: true, compression: "DEFLATE" })
       .pipe(createWriteStream(outputFile, { encoding: "binary" }) as NodeJS.WritableStream)
       .on("error", e)
       .on("finish", c);
