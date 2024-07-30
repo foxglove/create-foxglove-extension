@@ -88,3 +88,15 @@ You can find examples of different kinds of extensions in the `./examples` direc
 
 Join our [Slack channel](https://foxglove.dev/slack) to ask questions, share
 feedback, and stay up to date on what our team is working on.
+
+## Developer information
+
+Information on developing `create-foxglove-extension` itself.
+
+### Release process
+
+1. Bump the version in package.json, and merge to main
+2. [Create a new release](https://github.com/foxglove/create-foxglove-extension/releases/new)
+3. Create a tag for the version above, with a leading "v" (`v0.0.0`)
+4. Generate release notes
+5. Publish the release
