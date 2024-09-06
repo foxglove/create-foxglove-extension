@@ -23,7 +23,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
       //
       // Set the done callback into a state variable to trigger a re-render.
-      setRenderDone(() => done);
+      setRenderDone(done);
 
       // We may have new topics - since we are also watching for messages in the current frame, topics may not have changed
       // It is up to you to determine the correct action when state has not changed.
@@ -51,7 +51,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
       context.onRender = undefined;
       setRenderDone(undefined);
     };
-  }, [context]); // Adding other dependencies here is discouraged as it can lead to memory leaks. Consider using other effects for your panel logic.
+  }, [context]);
 
   // invoke the done callback once the render is complete
   useEffect(() => {
