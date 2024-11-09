@@ -1,15 +1,15 @@
 import {
-  PanelExtensionContext,
-  RenderState,
-  Topic,
+  Immutable,
   MessageEvent,
+  PanelExtensionContext,
+  Topic,
   SettingsTreeAction,
-} from "@foxglove/studio";
-import produce from "immer";
+} from "@foxglove/extension";
+import { produce } from "immer";
 import { set } from "lodash";
-import { useLayoutEffect, useEffect, useState, useCallback } from "react";
-import ReactDOM from "react-dom";
-import ReactJson, { ThemeKeys } from "react-json-view";
+import { useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { createRoot } from "react-dom/client";
+import ReactJson, { ThemeKeys } from "@microlink/react-json-view";
 
 const ThemeOptions = [
   "apathy",
@@ -67,8 +67,8 @@ type State = {
 };
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
-  const [topics, setTopics] = useState<readonly Topic[] | undefined>();
-  const [messages, setMessages] = useState<readonly MessageEvent<unknown>[] | undefined>();
+  const [topics, setTopics] = useState<undefined | Immutable<Topic[]>>();
+  const [messages, setMessages] = useState<undefined | Immutable<MessageEvent[]>>();
 
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
@@ -177,7 +177,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     // your framework. You can only setup one render handler - usually early on in setting up your
     // panel.  Without a render handler your panel will never receive updates.  The render handler
     // could be invoked as often as 60hz during playback if fields are changing often.
-    context.onRender = (renderState: RenderState, done) => {
+    context.onRender = (renderState, done) => {
       // render functions receive a _done_ callback. You MUST call this callback to indicate your
       // panel has finished rendering. Your panel will not receive another render callback until
       // _done_ is called from a prior render. If your panel is not done rendering before the next
@@ -239,10 +239,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 }
 
 export function initExamplePanel(context: PanelExtensionContext): () => void {
-  ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
+  const root = createRoot(context.panelElement);
+  root.render(<ExamplePanel context={context} />);
 
   // Return a function to run when the panel is removed
   return () => {
-    ReactDOM.unmountComponentAtNode(context.panelElement);
+    root.unmount();
   };
 }
