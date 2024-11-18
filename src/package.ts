@@ -203,9 +203,9 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
       shell: true,
       stdio: "inherit",
     });
-    child.on("exit", (code) =>
-      code === 0 ? c() : e(`${tool} failed with exit code ${code ?? "<null>"}`),
-    );
+    child.on("exit", (code) => {
+      code === 0 ? c() : e(`${tool} failed with exit code ${code ?? "<null>"}`);
+    });
     child.on("error", e);
   });
 }
@@ -262,7 +262,7 @@ async function writeFoxe(baseDir: string, files: string[], outputFile: string): 
   }
 
   info(`Writing archive to ${outputFile}`);
-  return await new Promise((c, e) => {
+  await new Promise((c, e) => {
     zip
       .generateNodeStream({ type: "nodebuffer", streamFiles: true, compression: "DEFLATE" })
       .pipe(createWriteStream(outputFile, { encoding: "binary" }) as NodeJS.WritableStream)

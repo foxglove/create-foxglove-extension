@@ -11,7 +11,7 @@ program
   .argument("<name>", "Name for the new extension")
   .allowExcessArguments(false)
   .action(async (name: string) => {
-    return await createCommand({ name });
+    await createCommand({ name });
   });
 
 program.parse(process.argv);

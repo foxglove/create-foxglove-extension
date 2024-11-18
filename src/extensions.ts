@@ -63,5 +63,5 @@ export function parsePackageName(name: string): { namespace?: string; name: stri
   if (res == undefined) {
     return { name };
   }
-  return { namespace: res[1], name: res[2] as string };
+  return { namespace: res[1], name: res[2]! };
 }

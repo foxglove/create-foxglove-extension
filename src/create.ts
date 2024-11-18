@@ -118,7 +118,8 @@ async function installDependencies(extensionDir: string, deps: string[]): Promis
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        return reject(new Error(`npm exited with code ${code ?? "<null>"}`));
+        reject(new Error(`npm exited with code ${code ?? "<null>"}`));
+        return;
       }
       resolve();
     });
