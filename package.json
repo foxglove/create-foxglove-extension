@@ -78,5 +78,6 @@
     "sanitize-filename": "1.6.3",
     "ts-loader": "9.5.1",
     "webpack": "5.94.0"
-  }
+  },
+  "packageManager": "yarn@4.5.1"
 }
