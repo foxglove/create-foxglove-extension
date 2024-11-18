@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { constants } from "fs";
 import { access, readdir, readFile, writeFile } from "fs/promises";
-import mkdirp from "mkdirp";
+import { mkdirp } from "mkdirp";
 import * as path from "path";
 import sanitize from "sanitize-filename";
 

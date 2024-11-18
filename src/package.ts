@@ -7,7 +7,7 @@ import ncp from "ncp";
 import fetch from "node-fetch";
 import { homedir } from "os";
 import { join, normalize, relative, sep } from "path";
-import rimraf from "rimraf";
+import { rimraf } from "rimraf";
 import { promisify } from "util";
 
 import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
