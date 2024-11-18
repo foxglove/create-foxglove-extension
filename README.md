@@ -93,6 +93,20 @@ feedback, and stay up to date on what our team is working on.
 
 Information on developing `create-foxglove-extension` itself.
 
+### Build and Run Locally
+
+Build the `create-foxglove-extension` package locally with:
+
+```bash
+npm pack
+```
+
+Run the extension generator:
+
+```bash
+ npx create-foxglove-extension-{VERSION}.tgz example-extension-name
+```
+
 ### Release process
 
 1. Bump the version in package.json, and merge to main

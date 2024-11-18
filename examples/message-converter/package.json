@@ -3,7 +3,7 @@
   "displayName": "Foxglove Example Message Converter",
   "description": "",
   "publisher": "Foxglove",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "0.20.0",
+    "@foxglove/extension": "^2.16.2",
     "@foxglove/schemas": "0.7.2",
-    "@foxglove/studio": "1.43.0",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "@typescript-eslint/eslint-plugin": "5.45.0",

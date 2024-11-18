@@ -1,4 +1,4 @@
-import { ExtensionContext } from "@foxglove/studio";
+import { ExtensionContext } from "@foxglove/extension";
 import { LocationFix } from "@foxglove/schemas";
 
 type MyGps = {

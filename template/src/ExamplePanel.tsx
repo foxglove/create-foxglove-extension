@@ -1,6 +1,6 @@
 import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
 import { useEffect, useLayoutEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
   const [topics, setTopics] = useState<undefined | Immutable<Topic[]>>();
@@ -77,10 +77,11 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 }
 
 export function initExamplePanel(context: PanelExtensionContext): () => void {
-  ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
+  const root = createRoot(context.panelElement);
+  root.render(<ExamplePanel context={context} />);
 
   // Return a function to run when the panel is removed
   return () => {
-    ReactDOM.unmountComponentAtNode(context.panelElement);
+    root.unmount();
   };
 }
