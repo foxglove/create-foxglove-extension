@@ -9,7 +9,6 @@
     "module": "CommonJS",
 
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "newLine": "lf"
+    "esModuleInterop": true
   }
 }

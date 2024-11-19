@@ -2161,18 +2161,10 @@ __metadata:
     "@types/node": "npm:22.9.0"
     "@types/node-fetch": "npm:2.6.12"
     "@types/tmp": "npm:0.2.6"
-    "@typescript-eslint/eslint-plugin": "npm:8.15.0"
-    "@typescript-eslint/parser": "npm:8.15.0"
     clean-webpack-plugin: "npm:4.0.0"
     commander: "npm:10.0.1"
     css-loader: "npm:7.1.2"
     eslint: "npm:9.15.0"
-    eslint-config-prettier: "npm:9.1.0"
-    eslint-plugin-es: "npm:4.1.0"
-    eslint-plugin-filenames: "npm:1.3.2"
-    eslint-plugin-import: "npm:2.31.0"
-    eslint-plugin-jest: "npm:28.9.0"
-    eslint-plugin-prettier: "npm:5.2.1"
     jest: "npm:29.7.0"
     jszip: "npm:3.10.1"
     mkdirp: "npm:3.0.1"
@@ -2187,6 +2179,7 @@ __metadata:
     ts-jest: "npm:29.2.5"
     ts-loader: "npm:9.5.1"
     typescript: "npm:5.6.3"
+    typescript-eslint: "npm:8.15.0"
     webpack: "npm:5.96.1"
   bin:
     create-foxglove-extension: dist/bin/create-foxglove-extension.js
@@ -2658,7 +2651,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:9.1.0, eslint-config-prettier@npm:^9":
+"eslint-config-prettier@npm:^9":
   version: 9.1.0
   resolution: "eslint-config-prettier@npm:9.1.0"
   peerDependencies:
@@ -2692,7 +2685,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-es@npm:4.1.0, eslint-plugin-es@npm:^4":
+"eslint-plugin-es@npm:^4":
   version: 4.1.0
   resolution: "eslint-plugin-es@npm:4.1.0"
   dependencies:
@@ -2704,7 +2697,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-filenames@npm:1.3.2, eslint-plugin-filenames@npm:^1":
+"eslint-plugin-filenames@npm:^1":
   version: 1.3.2
   resolution: "eslint-plugin-filenames@npm:1.3.2"
   dependencies:
@@ -2718,7 +2711,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:2.31.0, eslint-plugin-import@npm:^2":
+"eslint-plugin-import@npm:^2":
   version: 2.31.0
   resolution: "eslint-plugin-import@npm:2.31.0"
   dependencies:
@@ -2747,7 +2740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:28.9.0, eslint-plugin-jest@npm:^28":
+"eslint-plugin-jest@npm:^28":
   version: 28.9.0
   resolution: "eslint-plugin-jest@npm:28.9.0"
   dependencies:
@@ -2765,7 +2758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:5.2.1, eslint-plugin-prettier@npm:^5":
+"eslint-plugin-prettier@npm:^5":
   version: 5.2.1
   resolution: "eslint-plugin-prettier@npm:5.2.1"
   dependencies:
@@ -6620,7 +6613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8":
+"typescript-eslint@npm:8.15.0, typescript-eslint@npm:^8":
   version: 8.15.0
   resolution: "typescript-eslint@npm:8.15.0"
   dependencies:

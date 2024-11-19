@@ -5,12 +5,12 @@ const globals = require("globals");
 const tseslint = require("typescript-eslint");
 
 module.exports = tseslint.config({
-  ignores: ["dist/**", "examples/**", "template/**"],
   files: ["src/**/*.ts", "src/**/*.tsx"],
-  extends: [foxglove.configs.base, foxglove.configs.jest, foxglove.configs.typescript],
+  extends: [foxglove.configs.base, foxglove.configs.react, foxglove.configs.typescript],
   languageOptions: {
     globals: {
-      ...globals.node,
+      ...globals.es2020,
+      ...globals.browser,
     },
     parserOptions: {
       project: "tsconfig.json",
