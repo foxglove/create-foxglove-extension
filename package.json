@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "clean-webpack-plugin": "4.0.0",
-    "commander": "10.0.1",
+    "commander": "12.1.0",
     "jszip": "3.10.1",
     "mkdirp": "3.0.1",
     "ncp": "2.0.0",
