@@ -17,4 +17,7 @@ module.exports = tseslint.config({
       tsconfigRootDir: __dirname,
     },
   },
+  rules: {
+    "react-hooks/exhaustive-deps": "error",
+  },
 });
