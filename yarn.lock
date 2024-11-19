@@ -1121,15 +1121,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mkdirp@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@types/mkdirp@npm:2.0.0"
-  dependencies:
-    mkdirp: "npm:*"
-  checksum: 10c0/4ffc9905d84ec76b256f706fb4b4eedd0f63f260c0b3d3c7b13172582d046dfd0db661f314e8e15e1fb81d8b7ae5507a38dcf4a4f425c945d113694d6bb5c3a9
-  languageName: node
-  linkType: hard
-
 "@types/ncp@npm:2.0.8":
   version: 2.0.8
   resolution: "@types/ncp@npm:2.0.8"
@@ -1155,15 +1146,6 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.19.8"
   checksum: 10c0/3f46cbe0a49bab4ba30494025e4c8a6e699b98ac922857aa1f0209ce11a1313ee46e6808b8f13fe5b8b960a9d7796b77c8d542ad4e9810e85ef897d5593b5d51
-  languageName: node
-  linkType: hard
-
-"@types/rimraf@npm:4.0.5":
-  version: 4.0.5
-  resolution: "@types/rimraf@npm:4.0.5"
-  dependencies:
-    rimraf: "npm:*"
-  checksum: 10c0/b4c17f5931ab7f7610c68aba58024717eecd11d16057b51d3f21a4180d36d1f5fea207503cba8a13749d61a1ac43d1bb795662f8b3638ad2501216017d232bf6
   languageName: node
   linkType: hard
 
@@ -2175,11 +2157,9 @@ __metadata:
     "@foxglove/eslint-plugin": "npm:2.0.0"
     "@foxglove/tsconfig": "npm:2.0.0"
     "@types/jest": "npm:29.5.14"
-    "@types/mkdirp": "npm:2.0.0"
     "@types/ncp": "npm:2.0.8"
     "@types/node": "npm:22.9.0"
     "@types/node-fetch": "npm:2.6.12"
-    "@types/rimraf": "npm:4.0.5"
     "@types/tmp": "npm:0.2.6"
     "@typescript-eslint/eslint-plugin": "npm:8.15.0"
     "@typescript-eslint/parser": "npm:8.15.0"
@@ -5021,7 +5001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:*, mkdirp@npm:3.0.1":
+"mkdirp@npm:3.0.1":
   version: 3.0.1
   resolution: "mkdirp@npm:3.0.1"
   bin:
@@ -5842,7 +5822,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:*, rimraf@npm:6.0.1":
+"rimraf@npm:6.0.1":
   version: 6.0.1
   resolution: "rimraf@npm:6.0.1"
   dependencies:
