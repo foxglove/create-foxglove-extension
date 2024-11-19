@@ -10,6 +10,10 @@
 
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "importHelpers": false
+    "importHelpers": false,
+
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
   }
 }
