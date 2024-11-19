@@ -13,8 +13,14 @@ module.exports = tseslint.config(
       globals: {
         ...globals.node,
       },
+    },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
       parserOptions: {
         project: "tsconfig.json",
+        tsconfigRootDir: __dirname,
       },
     },
   },

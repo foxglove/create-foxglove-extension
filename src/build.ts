@@ -39,7 +39,7 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
     compiler.run((err, result) => {
       compiler.close(() => {
         if (err) {
-          reject(err.message);
+          reject(err);
           return;
         }
         if (result == undefined) {
@@ -60,11 +60,11 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
 function getErrorOutput(compilation: webpack.Compilation): string {
   const warnings = compilation
     .getWarnings()
-    .map((warning) => String(warning))
+    .map((warning) => String(warning.message))
     .join("\n");
   const errors = compilation
     .getErrors()
-    .map((error) => String(error))
+    .map((error) => String(error.message))
     .join("\n");
   let output = "";
   if (warnings.length > 0) {

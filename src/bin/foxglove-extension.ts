@@ -16,6 +16,7 @@ program
   .addOption(new Option("--mode [mode]", "Build mode").choices(["development", "production"]))
   .option("--cwd [cwd]", "Directory to run the build command in")
   .action(({ mode, cwd }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     main(buildCommand({ mode, cwd }));
   });
 
@@ -25,6 +26,7 @@ program
   .option("-o, --out [path]", "Output .foxe extension file to [path] location")
   .option("--cwd [cwd]", "Directory to run the package command in")
   .action(({ out, cwd }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     main(packageCommand({ packagePath: out, cwd }));
   });
 
@@ -33,6 +35,7 @@ program
   .description("Locally installs an extension")
   .option("--cwd [cwd]", "Directory to run the install command in")
   .action(({ cwd }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     main(installCommand({ cwd }));
   });
 

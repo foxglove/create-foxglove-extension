@@ -22,7 +22,7 @@ const MOD_DATE = new Date("2021-02-03");
 export interface PackageManifest {
   id: string;
   name: string;
-  displayName: string;
+  displayName?: string;
   description: string;
   publisher?: string;
   namespaceOrPublisher: string;
@@ -100,7 +100,7 @@ export async function publishCommand(options: PublishOptions): Promise<void> {
   const pkg = await readManifest(extensionPath);
 
   const publisher = pkg.namespaceOrPublisher;
-  if (publisher == undefined || publisher.length === 0 || publisher === "unknown") {
+  if (publisher.length === 0 || publisher === "unknown") {
     throw new Error(`Invalid publisher "${publisher}" in ${pkgPath}`);
   }
 
@@ -113,7 +113,7 @@ export async function publishCommand(options: PublishOptions): Promise<void> {
     throw new Error(`Missing required field "license" in ${pkgPath}`);
   }
   const version = options.version ?? pkg.version;
-  if (version == undefined || version.length === 0) {
+  if (version.length === 0) {
     throw new Error(`Missing required field "version" in ${pkgPath}`);
   }
   if (version === "0.0.0") {
@@ -195,7 +195,7 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
 
   info(`Executing prepublish script 'npm run foxglove:prepublish'...`);
 
-  await new Promise<void>((c, e) => {
+  await new Promise<void>((resolve, reject) => {
     const tool = "npm";
     const cwd = extensionPath;
     const child = spawn(tool, ["run", "foxglove:prepublish"], {
@@ -204,9 +204,13 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
       stdio: "inherit",
     });
     child.on("exit", (code) => {
-      code === 0 ? c() : e(`${tool} failed with exit code ${code ?? "<null>"}`);
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${tool} failed with exit code ${code ?? "<null>"}`));
+      }
     });
-    child.on("error", e);
+    child.on("error", reject);
   });
 }
 
@@ -331,6 +335,7 @@ async function pathExists(filename: string, fileType: FileType): Promise<boolean
 async function isDirectory(pathname: string): Promise<boolean> {
   try {
     return (await stat(pathname)).isDirectory();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_) {
     // ignore any error from stat and assume not a directory
   }
