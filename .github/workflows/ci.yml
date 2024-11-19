@@ -32,6 +32,7 @@ jobs:
               yarn run tsc
               node dist/bin/foxglove-extension.js --help
               node dist/bin/create-foxglove-extension sample
+              cd sample && npm run lint
 
     name: ${{ matrix.config.name }} (${{ matrix.os }})
 
