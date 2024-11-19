@@ -11,8 +11,8 @@
   "scripts": {
     "build": "foxglove-extension build",
     "foxglove:prepublish": "foxglove-extension build --mode production",
-    "lint:ci": "eslint --report-unused-disable-directives .",
-    "lint": "eslint --report-unused-disable-directives --fix .",
+    "lint:ci": "eslint .",
+    "lint": "eslint --fix .",
     "local-install": "foxglove-extension install",
     "package": "foxglove-extension package",
     "pretest": "foxglove-extension pretest"
