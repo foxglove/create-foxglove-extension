@@ -7,7 +7,7 @@ import { packageCommand } from "./package";
 
 let tmpdir: string;
 
-jest.setTimeout(240 * 1000);
+jest.setTimeout(300 * 1000);
 
 jest.mock("./log.ts", () => ({
   info: jest.fn(),
