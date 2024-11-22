@@ -31,6 +31,7 @@ jobs:
             command: |
               yarn run tsc
               node dist/bin/foxglove-extension.js --help
+              rm -rf sample
               node dist/bin/create-foxglove-extension sample
               cd sample && npm run lint
 
@@ -46,6 +47,7 @@ jobs:
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 20.x
+          cache: yarn
 
       - run: corepack enable
 
