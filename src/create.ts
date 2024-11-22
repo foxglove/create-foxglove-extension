@@ -14,13 +14,10 @@ const DEPENDENCIES = [
   "@types/react-dom@^18",
   "create-foxglove-extension@^1",
   "eslint@^9",
-  "eslint-plugin-react@^7",
-  "eslint-plugin-react-hooks@^5",
   "prettier@^3",
   "react@^18",
   "react-dom@^18",
   "typescript@^5",
-  "typescript-eslint@^8",
 ];
 
 export interface CreateOptions {
