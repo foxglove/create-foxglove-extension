@@ -31,7 +31,6 @@ jobs:
             command: |
               yarn run tsc
               node dist/bin/foxglove-extension.js --help
-              rm -rf sample
               node dist/bin/create-foxglove-extension sample
               cd sample && npm run lint
 
