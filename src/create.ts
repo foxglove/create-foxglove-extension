@@ -1,29 +1,19 @@
 import { spawn } from "child_process";
 import { constants } from "fs";
 import { access, readdir, readFile, writeFile } from "fs/promises";
-import mkdirp from "mkdirp";
+import { mkdirp } from "mkdirp";
 import * as path from "path";
 import sanitize from "sanitize-filename";
 
 import { info } from "./log";
 
 const DEPENDENCIES = [
-  "@foxglove/eslint-plugin@^1",
+  "@foxglove/eslint-plugin@^2",
   "@foxglove/extension@^2",
   "@types/react@^18",
   "@types/react-dom@^18",
-  "@typescript-eslint/eslint-plugin@^6",
-  "@typescript-eslint/parser@^6",
   "create-foxglove-extension@^1",
-  "eslint@^8",
-  "eslint-config-prettier@^8",
-  "eslint-plugin-es@^4",
-  "eslint-plugin-filenames@^1",
-  "eslint-plugin-import@^2",
-  "eslint-plugin-jest@^27",
-  "eslint-plugin-prettier@^5",
-  "eslint-plugin-react@^7",
-  "eslint-plugin-react-hooks@^4",
+  "eslint@^9",
   "prettier@^3",
   "react@^18",
   "react-dom@^18",
@@ -118,7 +108,8 @@ async function installDependencies(extensionDir: string, deps: string[]): Promis
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        return reject(new Error(`npm exited with code ${code ?? "<null>"}`));
+        reject(new Error(`npm exited with code ${code ?? "<null>"}`));
+        return;
       }
       resolve();
     });

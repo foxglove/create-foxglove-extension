@@ -32,25 +32,31 @@ jobs:
               yarn run tsc
               node dist/bin/foxglove-extension.js --help
               node dist/bin/create-foxglove-extension sample
+              cd sample && npm run lint
 
     name: ${{ matrix.config.name }} (${{ matrix.os }})
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
           lfs: true
+
       - name: Configure Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v4.1.0
         with:
-          node-version: 14.x
+          node-version: 20.x
+
+      - run: corepack enable
+
       - name: Restore cache
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v4.1.2
         with:
           path: |
             .yarn/cache
             **/node_modules
           key: ${{ runner.os }}-yarn-4-${{ hashFiles('**/yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-4-
+
       - run: yarn install --immutable
       - run: ${{ matrix.config.command }}

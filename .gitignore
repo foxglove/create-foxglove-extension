@@ -107,3 +107,5 @@ dist
 
 # Compiled extension bundles
 *.foxe
+
+.yarn

@@ -12,8 +12,5 @@
     ".yarn/**": true,
     "yarn.lock": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.options": {
-    "reportUnusedDisableDirectives": true
-  }
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
