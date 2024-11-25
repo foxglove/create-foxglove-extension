@@ -1,6 +1,6 @@
-import { PanelExtensionContext, RenderState } from "@foxglove/studio";
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { PanelExtensionContext, RenderState } from "@foxglove/extension";
+import { useCallback, useEffect, useLayoutEffect, useState, ReactElement } from "react";
+import { createRoot } from "react-dom/client";
 import ReactJson from "react-json-view";
 
 type State = {
@@ -11,18 +11,18 @@ type State = {
   colorScheme?: RenderState["colorScheme"];
 };
 
-function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
+function CallServicePanel({ context }: { context: PanelExtensionContext }): ReactElement {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
   const [state, setState] = useState<State>({ serviceName: "", request: "{}" });
 
   useLayoutEffect(() => {
-    context.onRender = (renderState: RenderState, done) => {
+    context.watch("colorScheme");
+
+    context.onRender = (renderState, done) => {
       setState((oldState) => ({ ...oldState, colorScheme: renderState.colorScheme }));
       setRenderDone(() => done);
     };
   }, [context]);
-
-  context.watch("colorScheme");
 
   useEffect(() => {
     renderDone?.();
@@ -83,7 +83,6 @@ function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.
         <button
           disabled={context.callService == undefined || state.serviceName === ""}
           style={{ width: "100%", minHeight: "2rem" }}
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onClick={async () => {
             await callService(state.serviceName, state.request);
           }}
@@ -96,7 +95,7 @@ function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.
         <h4>Response</h4>
         <ReactJson
           name={null}
-          src={state.error ? { error: state.error.message } : state.response ?? {}}
+          src={state.error ? { error: state.error.message } : (state.response ?? {})}
           indentWidth={2}
           enableClipboard={false}
           theme={state.colorScheme === "dark" ? "monokai" : "rjv-default"}
@@ -108,10 +107,12 @@ function CallServicePanel({ context }: { context: PanelExtensionContext }): JSX.
 }
 
 export function initCallServicePanel(context: PanelExtensionContext): () => void {
-  ReactDOM.render(<CallServicePanel context={context} />, context.panelElement);
+  const root = createRoot(context.panelElement);
+
+  root.render(<CallServicePanel context={context} />);
 
   // Return a function to run when the panel is removed
   return () => {
-    ReactDOM.unmountComponentAtNode(context.panelElement);
+    root.unmount();
   };
 }

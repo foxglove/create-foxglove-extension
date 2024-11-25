@@ -1,4 +1,4 @@
-import { ExtensionContext, PanelExtensionContext } from "@foxglove/studio";
+import { ExtensionContext, PanelExtensionContext } from "@foxglove/extension";
 
 import PanelWorker from "./Panel.worker";
 
@@ -19,6 +19,6 @@ function initPanel(context: PanelExtensionContext): () => void {
 export function activate(extensionContext: ExtensionContext): void {
   extensionContext.registerPanel({
     name: "Webworker Demo",
-    initPanel: initPanel,
+    initPanel,
   });
 }

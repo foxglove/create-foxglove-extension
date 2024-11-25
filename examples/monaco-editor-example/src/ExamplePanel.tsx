@@ -1,11 +1,12 @@
-import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
-import { useLayoutEffect, useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { PanelExtensionContext, Topic, MessageEvent } from "@foxglove/extension";
+import { useLayoutEffect, useEffect, useState, ReactElement } from "react";
+import { createRoot } from "react-dom/client";
+
 import { Editor } from "./Editor";
 
-function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
+function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactElement {
   const [_topics, setTopics] = useState<readonly Topic[] | undefined>();
-  const [_messages, setMessages] = useState<readonly MessageEvent<unknown>[] | undefined>();
+  const [_messages, setMessages] = useState<readonly MessageEvent[] | undefined>();
 
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
@@ -18,7 +19,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
     // Without a render handler your panel will never receive updates.
     //
     // The render handler could be invoked as often as 60hz during playback if fields are changing often.
-    context.onRender = (renderState: RenderState, done) => {
+    context.onRender = (renderState, done) => {
       // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
       // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
       // rendering before the next render call, Foxglove shows a notification to the user that your panel is delayed.
@@ -62,10 +63,12 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 }
 
 export function initExamplePanel(context: PanelExtensionContext): () => void {
-  ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
+  const root = createRoot(context.panelElement);
+
+  root.render(<ExamplePanel context={context} />);
 
   // Return a function to run when the panel is removed
   return () => {
-    ReactDOM.unmountComponentAtNode(context.panelElement);
+    root.unmount();
   };
 }

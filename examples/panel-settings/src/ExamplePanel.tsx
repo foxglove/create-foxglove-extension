@@ -5,11 +5,11 @@ import {
   Topic,
   SettingsTreeAction,
 } from "@foxglove/extension";
+import ReactJson, { ThemeKeys } from "@microlink/react-json-view";
 import { produce } from "immer";
 import { set } from "lodash";
-import { useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useState, useCallback, ReactElement } from "react";
 import { createRoot } from "react-dom/client";
-import ReactJson, { ThemeKeys } from "@microlink/react-json-view";
 
 const ThemeOptions = [
   "apathy",
@@ -66,7 +66,7 @@ type State = {
   };
 };
 
-function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Element {
+function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactElement {
   const [topics, setTopics] = useState<undefined | Immutable<Topic[]>>();
   const [messages, setMessages] = useState<undefined | Immutable<MessageEvent[]>>();
 
