@@ -67,15 +67,22 @@ jobs:
       - run: yarn install --immutable
 
       - run: yarn run tsc
-      - run: node dist/bin/foxglove-extension.js --help
 
+      # generate an extension using the in-repo create-foxglove-extension script
       - name: create sample extension
         run: node dist/bin/create-foxglove-extension sample
 
+      # confirm that the generated extension code passes lint
       - name: lint generated extension code
         working-directory: sample
         run: npm run lint
 
+      # confirm that the generated extension code can be packaged with updated latest version of
+      # foxglove-extension scripts
+      #
+      # Note: this does not use the `npm run package` command since that would use the
+      # version of foxglove-extension scripts specified in the package.json which is not the local
+      # version of the scripts.
       - name: package generated extension
         working-directory: sample
-        run: node dist/bin/foxglove-extension.js package
+        run: node ../dist/bin/foxglove-extension.js package
