@@ -48,19 +48,24 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          #- ubuntu-20.04
-          - windows-2019
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - windows-2022
 
     name: e2e (${{ matrix.os }})
 
     steps:
       - uses: actions/checkout@v4.2.2
 
+      # On windows we need to run `corepack enable` after setup-node and on linux we need
+      # to run it before. On linux it is ok to run it after as well.
+      - run: corepack enable
+        if: matrix.os == 'windows-2022'
+
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 20.x
-          #cache: yarn
 
       - run: corepack enable
 
