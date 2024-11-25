@@ -30,13 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
 
+      - run: corepack enable
+
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 20.x
           cache: yarn
-
-      - run: corepack enable
 
       - run: yarn install --immutable
       - name: test
@@ -56,13 +56,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
 
+      - run: corepack enable
+
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 20.x
           cache: yarn
-
-      - run: corepack enable
 
       - name: Restore cache
         uses: actions/cache@v4.1.2
