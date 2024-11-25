@@ -8,7 +8,41 @@ on:
     branches: "*"
 
 jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - run: corepack enable
+
+      - run: yarn install --immutable
+      - run: yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
+      - run: yarn lint:ci
+
   test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - run: corepack enable
+
+      - run: yarn install --immutable
+      - name: test
+        run: yarn run test --maxWorkers=100%
+
+  e2e:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -16,36 +50,17 @@ jobs:
         os:
           - ubuntu-20.04
           - windows-2019
-        config:
-          - name: lint
-            command: |
-              # lint steps
-              yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
-              yarn run lint:ci
-          - name: test
-            command: yarn run test --maxWorkers=100%
 
-          # Run the bin scripts to make sure they run successfully
-          # Unit tests don't run the _bin_ scripts so this serves as safety net that the scripts run
-          - name: sample run
-            command: |
-              yarn run tsc
-              node dist/bin/foxglove-extension.js --help
-              node dist/bin/create-foxglove-extension sample
-              cd sample && npm run lint
-
-    name: ${{ matrix.config.name }} (${{ matrix.os }})
+    name: e2e (${{ matrix.os }})
 
     steps:
       - uses: actions/checkout@v4.2.2
-        with:
-          fetch-depth: 0
-          lfs: true
 
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 20.x
+          cache: yarn
 
       - run: corepack enable
 
@@ -59,4 +74,17 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-4-
 
       - run: yarn install --immutable
-      - run: ${{ matrix.config.command }}
+
+      - run: yarn run tsc
+      - run: node dist/bin/foxglove-extension.js --help
+
+      - name: create sample extension
+        run: node dist/bin/create-foxglove-extension sample
+
+      - name: lint generated extension code
+        working-directory: sample
+        run: npm run lint
+
+      - name: package generated extension
+        working-directory: sample
+        run: node dist/bin/foxglove-extension.js package
