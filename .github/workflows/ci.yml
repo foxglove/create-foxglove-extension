@@ -8,39 +8,59 @@ on:
     branches: "*"
 
 jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - run: corepack enable
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - run: yarn install --immutable
+      - run: yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
+      - run: yarn lint:ci
+
   test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - run: corepack enable
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - run: yarn install --immutable
+      - name: test
+        run: yarn run test --maxWorkers=100%
+
+  e2e:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os:
           - ubuntu-20.04
-          - windows-2019
-        config:
-          - name: lint
-            command: |
-              # lint steps
-              yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
-              yarn run lint:ci
-          - name: test
-            command: yarn run test --maxWorkers=100%
+          - ubuntu-22.04
+          - windows-2022
 
-          # Run the bin scripts to make sure they run successfully
-          # Unit tests don't run the _bin_ scripts so this serves as safety net that the scripts run
-          - name: sample run
-            command: |
-              yarn run tsc
-              node dist/bin/foxglove-extension.js --help
-              node dist/bin/create-foxglove-extension sample
-              cd sample && npm run lint
-
-    name: ${{ matrix.config.name }} (${{ matrix.os }})
+    name: e2e (${{ matrix.os }})
 
     steps:
       - uses: actions/checkout@v4.2.2
-        with:
-          fetch-depth: 0
-          lfs: true
+
+      # On windows we need to run `corepack enable` after setup-node and on linux we need
+      # to run it before. On linux it is ok to run it after as well.
+      - run: corepack enable
+        if: matrix.os == 'windows-2022'
 
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
@@ -49,14 +69,24 @@ jobs:
 
       - run: corepack enable
 
-      - name: Restore cache
-        uses: actions/cache@v4.1.2
-        with:
-          path: |
-            .yarn/cache
-            **/node_modules
-          key: ${{ runner.os }}-yarn-4-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-4-
-
       - run: yarn install --immutable
-      - run: ${{ matrix.config.command }}
+
+      # pack into tarball so we can use it with npx
+      - run: yarn pack
+
+      - name: create sample extension
+        run: npx package.tgz sample
+
+      # install local package.tgz to use the foxglove-scripts from this build
+      - run: npm install ../package.tgz
+        working-directory: sample
+
+      # confirm that the generated extension code passes lint
+      - name: lint generated extension code
+        working-directory: sample
+        run: npm run lint
+
+      # confirm that the generated extension code can be packaged
+      - name: package generated extension
+        working-directory: sample
+        run: npm run package
