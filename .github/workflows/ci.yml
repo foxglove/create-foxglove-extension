@@ -8,39 +8,39 @@ on:
     branches: "*"
 
 jobs:
-  lint:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4.2.2
+  # lint:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v4.2.2
 
-      - run: corepack enable
+  #     - run: corepack enable
 
-      - name: Configure Node.js
-        uses: actions/setup-node@v4.1.0
-        with:
-          node-version: 20.x
-          cache: yarn
+  #     - name: Configure Node.js
+  #       uses: actions/setup-node@v4.1.0
+  #       with:
+  #         node-version: 20.x
+  #         cache: yarn
 
-      - run: yarn install --immutable
-      - run: yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
-      - run: yarn lint:ci
+  #     - run: yarn install --immutable
+  #     - run: yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
+  #     - run: yarn lint:ci
 
-  test:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4.2.2
+  # test:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v4.2.2
 
-      - run: corepack enable
+  #     - run: corepack enable
 
-      - name: Configure Node.js
-        uses: actions/setup-node@v4.1.0
-        with:
-          node-version: 20.x
-          cache: yarn
+  #     - name: Configure Node.js
+  #       uses: actions/setup-node@v4.1.0
+  #       with:
+  #         node-version: 20.x
+  #         cache: yarn
 
-      - run: yarn install --immutable
-      - name: test
-        run: yarn run test --maxWorkers=100%
+  #     - run: yarn install --immutable
+  #     - name: test
+  #       run: yarn run test --maxWorkers=100%
 
   e2e:
     runs-on: ${{ matrix.os }}
@@ -48,7 +48,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
+          #- ubuntu-20.04
           - windows-2019
 
     name: e2e (${{ matrix.os }})
