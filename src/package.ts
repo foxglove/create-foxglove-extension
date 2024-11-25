@@ -63,8 +63,6 @@ enum FileType {
 export async function packageCommand(options: PackageOptions = {}): Promise<void> {
   const extensionPath = options.cwd ?? process.cwd();
 
-  throw new Error("fail");
-
   const pkg = await readManifest(extensionPath);
 
   await prepublish(extensionPath, pkg);
