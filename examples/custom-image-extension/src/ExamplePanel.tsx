@@ -1,7 +1,7 @@
-import { CompressedImage } from "@foxglove/schemas/schemas/typescript";
-import { PanelExtensionContext, RenderState, Topic, MessageEvent } from "@foxglove/studio";
+import { PanelExtensionContext, Topic, MessageEvent } from "@foxglove/extension";
+import { CompressedImage } from "@foxglove/schemas";
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import DynamicIconComponent from "./DynamicIconComponent";
 import PngIcon from "./icon.png";
@@ -72,14 +72,16 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
   useEffect(() => {
     if (message) {
       drawImageOnCanvas(message.message.data, canvasRef.current!, message.message.format).catch(
-        (error) => console.log(error),
+        (error) => {
+          console.log(error);
+        },
       );
     }
   }, [message]);
 
   // Setup our onRender function and start watching topics and currentFrame for messages.
   useLayoutEffect(() => {
-    context.onRender = (renderState: RenderState, done) => {
+    context.onRender = (renderState, done) => {
       setRenderDone(() => done);
       setTopics(renderState.topics);
 
@@ -104,7 +106,9 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
         <label>Choose a topic to render:</label>
         <select
           value={state.topic}
-          onChange={(event) => setState({ topic: event.target.value })}
+          onChange={(event) => {
+            setState({ topic: event.target.value });
+          }}
           style={{ flex: 1 }}
         >
           {imageTopics.map((topic) => (
@@ -125,10 +129,12 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): JSX.Elem
 }
 
 export function initExamplePanel(context: PanelExtensionContext): () => void {
-  ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
+  const root = createRoot(context.panelElement);
+
+  root.render(<ExamplePanel context={context} />);
 
   // Return a function to run when the panel is removed
   return () => {
-    ReactDOM.unmountComponentAtNode(context.panelElement);
+    root.unmount();
   };
 }
