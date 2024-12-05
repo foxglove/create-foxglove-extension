@@ -1,13 +1,12 @@
-# create-foxglove-extension
+# create-lichtblick-extension
 
 [![npm version](https://img.shields.io/npm/v/create-foxglove-extension.svg?style=flat)](https://www.npmjs.com/package/create-foxglove-extension)
 
 ## Introduction
 
-[Foxglove](https://foxglove.dev) allows developers to create
-[extensions](https://docs.foxglove.dev/docs/visualization/extensions/introduction), or custom code
+Lichtblick allows developers to create extensions, or custom code
 that is loaded and executed inside the Foxglove application. Extensions are authored in TypeScript
-using the `@foxglove/extension` SDK.
+using the best supported IDE for authoring Lichtblick extensions. 
 
 ## Creating Your First Extension
 
@@ -39,7 +38,7 @@ npm run local-install
 ```
 
 This should create a folder under your home directory such as
-`~/.foxglove-studio/extensions/unknown.helloworld-0.0.0` containing your compiled
+`~/.lichtblick/extensions/unknown.helloworld-0.0.0` containing your compiled
 extension. Start Foxglove. If everything succeeded, you should be able to add a new
 panel in Foxglove named _"ExamplePanel"_. Each time you make a change to your
 extension, you will need to run `npm run local-install` again to build it and copy the
@@ -76,7 +75,7 @@ npm run package
 This will produce a _.foxe_ file such as `helloworld-0.0.0.foxe`. This is essentially a
 ZIP archive containing your extension manifest and compiled code that can be opened by the
 Foxglove application, which will unpack it and install it to the
-`~/.foxglove-studio/extensions` folder. Stay tuned for future instructions on how to
+`~/.lichtblick/extensions` folder. Stay tuned for future instructions on how to
 publish Foxglove extensions to a registry so other users can easily search for and
 install your extension.
 
@@ -91,7 +90,7 @@ feedback, and stay up to date on what our team is working on.
 
 ## Developer information
 
-Information on developing `create-foxglove-extension` itself.
+Information on developing `create-lichtblick-extension` itself.
 
 ### Build and Run Locally
 
@@ -110,7 +109,7 @@ Run the extension generator:
 ### Release process
 
 1. Bump the version in package.json, and merge to main
-2. [Create a new release](https://github.com/foxglove/create-foxglove-extension/releases/new)
+2. [Create a new release](https://github.com/Lichtblick-Suite/create-lichtblick-extension/releases/new)
 3. Create a tag for the version above, with a leading "v" (`v0.0.0`)
 4. Generate release notes
 5. Publish the release

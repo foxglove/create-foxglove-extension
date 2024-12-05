@@ -1,8 +1,9 @@
 {
-  "name": "create-foxglove-extension",
+  "name": "create-lichtblick-extension",
+  "displayName": "Create Lichtblick Extension",
   "version": "1.0.4",
-  "publisher": "foxglove",
-  "description": "Create and package Foxglove extensions",
+  "publisher": "Lichtblick",
+  "description": "Create and package Lichtblick extensions",
   "license": "MIT",
   "keywords": [
     "foxglove",
@@ -12,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/foxglove/create-foxglove-extension.git"
+    "url": "https://github.com/Lichtblick-Suite/create-lichtblick-extension.git"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -39,7 +40,7 @@
     "node": ">= 14"
   },
   "devDependencies": {
-    "@foxglove/eslint-plugin": "2.0.0",
+    "@lichtblick/eslint-plugin": "^1.0.1",
     "@foxglove/tsconfig": "2.0.0",
     "@types/jest": "29.5.14",
     "@types/ncp": "2.0.8",
