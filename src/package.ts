@@ -1,10 +1,8 @@
 import { spawn } from "child_process";
-import { createHash } from "crypto";
 import { createReadStream, createWriteStream } from "fs";
 import { mkdir, readFile, readdir, stat } from "fs/promises";
 import JSZip from "jszip";
 import ncp from "ncp";
-import fetch from "node-fetch";
 import { homedir } from "os";
 import { join, normalize, relative, sep } from "path";
 import { rimraf } from "rimraf";
@@ -16,7 +14,7 @@ import { info } from "./log";
 const cpR = promisify(ncp);
 
 // A fixed date is used for zip file modification timestamps to
-// produce deterministic .foxe files. Foxglove birthday.
+// produce deterministic .foxe files.
 const MOD_DATE = new Date("2021-02-03");
 
 export interface PackageManifest {
@@ -33,7 +31,7 @@ export interface PackageManifest {
   main: string;
   files?: string[];
   scripts?: {
-    "foxglove:prepublish"?: string;
+    "lichtblick:prepublish"?: string;
   };
 }
 
@@ -44,14 +42,6 @@ export interface PackageOptions {
 
 export interface InstallOptions {
   readonly cwd?: string;
-}
-
-export interface PublishOptions {
-  foxe?: string;
-  cwd?: string;
-  version?: string;
-  readme?: string;
-  changelog?: string;
 }
 
 enum FileType {
@@ -88,72 +78,6 @@ export async function installCommand(options: InstallOptions = {}): Promise<void
   await install(files, extensionPath, pkg);
 }
 
-export async function publishCommand(options: PublishOptions): Promise<void> {
-  const foxeUrl = options.foxe;
-  if (foxeUrl == undefined) {
-    throw new Error(`--foxe <foxe> Published .foxe file URL is required`);
-  }
-
-  // Open the package.json file
-  const extensionPath = options.cwd ?? process.cwd();
-  const pkgPath = join(extensionPath, "package.json");
-  const pkg = await readManifest(extensionPath);
-
-  const publisher = pkg.namespaceOrPublisher;
-  if (publisher.length === 0 || publisher === "unknown") {
-    throw new Error(`Invalid publisher "${publisher}" in ${pkgPath}`);
-  }
-
-  const homepage = pkg.homepage;
-  if (homepage == undefined || homepage.length === 0) {
-    throw new Error(`Missing required field "homepage" in ${pkgPath}`);
-  }
-  const license = pkg.license;
-  if (license == undefined || license.length === 0) {
-    throw new Error(`Missing required field "license" in ${pkgPath}`);
-  }
-  const version = options.version ?? pkg.version;
-  if (version.length === 0) {
-    throw new Error(`Missing required field "version" in ${pkgPath}`);
-  }
-  if (version === "0.0.0") {
-    throw new Error(`Invalid version "${version}" in ${pkgPath}`);
-  }
-  const keywords = JSON.stringify(pkg.keywords ?? []);
-  const readme = options.readme ?? (await githubRawFile(homepage, "README.md"));
-  if (readme == undefined || readme.length === 0) {
-    throw new Error(`Could not infer README.md URL. Use --readme <url>`);
-  }
-  const changelog = options.changelog ?? (await githubRawFile(homepage, "CHANGELOG.md"));
-  if (changelog == undefined || changelog.length === 0) {
-    throw new Error(`Could not infer CHANGELOG.md URL. Use --changelog <url>`);
-  }
-
-  // Fetch the .foxe file and compute the SHA256 hash
-  const res = await fetch(foxeUrl);
-  const foxeData = await res.arrayBuffer();
-  const hash = createHash("sha256");
-  const sha256sum = hash.update(new Uint8Array(foxeData)).digest("hex");
-
-  // Print the extension.json entry
-  info(`
-  {
-    "id": "${pkg.id}",
-    "name": "${pkg.displayName ?? pkg.name}",
-    "description": "${pkg.description}",
-    "publisher": "${pkg.namespaceOrPublisher}",
-    "homepage": "${homepage}",
-    "readme": "https://raw.githubusercontent.com/foxglove/studio-extension-turtlesim/main/README.md",
-    "changelog": "https://raw.githubusercontent.com/foxglove/studio-extension-turtlesim/main/CHANGELOG.md",
-    "license": "${license}",
-    "version": "${version}",
-    "sha256sum": "${sha256sum}",
-    "foxe": "${foxeUrl}",
-    "keywords": ${keywords}
-  }
-`);
-}
-
 async function readManifest(extensionPath: string): Promise<PackageManifest> {
   const pkgPath = join(extensionPath, "package.json");
   let pkg: unknown;
@@ -188,17 +112,17 @@ async function readManifest(extensionPath: string): Promise<PackageManifest> {
 }
 
 async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<void> {
-  const script = pkg.scripts?.["foxglove:prepublish"];
+  const script = pkg.scripts?.["lichtblick:prepublish"];
   if (script == undefined) {
     return;
   }
 
-  info(`Executing prepublish script 'npm run foxglove:prepublish'...`);
+  info(`Executing prepublish script 'npm run lichtblick:prepublish'...`);
 
   await new Promise<void>((resolve, reject) => {
     const tool = "npm";
     const cwd = extensionPath;
-    const child = spawn(tool, ["run", "foxglove:prepublish"], {
+    const child = spawn(tool, ["run", "lichtblick:prepublish"], {
       cwd,
       shell: true,
       stdio: "inherit",
@@ -207,7 +131,7 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`${tool} failed with exit code ${code ?? "<null>"}`));
+        reject(new Error(`${tool} failed with exit code ${String(code ?? "<null>")}`));
       }
     });
     child.on("error", reject);
@@ -290,16 +214,16 @@ async function install(
   // We look for this app directory as a signal that the user installed the snap package rather than
   // the deb package. If we detect a snap installation directory, we install to the snap path and
   // exit.
-  const snapAppDir = join(homedir(), "snap", "foxglove-studio", "current");
+  const snapAppDir = join(homedir(), "snap", "lichtblick-suite", "current");
   if (await isDirectory(snapAppDir)) {
     info(`Detected snap install at ${snapAppDir}`);
-    const extensionDir = join(snapAppDir, ".foxglove-studio", "extensions", dirName);
+    const extensionDir = join(snapAppDir, ".lichtblick-suite", "extensions", dirName);
     await copyFiles(files, extensionDir);
     return;
   }
 
   // If there is no snap install present then we install to the home directory
-  const defaultExtensionDir = join(homedir(), ".foxglove-studio", "extensions", dirName);
+  const defaultExtensionDir = join(homedir(), ".lichtblick-suite", "extensions", dirName);
   await copyFiles(files, defaultExtensionDir);
 }
 
@@ -370,25 +294,4 @@ function inDirectory(directory: string, pathname: string): boolean {
   const relPath = relative(directory, pathname);
   const parts = relPath.split(sep);
   return parts[0] !== "..";
-}
-
-async function githubRawFile(homepage: string, filename: string): Promise<string | undefined> {
-  const match = /^https:\/\/github\.com\/([^/]+)\/([^/?]+)$/.exec(homepage);
-  if (match == undefined) {
-    return undefined;
-  }
-
-  const [_, org, project] = match;
-  if (org == undefined || project == undefined) {
-    return undefined;
-  }
-
-  const url = `https://raw.githubusercontent.com/${org}/${project}/main/${filename}`;
-  try {
-    const res = await fetch(url);
-    const content = await res.text();
-    return content.length > 0 ? url : undefined;
-  } catch {
-    return undefined;
-  }
 }

@@ -22,11 +22,11 @@ export default (
       libraryTarget: "commonjs2",
     },
     // Always use the eval-source-map option so the source map is included in the source file.
-    // Because Foxglove _evals_ the extension script to run it - the source map must be inline with
+    // Because Lichtblick _evals_ the extension script to run it - the source map must be inline with
     // the source file. Using a separate source map file does not work.
     devtool: "eval-source-map",
     externals: {
-      "@foxglove/extension": "@foxglove/extension",
+      "@lichtblick/suite": "@lichtblick/suite",
     },
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx"],

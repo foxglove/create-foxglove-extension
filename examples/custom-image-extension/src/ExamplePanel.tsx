@@ -1,4 +1,4 @@
-import { PanelExtensionContext, Topic, MessageEvent } from "@foxglove/extension";
+import { PanelExtensionContext, Topic, MessageEvent } from "@lichtblick/suite";
 import { CompressedImage } from "@foxglove/schemas";
 import { useLayoutEffect, useEffect, useState, useRef, useMemo } from "react";
 import { createRoot } from "react-dom/client";

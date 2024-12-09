@@ -77,7 +77,7 @@ jobs:
       - name: create sample extension
         run: npx package.tgz sample
 
-      # install local package.tgz to use the foxglove-scripts from this build
+      # install local package.tgz to use the lichtblick-scripts from this build
       - run: npm install ../package.tgz
         working-directory: sample
 

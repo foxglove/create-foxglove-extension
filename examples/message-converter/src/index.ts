@@ -1,4 +1,4 @@
-import { ExtensionContext } from "@foxglove/extension";
+import { ExtensionContext } from "@lichtblick/suite";
 import { LocationFix } from "@foxglove/schemas";
 
 type MyGps = {
@@ -9,7 +9,7 @@ type MyGps = {
 // activate is the entry point for our entire extension.
 export function activate(extensionContext: ExtensionContext): void {
   // Register a message converter from our custom Gps message type to `foxglove.LocationFix`
-  // This will enable Foxglove to visualize our custom Gps message in the Map panel.
+  // This will enable Lichtblick to visualize our custom Gps message in the Map panel.
   extensionContext.registerMessageConverter({
     fromSchemaName: "My.Gps",
     toSchemaName: "foxglove.LocationFix",

@@ -1,3 +1,3 @@
 # call-service-panel
 
-This is a simple [Foxglove](http://foxglove.dev/) [extension panel](https://docs.foxglove.dev/docs/visualization/extensions/api/panel) that allows for calling services.
+This is a simple [Lichtblick](https://github.com/Lichtblick-Suite) extension panel that allows for calling services.

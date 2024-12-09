@@ -1,6 +1,6 @@
 # ${NAME}
 
-[Foxglove](https://foxglove.dev) allows developers to create [extensions](https://docs.foxglove.dev/docs/visualization/extensions/introduction), or custom code that is loaded and executed inside the Foxglove application. This can be used to add custom panels. Extensions are authored in TypeScript using the `@foxglove/extension` SDK.
+[Lichtblick] allows developers to create extensions, or custom code that is loaded and executed inside the Lichtblick application. This can be used to add custom panels. Extensions are authored in TypeScript using the `@lichtblick/suite` SDK.
 
 ## Develop
 
@@ -12,13 +12,13 @@ To install extension dependencies, run `npm` from the root of the extension pack
 npm install
 ```
 
-To build and install the extension into your local Foxglove desktop app, run:
+To build and install the extension into your local Lichtblick desktop app, run:
 
 ```sh
 npm run local-install
 ```
 
-Open the Foxglove desktop (or `ctrl-R` to refresh if it is already open). Your extension is installed and available within the app.
+Open the Lichtblick desktop (or `ctrl-R` to refresh if it is already open). Your extension is installed and available within the app.
 
 ## Package
 
@@ -36,4 +36,3 @@ This command will package the extension into a `.foxe` file in the local directo
 
 You can publish the extension to the public registry or privately for your organization.
 
-See documentation here: https://docs.foxglove.dev/docs/visualization/extensions/publish/#packaging-your-extension

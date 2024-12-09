@@ -1,4 +1,4 @@
-import { ExtensionContext, PanelExtensionContext } from "@foxglove/extension";
+import { ExtensionContext, PanelExtensionContext } from "@lichtblick/suite";
 
 import PanelWorker from "./Panel.worker";
 

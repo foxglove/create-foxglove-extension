@@ -4,7 +4,7 @@ import {
   PanelExtensionContext,
   Topic,
   SettingsTreeAction,
-} from "@foxglove/extension";
+} from "@lichtblick/suite";
 import ReactJson, { ThemeKeys } from "@microlink/react-json-view";
 import { produce } from "immer";
 import { set } from "lodash";
@@ -172,7 +172,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
   // We use a layout effect to setup render handling for our panel. We also setup some topic
   // subscriptions.
   useLayoutEffect(() => {
-    // The render handler is invoked by Foxglove during playback when your panel needs
+    // The render handler is invoked by Lichtblick during playback when your panel needs
     // to render because the fields it is watching have changed. How you handle rendering depends on
     // your framework. You can only setup one render handler - usually early on in setting up your
     // panel.  Without a render handler your panel will never receive updates.  The render handler
@@ -181,7 +181,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
       // render functions receive a _done_ callback. You MUST call this callback to indicate your
       // panel has finished rendering. Your panel will not receive another render callback until
       // _done_ is called from a prior render. If your panel is not done rendering before the next
-      // render call, Foxglove shows a notification to the user that your panel is delayed.  Set the
+      // render call, Lichtblick shows a notification to the user that your panel is delayed.  Set the
       // done callback into a state variable to trigger a re-render.
       setRenderDone(() => done);
 

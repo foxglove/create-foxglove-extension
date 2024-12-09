@@ -1,4 +1,4 @@
-import { ExtensionContext } from "@foxglove/extension";
+import { ExtensionContext } from "@lichtblick/suite";
 
 export function activate(extensionContext: ExtensionContext): void {
   // Register a topic alias function that takes the current list of datasource topics and

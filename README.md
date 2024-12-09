@@ -1,6 +1,6 @@
 # create-lichtblick-extension
 
-[![npm version](https://img.shields.io/npm/v/create-foxglove-extension.svg?style=flat)](https://www.npmjs.com/package/create-foxglove-extension)
+[![npm version](https://img.shields.io/npm/v/create-lichtblick-extension.svg?style=flat)](https://www.npmjs.com/package/create-lichtblick-extension)
 
 ## Introduction
 
@@ -10,12 +10,12 @@ using the "@lichtblick/suite" SDK.
 
 ## Creating Your First Extension
 
-Make sure you have [Node.js](https://nodejs.org/) 14 or newer installed. In a terminal, go
+Make sure you have [Node.js](https://nodejs.org/) 16 or newer installed. In a terminal, go
 into the directory where you keep source code (ex: `cd ~/Code`) and run the following
 command:
 
 ```sh
-npm init foxglove-extension@latest helloworld
+npm init lichtblick-extension@latest helloworld
 ```
 
 Feel free to choose an extension name other than _helloworld_. Otherwise, this will create
@@ -83,11 +83,11 @@ You can find examples of different kinds of extensions in the `./examples` direc
 
 ## Developer information
 
-Information on developing `create-foxglove-extension` itself.
+Information on developing `create-lichtblick-extension` itself.
 
 ### Build and Run Locally
 
-Build the `create-foxglove-extension` package locally with:
+Build the `create-lichtblick-extension` package locally with:
 
 ```bash
 npm pack
@@ -96,7 +96,7 @@ npm pack
 Run the extension generator:
 
 ```bash
- npx create-foxglove-extension-{VERSION}.tgz example-extension-name
+ npx create-lichtblick-extension-{VERSION}.tgz example-extension-name
 ```
 
 ### Release process

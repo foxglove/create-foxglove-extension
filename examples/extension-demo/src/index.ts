@@ -1,4 +1,4 @@
-import { ExtensionContext } from "@foxglove/extension";
+import { ExtensionContext } from "@lichtblick/suite";
 
 import { initExamplePanel } from "./ExamplePanel";
 

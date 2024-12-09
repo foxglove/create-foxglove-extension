@@ -1,5 +1,5 @@
 {
-  "extends": "create-foxglove-extension/tsconfig/tsconfig.json",
+  "extends": "create-lichtblick-extension/tsconfig/tsconfig.json",
 
   "include": ["./src/**/*"],
   "compilerOptions": {

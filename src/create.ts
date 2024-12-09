@@ -8,12 +8,12 @@ import sanitize from "sanitize-filename";
 import { info } from "./log";
 
 const DEPENDENCIES = [
-  "@foxglove/eslint-plugin@^2",
-  "@foxglove/extension@^2",
+  "@lichtblick/eslint-plugin@^1",
+  "@lichtblick/suite@^1",
   "@types/react@^18",
   "@types/react-dom@^18",
-  "create-foxglove-extension@^1",
-  "eslint@^9",
+  "create-lichtblick-extension@^1",
+  "eslint@^8",
   "prettier@^3",
   "react@^18",
   "react-dom@^18",
@@ -51,7 +51,7 @@ export async function createCommand(options: CreateOptions): Promise<void> {
 
   await installDependencies(extensionDir, DEPENDENCIES);
 
-  info(`Created Foxglove extension "${name}" at ${extensionDir}`);
+  info(`Created Lichtblick extension "${name}" at ${extensionDir}`);
 }
 
 async function exists(filename: string): Promise<boolean> {
@@ -108,7 +108,7 @@ async function installDependencies(extensionDir: string, deps: string[]): Promis
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        reject(new Error(`npm exited with code ${code ?? "<null>"}`));
+        reject(new Error(`npm exited with code ${String(code ?? "<null>")}`));
         return;
       }
       resolve();

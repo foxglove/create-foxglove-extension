@@ -1,0 +1,23 @@
+root: true
+
+env:
+  browser: true
+  es2020: true
+  node: false
+
+ignorePatterns:
+  - dist
+
+plugins:
+  - jest
+
+extends:
+  - plugin:@lichtblick/base
+  - plugin:@lichtblick/react
+
+overrides:
+  - files: ["*.ts", "*.tsx"]
+    extends:
+      - plugin:@lichtblick/typescript
+    parserOptions:
+      project: ./tsconfig.json
