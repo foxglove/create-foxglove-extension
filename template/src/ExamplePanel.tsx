@@ -56,11 +56,6 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
   return (
     <div style={{ padding: "1rem" }}>
       <h2>Welcome to your new extension panel!</h2>
-      <p>
-        Check the{" "}
-        <a href="https://foxglove.dev/docs/studio/extensions/getting-started">documentation</a> for
-        more details on building extension panels for Lichtblick Suite.
-      </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
         <b style={{ borderBottom: "1px solid" }}>Topic</b>
         <b style={{ borderBottom: "1px solid" }}>Schema name</b>

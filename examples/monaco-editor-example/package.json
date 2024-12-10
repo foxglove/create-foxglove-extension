@@ -1,7 +1,7 @@
 {
   "name": "monaco-editor-example",
   "displayName": "Lichtblick Monaco Editor Example",
-  "description": "Example of embedding the Monoco editor in a Lichtblick extension panel.",
+  "description": "Example of embedding the Monaco editor in a Lichtblick extension panel.",
   "publisher": "Lichtblick",
   "homepage": "https://github.com/lichtblick-suite",
   "version": "1.0.0",
