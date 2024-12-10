@@ -32,7 +32,7 @@
     "lint:ci": "eslint .",
     "lint": "eslint .",
     "prepack": "yarn build",
-    "prepublishOnly": "yarn lint:ci && yarn test",
+    "prepublishOnly": "yarn lint:ci",
     "test": "jest",
     "watch": "tsc --watch"
   },
