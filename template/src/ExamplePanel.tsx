@@ -10,7 +10,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
 
   // We use a layout effect to setup render handling for our panel. We also setup some topic subscriptions.
   useLayoutEffect(() => {
-    // The render handler is run by the broader studio system during playback when your panel
+    // The render handler is run by the broader Foxglove system during playback when your panel
     // needs to render because the fields it is watching have changed. How you handle rendering depends on your framework.
     // You can only setup one render handler - usually early on in setting up your panel.
     //
@@ -20,7 +20,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
     context.onRender = (renderState, done) => {
       // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
       // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
-      // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
+      // rendering before the next render call, Foxglove shows a notification to the user that your panel is delayed.
       //
       // Set the done callback into a state variable to trigger a re-render.
       setRenderDone(() => done);
@@ -58,8 +58,8 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
       <h2>Welcome to your new extension panel!</h2>
       <p>
         Check the{" "}
-        <a href="https://foxglove.dev/docs/studio/extensions/getting-started">documentation</a> for
-        more details on building extension panels for Foxglove Studio.
+        <a href="https://docs.foxglove.dev/docs/visualization/extensions/introduction">documentation</a> for
+        more details on building extension panels for Foxglove.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
         <b style={{ borderBottom: "1px solid" }}>Topic</b>
