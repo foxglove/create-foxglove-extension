@@ -1,5 +1,5 @@
 import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
-import React, { ReactElement, useEffect, useLayoutEffect, useState } from "react";
+import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactElement {
