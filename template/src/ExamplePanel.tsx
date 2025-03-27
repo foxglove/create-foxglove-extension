@@ -58,8 +58,10 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
       <h2>Welcome to your new extension panel!</h2>
       <p>
         Check the{" "}
-        <a href="https://docs.foxglove.dev/docs/visualization/extensions/introduction">documentation</a> for
-        more details on building extension panels for Foxglove.
+        <a href="https://docs.foxglove.dev/docs/visualization/extensions/introduction">
+          documentation
+        </a>{" "}
+        for more details on building extension panels for Foxglove.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
         <b style={{ borderBottom: "1px solid" }}>Topic</b>
