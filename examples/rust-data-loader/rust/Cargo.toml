@@ -10,11 +10,10 @@ crate-type = ["cdylib"]
 anyhow = "1.0"
 prost = "0.13"
 serde = { version = "1.0", features = [ "derive" ] }
-foxglove_data_loader = { path = "../../../../sdk/rust/foxglove_data_loader" }
+foxglove_data_loader = { git = "https://github.com/foxglove/foxglove-sdk.git" }
 serde_json = "1.0"
 
 [dependencies.foxglove]
 version = "0.9.0"
-path = "../../../../sdk/rust/foxglove"
 default-features = false
 features = [ "derive" ]
