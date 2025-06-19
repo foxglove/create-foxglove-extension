@@ -95,12 +95,10 @@ impl DataLoader for NDJsonLoader {
             message_count: Some(info.temperature_count),
         };
 
-        let temperature_schema = Schema {
-            id: TEMPERATURE_SCHEMA_ID,
-            name: "temperature".to_string(),
-            encoding: "jsonschema".to_string(),
-            data: TEMPERATURE_SCHEMA.to_vec(),
-        };
+        let temperature_schema = Schema::from_id_sdk(
+            TEMPERATURE_SCHEMA_ID,
+            Temperature::get_schema().ok_or(anyhow!["failed to get Temperature schema"])?
+        );
 
         let time_range = TimeRange {
             start_time: seconds_to_nanos(info.start),
@@ -259,7 +257,7 @@ struct Sphere {
     z: f64,
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, foxglove::Encode, serde::Serialize, serde::Deserialize)]
 struct Temperature {
     time: f64,
     ambient: f64,
@@ -268,37 +266,6 @@ struct Temperature {
     cpu2: f64,
     cpu3: f64,
 }
-
-const TEMPERATURE_SCHEMA: &[u8] = br#"{
-    "title": "CpuTemperatures",
-    "type": "object",
-    "properties": {
-        "time": {
-            "description": "time of measurement",
-            "type": "number"
-        },
-        "ambient": {
-            "description": "ambient temperature (celsius)",
-            "type": "number"
-        },
-        "cpu0": {
-            "description": "cpu0 temperature (celsius)",
-            "type": "number"
-        },
-        "cpu1": {
-            "description": "cpu1 temperature (celsius)",
-            "type": "number"
-        },
-        "cpu2": {
-            "description": "cpu2 temperature (celsius)",
-            "type": "number"
-        },
-        "cpu3": {
-            "description": "cpu3 temperature (celsius)",
-            "type": "number"
-        }
-    }
-}"#;
 
 impl From<&Sphere> for Message {
     fn from(sphere: &Sphere) -> Message {
