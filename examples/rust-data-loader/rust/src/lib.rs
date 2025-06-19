@@ -197,8 +197,8 @@ impl MessageIterator for NDJsonIterator {
 }
 
 // floating point time in seconds to u64 nanoseconds
-fn seconds_to_nanos(time: f64) -> u64 {
-    (time * 1.0e9) as u64
+fn seconds_to_nanos(time_seconds: f64) -> u64 {
+    (time_seconds * 1.0e9) as u64
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -221,7 +221,7 @@ impl Row {
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 struct Accelerometer {
-    time: f64,
+    time: f64, // in seconds
     x: f64,
     y: f64,
     z: f64,
@@ -229,7 +229,7 @@ struct Accelerometer {
 
 #[derive(Debug, Clone, foxglove::Encode, serde::Serialize, serde::Deserialize)]
 struct Temperature {
-    time: f64,
+    time: f64, // in seconds
     ambient: f64,
     cpu0: f64,
     cpu1: f64,
@@ -255,13 +255,13 @@ impl From<&Accelerometer> for Message {
 
 impl From<&Temperature> for Message {
     fn from(temperature: &Temperature) -> Message {
-        let time = seconds_to_nanos(temperature.time);
+        let time_nanos = seconds_to_nanos(temperature.time);
         let mut data = Vec::with_capacity(temperature.encoded_len().unwrap_or(0));
         temperature.encode(&mut data).expect("failed to encode Temperature");
         Message {
             channel_id: TEMPERATURE_CHANNEL_ID,
-            log_time: time,
-            publish_time: time,
+            log_time: time_nanos,
+            publish_time: time_nanos,
             data,
         }
     }
