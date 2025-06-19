@@ -1,11 +1,9 @@
-//! This example data loader parses newline-separated lines of JSON of 3 forms:
+//! This example data loader parses newline-separated lines of JSON of 2 forms:
 //!
-//! {"type":"info","start":0,"end":30,"sphere_count":360,"temperature_count":120}
 //! {"type":"temperature","time":0,"ambient":21,"cpu0":70,"cpu1":65,"cpu2":68,"cpu3":72}
-//! {"type":"sphere","id":"A","time":0,"x":0,"y":2,"z":1.5}
+//! {"type":"accelerometer","time":0,"x":0,"y":0.00175,"z":0.17936678638491532}
 //!
-//! The loader stores the records in memory and puts the sphere data into a SceneUpdate topic called
-//! scene and the temperature rows go into a topic called /temperature.
+//! The loader stores the records in memory and publishes /accelerometer and /temperature topics.
 
 use anyhow::anyhow;
 use foxglove::schemas::Vector3;
