@@ -7,10 +7,8 @@
 //! The loader stores the records in memory and puts the sphere data into a SceneUpdate topic called
 //! scene and the temperature rows go into a topic called /temperature.
 
-use anyhow::{anyhow, bail};
-use foxglove::schemas::{
-    Color, Pose, Quaternion, SceneEntity, SceneUpdate, SpherePrimitive, Timestamp, Vector3,
-};
+use anyhow::anyhow;
+use foxglove::schemas::Vector3;
 use foxglove::Encode;
 use prost::Message as ProstMessage;
 use std::{
@@ -26,8 +24,8 @@ use foxglove_data_loader::{
     MessageIterator, MessageIteratorArgs, Schema, TimeRange,
 };
 
-const SPHERE_CHANNEL_ID: u16 = 1;
-const SPHERE_SCHEMA_ID: u16 = 1;
+const ACCELEROMETER_CHANNEL_ID: u16 = 1;
+const ACCELEROMETER_SCHEMA_ID: u16 = 1;
 const TEMPERATURE_CHANNEL_ID: u16 = 2;
 const TEMPERATURE_SCHEMA_ID: u16 = 2;
 
@@ -63,51 +61,48 @@ impl DataLoader for NDJsonLoader {
             })
             .collect::<Result<Vec<Row>, Self::Error>>()?;
         rows.sort_by(|a, b| {
-            let time_a = a.get_time().unwrap_or(f64::MIN);
-            let time_b = b.get_time().unwrap_or(f64::MIN);
-            f64::partial_cmp(&time_a, &time_b).expect("time comparison failed")
+            f64::partial_cmp(&a.get_time(), &b.get_time()).expect("time comparison failed")
         });
+        let start_seconds = rows.first().ok_or(anyhow!["failed to read first row"])?.get_time();
+        let end_seconds = rows.last().ok_or(anyhow!["failed to read last row"])?.get_time();
+        let temperature_count = rows.iter().filter(|row| matches![row, Row::Temperature(_)]).count();
+        let accelerometer_count = rows.iter().filter(|row| matches![row, Row::Accelerometer(_)]).count();
 
-        let Some(Row::Info(info)) = rows.iter().find(|row| matches![row, Row::Info(_)]).cloned()
-        else {
-            bail!["did not find type=\"info\" row"]
-        };
         self.rows.replace(rows);
-        console::log(&format!["info={info:?}"]);
+        console::log(&format!["Temperature[{temperature_count}], Accelerometer[{accelerometer_count}]"]);
 
-        let sphere_channel = Channel {
-            id: SPHERE_CHANNEL_ID,
-            schema_id: Some(SPHERE_SCHEMA_ID),
-            topic_name: "/scene".to_string(),
-            message_encoding: SceneUpdate::get_message_encoding(),
-            message_count: Some(info.sphere_count),
+        let accelerometer_channel = Channel {
+            id: ACCELEROMETER_CHANNEL_ID,
+            schema_id: Some(ACCELEROMETER_SCHEMA_ID),
+            topic_name: "/accelerometer".to_string(),
+            message_encoding: Vector3::get_message_encoding(),
+            message_count: Some(accelerometer_count as u64),
         };
-        let sphere_schema = Schema::from_id_sdk(
-            SPHERE_SCHEMA_ID,
-            SceneUpdate::get_schema().ok_or(anyhow!["failed to get SceneUpdate schema"])?,
+        let accelerometer_schema = Schema::from_id_sdk(
+            ACCELEROMETER_SCHEMA_ID,
+            Vector3::get_schema().ok_or(anyhow!["failed to get Vector3 schema"])?,
         );
 
         let temperature_channel = Channel {
             id: TEMPERATURE_CHANNEL_ID,
             schema_id: Some(TEMPERATURE_SCHEMA_ID),
             topic_name: "/temperature".to_string(),
-            message_encoding: "json".to_string(),
-            message_count: Some(info.temperature_count),
+            message_encoding: Temperature::get_message_encoding(),
+            message_count: Some(temperature_count as u64),
         };
-
         let temperature_schema = Schema::from_id_sdk(
             TEMPERATURE_SCHEMA_ID,
             Temperature::get_schema().ok_or(anyhow!["failed to get Temperature schema"])?
         );
 
         let time_range = TimeRange {
-            start_time: seconds_to_nanos(info.start),
-            end_time: seconds_to_nanos(info.end),
+            start_time: seconds_to_nanos(start_seconds),
+            end_time: seconds_to_nanos(end_seconds),
         };
 
         Ok(Initialization {
-            channels: vec![sphere_channel, temperature_channel],
-            schemas: vec![sphere_schema, temperature_schema],
+            channels: vec![accelerometer_channel, temperature_channel],
+            schemas: vec![accelerometer_schema, temperature_schema],
             time_range,
             problems: vec![],
         })
@@ -118,29 +113,27 @@ impl DataLoader for NDJsonLoader {
     }
 
     fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let want_sphere = args.channels.contains(&SPHERE_CHANNEL_ID);
+        let want_accelerometer = args.channels.contains(&ACCELEROMETER_CHANNEL_ID);
         let want_temperature = args.channels.contains(&TEMPERATURE_CHANNEL_ID);
 
         let rows = self.rows.borrow();
         let mut backfill: Vec<Message> = vec![];
-        if want_sphere {
-            let option_backfill_sphere = rows
+        if want_accelerometer {
+            let option_backfill_accelerometer = rows
                 .iter()
-                .take_while(|row| match row {
-                    Row::Sphere(sphere) => seconds_to_nanos(sphere.time) < args.time,
-                    _ => false,
+                .take_while(|row| {
+                    matches![row, Row::Accelerometer(accel) if seconds_to_nanos(accel.time) < args.time]
                 })
                 .last();
-            if let Some(Row::Sphere(sphere)) = option_backfill_sphere {
-                backfill.push(sphere.into());
+            if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
+                backfill.push(accel.into());
             }
         }
         if want_temperature {
             let option_backfill_temperature = rows
                 .iter()
-                .take_while(|row| match row {
-                    Row::Temperature(temperature) => seconds_to_nanos(temperature.time) < args.time,
-                    _ => false,
+                .take_while(|row| {
+                    matches![row, Row::Temperature(temperature) if seconds_to_nanos(temperature.time) < args.time]
                 })
                 .last();
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
@@ -180,7 +173,7 @@ impl MessageIterator for NDJsonIterator {
             self.index.replace(index + 1);
             let rows = self.rows.borrow();
             let row = rows.get(index);
-            if let Some(time) = row.and_then(|r| r.get_time().map(seconds_to_nanos)) {
+            if let Some(time) = row.map(|r| seconds_to_nanos(r.get_time())) {
                 if time < self.start {
                     continue;
                 }
@@ -190,10 +183,9 @@ impl MessageIterator for NDJsonIterator {
             };
             match row {
                 None => return None,
-                Some(Row::Info(_)) => {}
-                Some(Row::Sphere(sphere)) => {
-                    if self.channels.contains(&SPHERE_CHANNEL_ID) {
-                        return Some(Ok(sphere.into()));
+                Some(Row::Accelerometer(accel)) => {
+                    if self.channels.contains(&ACCELEROMETER_CHANNEL_ID) {
+                        return Some(Ok(accel.into()));
                     }
                 }
                 Some(Row::Temperature(temperature)) => {
@@ -211,46 +203,26 @@ fn seconds_to_nanos(time: f64) -> u64 {
     (time * 1.0e9) as u64
 }
 
-fn get_timestamp(time: f64) -> Timestamp {
-    let time_nanos = seconds_to_nanos(time);
-    Timestamp::new(
-        (time_nanos / 1_000_000_000) as u32,
-        (time_nanos % 1_000_000_000) as u32,
-    )
-}
-
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type")]
 enum Row {
-    #[serde(rename = "info")]
-    Info(Info),
-    #[serde(rename = "sphere")]
-    Sphere(Sphere),
+    #[serde(rename = "accelerometer")]
+    Accelerometer(Accelerometer),
     #[serde(rename = "temperature")]
     Temperature(Temperature),
 }
 
 impl Row {
-    fn get_time(&self) -> Option<f64> {
+    fn get_time(&self) -> f64 {
         match self {
-            Row::Info(_) => None,
-            Row::Sphere(sphere) => Some(sphere.time),
-            Row::Temperature(temperature) => Some(temperature.time),
+            Row::Accelerometer(accel) => accel.time,
+            Row::Temperature(temperature) => temperature.time,
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-struct Info {
-    start: f64,
-    end: f64,
-    sphere_count: u64,
-    temperature_count: u64,
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-struct Sphere {
-    id: String,
+struct Accelerometer {
     time: f64,
     x: f64,
     y: f64,
@@ -267,60 +239,18 @@ struct Temperature {
     cpu3: f64,
 }
 
-impl From<&Sphere> for Message {
-    fn from(sphere: &Sphere) -> Message {
-        let sphere_primitive = SpherePrimitive {
-            pose: Some(Pose {
-                position: Some(Vector3 {
-                    x: sphere.x,
-                    y: sphere.y,
-                    z: sphere.z,
-                }),
-                orientation: Some(Quaternion {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                    w: 1.0,
-                }),
-            }),
-            size: Some(Vector3 {
-                x: 0.5,
-                y: 0.5,
-                z: 0.5,
-            }),
-            color: Some(Color {
-                r: 0.5,
-                g: 0.3,
-                b: 1.0,
-                a: 1.0,
-            }),
-        };
-        let time_nanos = seconds_to_nanos(sphere.time);
-        let entity = SceneEntity {
-            timestamp: Some(get_timestamp(sphere.time)),
-            frame_id: "scene".to_string(),
-            id: sphere.id.clone(),
-            lifetime: None,
-            frame_locked: false,
-            metadata: vec![],
-            arrows: vec![],
-            cubes: vec![],
-            spheres: vec![sphere_primitive],
-            cylinders: vec![],
-            lines: vec![],
-            triangles: vec![],
-            texts: vec![],
-            models: vec![],
-        };
+impl From<&Accelerometer> for Message {
+    fn from(accel: &Accelerometer) -> Message {
+        let time_nanos = seconds_to_nanos(accel.time);
         Message {
-            channel_id: SPHERE_CHANNEL_ID,
+            channel_id: ACCELEROMETER_CHANNEL_ID,
             log_time: time_nanos,
             publish_time: time_nanos,
-            data: SceneUpdate {
-                deletions: vec![],
-                entities: vec![entity],
-            }
-            .encode_to_vec(),
+            data: Vector3 {
+                x: accel.x,
+                y: accel.y,
+                z: accel.z,
+            }.encode_to_vec(),
         }
     }
 }
@@ -328,11 +258,13 @@ impl From<&Sphere> for Message {
 impl From<&Temperature> for Message {
     fn from(temperature: &Temperature) -> Message {
         let time = seconds_to_nanos(temperature.time);
+        let mut data = Vec::with_capacity(temperature.encoded_len().unwrap_or(0));
+        temperature.encode(&mut data).expect("failed to encode Temperature");
         Message {
             channel_id: TEMPERATURE_CHANNEL_ID,
             log_time: time,
             publish_time: time,
-            data: serde_json::to_vec(temperature).expect("failed to stringify Temperature"),
+            data,
         }
     }
 }
