@@ -18,19 +18,16 @@ use std::{
 
 foxglove_data_loader::export!(NDJsonLoader);
 use foxglove_data_loader::{
-    console, reader, BackfillArgs, Channel, DataLoader, DataLoaderArgs, Initialization, Message,
-    MessageIterator, MessageIteratorArgs, Schema, TimeRange,
+    console, reader, BackfillArgs, DataLoader, DataLoaderArgs, Initialization,
+    Message, MessageIterator, MessageIteratorArgs,
 };
-
-const ACCELEROMETER_CHANNEL_ID: u16 = 1;
-const ACCELEROMETER_SCHEMA_ID: u16 = 1;
-const TEMPERATURE_CHANNEL_ID: u16 = 2;
-const TEMPERATURE_SCHEMA_ID: u16 = 2;
 
 #[derive(Default)]
 struct NDJsonLoader {
     path: String,
     rows: Rc<RefCell<Vec<Row>>>,
+    accelerometer_channel_id: Rc<RefCell<u16>>,
+    temperature_channel_id: Rc<RefCell<u16>>,
 }
 
 impl DataLoader for NDJsonLoader {
@@ -69,50 +66,39 @@ impl DataLoader for NDJsonLoader {
         self.rows.replace(rows);
         console::log(&format!["Temperature[{temperature_count}], Accelerometer[{accelerometer_count}]"]);
 
-        let accelerometer_channel = Channel {
-            id: ACCELEROMETER_CHANNEL_ID,
-            schema_id: Some(ACCELEROMETER_SCHEMA_ID),
-            topic_name: "/accelerometer".to_string(),
-            message_encoding: Vector3::get_message_encoding(),
-            message_count: Some(accelerometer_count as u64),
-        };
-        let accelerometer_schema = Schema::from_id_sdk(
-            ACCELEROMETER_SCHEMA_ID,
-            Vector3::get_schema().ok_or(anyhow!["failed to get Vector3 schema"])?,
-        );
+        let mut init = Initialization::builder()
+            .start_time(seconds_to_nanos(start_seconds))
+            .end_time(seconds_to_nanos(end_seconds));
 
-        let temperature_channel = Channel {
-            id: TEMPERATURE_CHANNEL_ID,
-            schema_id: Some(TEMPERATURE_SCHEMA_ID),
-            topic_name: "/temperature".to_string(),
-            message_encoding: Temperature::get_message_encoding(),
-            message_count: Some(temperature_count as u64),
-        };
-        let temperature_schema = Schema::from_id_sdk(
-            TEMPERATURE_SCHEMA_ID,
-            Temperature::get_schema().ok_or(anyhow!["failed to get Temperature schema"])?
-        );
+        let mut accelerometer_schema = init.add_schema::<Vector3>()?;
+        let accelerometer_channel = accelerometer_schema
+            .add_channel("/accelerometer")
+            .message_count(accelerometer_count as u64);
+        self.accelerometer_channel_id.replace(accelerometer_channel.id);
 
-        let time_range = TimeRange {
-            start_time: seconds_to_nanos(start_seconds),
-            end_time: seconds_to_nanos(end_seconds),
-        };
+        let mut temperature_schema = init.add_schema::<Temperature>()?;
+        let temperature_channel = temperature_schema
+            .add_channel("/temperature")
+            .message_count(temperature_count as u64);
+        self.temperature_channel_id.replace(temperature_channel.id);
 
-        Ok(Initialization {
-            channels: vec![accelerometer_channel, temperature_channel],
-            schemas: vec![accelerometer_schema, temperature_schema],
-            time_range,
-            problems: vec![],
-        })
+        Ok(init.build())
     }
 
     fn create_iter(&self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
-        Ok(NDJsonIterator::open(self.rows.clone(), &args))
+        Ok(NDJsonIterator::open(
+            self.rows.clone(),
+            *self.accelerometer_channel_id.borrow(),
+            *self.temperature_channel_id.borrow(),
+            &args,
+        ))
     }
 
     fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let want_accelerometer = args.channels.contains(&ACCELEROMETER_CHANNEL_ID);
-        let want_temperature = args.channels.contains(&TEMPERATURE_CHANNEL_ID);
+        let accelerometer_channel_id = *self.accelerometer_channel_id.borrow();
+        let temperature_channel_id = *self.temperature_channel_id.borrow();
+        let want_accelerometer = args.channels.contains(&accelerometer_channel_id);
+        let want_temperature = args.channels.contains(&temperature_channel_id);
 
         let rows = self.rows.borrow();
         let mut backfill: Vec<Message> = vec![];
@@ -124,7 +110,7 @@ impl DataLoader for NDJsonLoader {
                 })
                 .last();
             if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
-                backfill.push(accel.into());
+                backfill.push(accel.to_message(accelerometer_channel_id));
             }
         }
         if want_temperature {
@@ -135,7 +121,7 @@ impl DataLoader for NDJsonLoader {
                 })
                 .last();
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
-                backfill.push(temperature.into());
+                backfill.push(temperature.to_message(accelerometer_channel_id));
             }
         }
         Ok(backfill)
@@ -148,16 +134,25 @@ struct NDJsonIterator {
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
+    accelerometer_channel_id: u16,
+    temperature_channel_id: u16,
 }
 
 impl NDJsonIterator {
-    fn open(rows: Rc<RefCell<Vec<Row>>>, args: &MessageIteratorArgs) -> Self {
+    fn open(
+        rows: Rc<RefCell<Vec<Row>>>,
+        accelerometer_channel_id: u16,
+        temperature_channel_id: u16,
+        args: &MessageIteratorArgs
+    ) -> Self {
         Self {
             rows: rows.clone(),
             index: 0.into(),
             start: args.start_time.unwrap_or(0),
             end: args.end_time.unwrap_or(u64::MAX),
             channels: args.channels.iter().copied().collect(),
+            accelerometer_channel_id,
+            temperature_channel_id,
         }
     }
 }
@@ -182,13 +177,13 @@ impl MessageIterator for NDJsonIterator {
             match row {
                 None => return None,
                 Some(Row::Accelerometer(accel)) => {
-                    if self.channels.contains(&ACCELEROMETER_CHANNEL_ID) {
-                        return Some(Ok(accel.into()));
+                    if self.channels.contains(&self.accelerometer_channel_id) {
+                        return Some(Ok(accel.to_message(self.accelerometer_channel_id)));
                     }
                 }
                 Some(Row::Temperature(temperature)) => {
-                    if self.channels.contains(&TEMPERATURE_CHANNEL_ID) {
-                        return Some(Ok(temperature.into()));
+                    if self.channels.contains(&self.temperature_channel_id) {
+                        return Some(Ok(temperature.to_message(self.temperature_channel_id)));
                     }
                 }
             };
@@ -237,29 +232,29 @@ struct Temperature {
     cpu3: f64,
 }
 
-impl From<&Accelerometer> for Message {
-    fn from(accel: &Accelerometer) -> Message {
-        let time_nanos = seconds_to_nanos(accel.time);
+impl Accelerometer {
+    fn to_message(&self, channel_id: u16) -> Message {
+        let time_nanos = seconds_to_nanos(self.time);
         Message {
-            channel_id: ACCELEROMETER_CHANNEL_ID,
+            channel_id,
             log_time: time_nanos,
             publish_time: time_nanos,
             data: Vector3 {
-                x: accel.x,
-                y: accel.y,
-                z: accel.z,
+                x: self.x,
+                y: self.y,
+                z: self.z,
             }.encode_to_vec(),
         }
     }
 }
 
-impl From<&Temperature> for Message {
-    fn from(temperature: &Temperature) -> Message {
-        let time_nanos = seconds_to_nanos(temperature.time);
-        let mut data = Vec::with_capacity(temperature.encoded_len().unwrap_or(0));
-        temperature.encode(&mut data).expect("failed to encode Temperature");
+impl Temperature {
+    fn to_message(&self, channel_id: u16) -> Message {
+        let time_nanos = seconds_to_nanos(self.time);
+        let mut data = Vec::with_capacity(self.encoded_len().unwrap_or(0));
+        self.encode(&mut data).expect("failed to encode Temperature");
         Message {
-            channel_id: TEMPERATURE_CHANNEL_ID,
+            channel_id,
             log_time: time_nanos,
             publish_time: time_nanos,
             data,
