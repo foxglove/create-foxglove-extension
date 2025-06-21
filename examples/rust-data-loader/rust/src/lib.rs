@@ -196,7 +196,7 @@ fn seconds_to_nanos(time_seconds: f64) -> u64 {
     (time_seconds * 1.0e9) as u64
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize)]
 #[serde(tag = "type")]
 enum Row {
     #[serde(rename = "accelerometer")]
@@ -214,7 +214,7 @@ impl Row {
     }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize)]
 struct Accelerometer {
     time: f64, // in seconds
     x: f64,
@@ -222,7 +222,7 @@ struct Accelerometer {
     z: f64,
 }
 
-#[derive(Debug, Clone, foxglove::Encode, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, foxglove::Encode, serde::Deserialize)]
 struct Temperature {
     time: f64, // in seconds
     ambient: f64,
