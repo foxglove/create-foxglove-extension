@@ -70,13 +70,13 @@ impl DataLoader for NDJsonLoader {
             .start_time(seconds_to_nanos(start_seconds))
             .end_time(seconds_to_nanos(end_seconds));
 
-        let mut accelerometer_schema = init.add_schema::<Vector3>()?;
+        let mut accelerometer_schema = init.add_encode::<Vector3>()?;
         let accelerometer_channel = accelerometer_schema
             .add_channel("/accelerometer")
             .message_count(accelerometer_count as u64);
         self.accelerometer_channel_id.replace(accelerometer_channel.id);
 
-        let mut temperature_schema = init.add_schema::<Temperature>()?;
+        let mut temperature_schema = init.add_encode::<Temperature>()?;
         let temperature_channel = temperature_schema
             .add_channel("/temperature")
             .message_count(temperature_count as u64);
