@@ -25,8 +25,8 @@ use foxglove_data_loader::{
 #[derive(Default)]
 struct NDJsonLoader {
     path: String,
-    rows: Rc<RefCell<Vec<Row>>>,
-    init: Rc<RefCell<Initialization>>, // save the initialization so we can query channel ids by topic
+    rows: Rc<Vec<Row>>,
+    init: Rc<Initialization>, // save the initialization so we can query channel ids by topic
 }
 
 impl DataLoader for NDJsonLoader {
@@ -45,7 +45,7 @@ impl DataLoader for NDJsonLoader {
         }
     }
 
-    fn initialize(&self) -> Result<Initialization, Self::Error> {
+    fn initialize(&mut self) -> Result<Initialization, Self::Error> {
         let lines = BufReader::new(reader::open(&self.path)).lines();
         let mut rows: Vec<Row> = lines
             .map(|rline| {
@@ -74,7 +74,7 @@ impl DataLoader for NDJsonLoader {
             .filter(|row| matches![row, Row::Accelerometer(_)])
             .count();
 
-        self.rows.replace(rows);
+        self.rows = Rc::new(rows);
         console::log(&format![
             "Temperature[{temperature_count}], Accelerometer[{accelerometer_count}]"
         ]);
@@ -93,12 +93,11 @@ impl DataLoader for NDJsonLoader {
             .schema(&temp_schema)
             .message_count(temperature_count as u64);
 
-        let built = init.build();
-        self.init.replace(built.clone());
-        Ok(built)
+        self.init = Rc::new(init.build());
+        Ok((*self.init).clone())
     }
 
-    fn create_iter(&self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
+    fn create_iter(&mut self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
         Ok(NDJsonIterator::open(
             self.rows.clone(),
             self.init.clone(),
@@ -106,17 +105,15 @@ impl DataLoader for NDJsonLoader {
         ))
     }
 
-    fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let init = self.init.borrow();
-        let accel_ch_id = init.get_channel("/accelerometer").unwrap().id;
-        let temp_ch_id = init.get_channel("/temperature").unwrap().id;
+    fn get_backfill(&mut self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
+        let accel_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
+        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
         let want_accelerometer = args.channels.contains(&accel_ch_id);
         let want_temperature = args.channels.contains(&temp_ch_id);
 
-        let rows = self.rows.borrow();
         let mut backfill: Vec<Message> = vec![];
         if want_accelerometer {
-            let option_backfill_accelerometer = rows
+            let option_backfill_accelerometer = self.rows
                 .iter()
                 .take_while(|row| {
                     matches![row, Row::Accelerometer(accel) if seconds_to_nanos(accel.time) < args.time]
@@ -127,7 +124,7 @@ impl DataLoader for NDJsonLoader {
             }
         }
         if want_temperature {
-            let option_backfill_temperature = rows
+            let option_backfill_temperature = self.rows
                 .iter()
                 .take_while(|row| {
                     matches![row, Row::Temperature(temperature) if seconds_to_nanos(temperature.time) < args.time]
@@ -142,18 +139,18 @@ impl DataLoader for NDJsonLoader {
 }
 
 struct NDJsonIterator {
-    rows: Rc<RefCell<Vec<Row>>>,
+    rows: Rc<Vec<Row>>,
     index: RefCell<usize>,
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
-    init: Rc<RefCell<Initialization>>,
+    init: Rc<Initialization>,
 }
 
 impl NDJsonIterator {
     fn open(
-        rows: Rc<RefCell<Vec<Row>>>,
-        init: Rc<RefCell<Initialization>>,
+        rows: Rc<Vec<Row>>,
+        init: Rc<Initialization>,
         args: &MessageIteratorArgs,
     ) -> Self {
         Self {
@@ -171,14 +168,12 @@ impl MessageIterator for NDJsonIterator {
     type Error = anyhow::Error;
 
     fn next(&self) -> Option<Result<Message, Self::Error>> {
-        let init = self.init.borrow();
-        let acc_ch_id = init.get_channel("/accelerometer").unwrap().id;
-        let temp_ch_id = init.get_channel("/temperature").unwrap().id;
+        let acc_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
+        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
         loop {
             let index = *self.index.borrow();
             self.index.replace(index + 1);
-            let rows = self.rows.borrow();
-            let row = rows.get(index);
+            let row = self.rows.get(index);
             if let Some(time) = row.map(|r| seconds_to_nanos(r.get_time())) {
                 if time < self.start {
                     continue;
