@@ -96,7 +96,10 @@ impl DataLoader for NDJsonLoader {
         Ok((*self.init).clone())
     }
 
-    fn create_iter(&mut self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
+    fn create_iter(
+        &mut self,
+        args: MessageIteratorArgs,
+    ) -> Result<Self::MessageIterator, Self::Error> {
         Ok(NDJsonIterator::open(
             self.rows.clone(),
             self.init.clone(),
@@ -147,11 +150,7 @@ struct NDJsonIterator {
 }
 
 impl NDJsonIterator {
-    fn open(
-        rows: Rc<Vec<Row>>,
-        init: Rc<Initialization>,
-        args: &MessageIteratorArgs,
-    ) -> Self {
+    fn open(rows: Rc<Vec<Row>>, init: Rc<Initialization>, args: &MessageIteratorArgs) -> Self {
         Self {
             rows: rows.clone(),
             init,
