@@ -1,5 +1,5 @@
 [package]
-name = "example-ndjson-foxglove-data-loader"
+name = "example-foxglove-ndjson-data-loader"
 version = "0.1.0"
 edition = "2024"
 
