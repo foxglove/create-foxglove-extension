@@ -26,7 +26,7 @@ use foxglove_data_loader::{
 struct NDJsonLoader {
     path: String,
     rows: Rc<RefCell<Vec<Row>>>,
-    init: Rc<RefCell<Option<Rc<Initialization>>>>, // save the initialization so we can query channel ids by topic
+    init: Rc<RefCell<Initialization>>, // save the initialization so we can query channel ids by topic
 }
 
 impl DataLoader for NDJsonLoader {
@@ -78,17 +78,16 @@ impl DataLoader for NDJsonLoader {
             .message_count(temperature_count as u64);
 
         let built = init.build();
-        self.init.replace(Some(Rc::new(built.clone())));
+        self.init.replace(built.clone());
         Ok(built)
     }
 
     fn create_iter(&self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
-        let init: Rc<Initialization> = self.init.borrow().as_ref().unwrap().clone();
-        Ok(NDJsonIterator::open(self.rows.clone(), init, &args))
+        Ok(NDJsonIterator::open(self.rows.clone(), self.init.clone(), &args))
     }
 
     fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let init: Rc<Initialization> = self.init.borrow().as_ref().unwrap().clone();
+        let init = self.init.borrow();
         let accel_ch_id = init.get_channel("/accelerometer").unwrap().id;
         let temp_ch_id = init.get_channel("/temperature").unwrap().id;
         let want_accelerometer = args.channels.contains(&accel_ch_id);
@@ -128,13 +127,13 @@ struct NDJsonIterator {
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
-    init: Rc<Initialization>,
+    init: Rc<RefCell<Initialization>>,
 }
 
 impl NDJsonIterator {
     fn open(
         rows: Rc<RefCell<Vec<Row>>>,
-        init: Rc<Initialization>,
+        init: Rc<RefCell<Initialization>>,
         args: &MessageIteratorArgs,
     ) -> Self {
         Self {
@@ -152,8 +151,9 @@ impl MessageIterator for NDJsonIterator {
     type Error = anyhow::Error;
 
     fn next(&self) -> Option<Result<Message, Self::Error>> {
-        let acc_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
-        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
+        let init = self.init.borrow();
+        let acc_ch_id = init.get_channel("/accelerometer").unwrap().id;
+        let temp_ch_id = init.get_channel("/temperature").unwrap().id;
         loop {
             let index = *self.index.borrow();
             self.index.replace(index + 1);
