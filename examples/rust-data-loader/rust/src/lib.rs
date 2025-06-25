@@ -6,8 +6,8 @@
 //! The loader stores the records in memory and publishes /accelerometer and /temperature topics.
 
 use anyhow::anyhow;
-use foxglove::schemas::Vector3;
 use foxglove::Encode;
+use foxglove::schemas::Vector3;
 use prost::Message as ProstMessage;
 use std::{
     cell::RefCell,
@@ -18,8 +18,8 @@ use std::{
 
 foxglove_data_loader::export!(NDJsonLoader);
 use foxglove_data_loader::{
-    console, reader, BackfillArgs, DataLoader, DataLoaderArgs, Initialization,
-    Message, MessageIterator, MessageIteratorArgs,
+    BackfillArgs, DataLoader, DataLoaderArgs, Initialization, Message, MessageIterator,
+    MessageIteratorArgs, console, reader,
 };
 
 #[derive(Default)]
@@ -57,24 +57,40 @@ impl DataLoader for NDJsonLoader {
         rows.sort_by(|a, b| {
             f64::partial_cmp(&a.get_time(), &b.get_time()).expect("time comparison failed")
         });
-        let start_seconds = rows.first().ok_or(anyhow!["failed to read first row"])?.get_time();
-        let end_seconds = rows.last().ok_or(anyhow!["failed to read last row"])?.get_time();
-        let temperature_count = rows.iter().filter(|row| matches![row, Row::Temperature(_)]).count();
-        let accelerometer_count = rows.iter().filter(|row| matches![row, Row::Accelerometer(_)]).count();
+        let start_seconds = rows
+            .first()
+            .ok_or(anyhow!["failed to read first row"])?
+            .get_time();
+        let end_seconds = rows
+            .last()
+            .ok_or(anyhow!["failed to read last row"])?
+            .get_time();
+        let temperature_count = rows
+            .iter()
+            .filter(|row| matches![row, Row::Temperature(_)])
+            .count();
+        let accelerometer_count = rows
+            .iter()
+            .filter(|row| matches![row, Row::Accelerometer(_)])
+            .count();
 
         self.rows.replace(rows);
-        console::log(&format!["Temperature[{temperature_count}], Accelerometer[{accelerometer_count}]"]);
+        console::log(&format![
+            "Temperature[{temperature_count}], Accelerometer[{accelerometer_count}]"
+        ]);
 
         let mut init = Initialization::builder()
             .start_time(seconds_to_nanos(start_seconds))
             .end_time(seconds_to_nanos(end_seconds));
 
-        init.add_encode::<Vector3>()?
-            .add_channel("/accelerometer")
+        let vec3_schema = init.add_encode::<Vector3>()?;
+        init.add_channel("/accelerometer")
+            .schema(&vec3_schema)
             .message_count(accelerometer_count as u64);
 
-        init.add_encode::<Temperature>()?
-            .add_channel("/temperature")
+        let temp_schema = init.add_encode::<Temperature>()?;
+        init.add_channel("/temperature")
+            .schema(&temp_schema)
             .message_count(temperature_count as u64);
 
         let built = init.build();
@@ -83,7 +99,11 @@ impl DataLoader for NDJsonLoader {
     }
 
     fn create_iter(&self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
-        Ok(NDJsonIterator::open(self.rows.clone(), self.init.clone(), &args))
+        Ok(NDJsonIterator::open(
+            self.rows.clone(),
+            self.init.clone(),
+            &args,
+        ))
     }
 
     fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
@@ -236,7 +256,8 @@ impl Accelerometer {
                 x: self.x,
                 y: self.y,
                 z: self.z,
-            }.encode_to_vec(),
+            }
+            .encode_to_vec(),
         }
     }
 }
@@ -245,7 +266,8 @@ impl Temperature {
     fn to_message(&self, channel_id: u16) -> Message {
         let time_nanos = seconds_to_nanos(self.time);
         let mut data = Vec::with_capacity(self.encoded_len().unwrap_or(0));
-        self.encode(&mut data).expect("failed to encode Temperature");
+        self.encode(&mut data)
+            .expect("failed to encode Temperature");
         Message {
             channel_id,
             log_time: time_nanos,
