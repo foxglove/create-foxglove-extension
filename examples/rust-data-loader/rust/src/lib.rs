@@ -10,7 +10,6 @@ use foxglove::Encode;
 use foxglove::schemas::Vector3;
 use prost::Message as ProstMessage;
 use std::{
-    cell::RefCell,
     collections::BTreeSet,
     io::{BufRead, BufReader},
     rc::Rc,
@@ -140,7 +139,7 @@ impl DataLoader for NDJsonLoader {
 
 struct NDJsonIterator {
     rows: Rc<Vec<Row>>,
-    index: RefCell<usize>,
+    index: usize,
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
@@ -156,7 +155,7 @@ impl NDJsonIterator {
         Self {
             rows: rows.clone(),
             init,
-            index: 0.into(),
+            index: 0,
             start: args.start_time.unwrap_or(0),
             end: args.end_time.unwrap_or(u64::MAX),
             channels: args.channels.iter().copied().collect(),
@@ -167,13 +166,12 @@ impl NDJsonIterator {
 impl MessageIterator for NDJsonIterator {
     type Error = anyhow::Error;
 
-    fn next(&self) -> Option<Result<Message, Self::Error>> {
+    fn next(&mut self) -> Option<Result<Message, Self::Error>> {
         let acc_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
         let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
         loop {
-            let index = *self.index.borrow();
-            self.index.replace(index + 1);
-            let row = self.rows.get(index);
+            let row = self.rows.get(self.index);
+            self.index += 1;
             if let Some(time) = row.map(|r| seconds_to_nanos(r.get_time())) {
                 if time < self.start {
                     continue;
