@@ -26,8 +26,7 @@ use foxglove_data_loader::{
 struct NDJsonLoader {
     path: String,
     rows: Rc<RefCell<Vec<Row>>>,
-    accelerometer_channel_id: Rc<RefCell<u16>>,
-    temperature_channel_id: Rc<RefCell<u16>>,
+    init: Rc<RefCell<Option<Rc<Initialization>>>>, // save the initialization so we can query channel ids by topic
 }
 
 impl DataLoader for NDJsonLoader {
@@ -70,35 +69,30 @@ impl DataLoader for NDJsonLoader {
             .start_time(seconds_to_nanos(start_seconds))
             .end_time(seconds_to_nanos(end_seconds));
 
-        let mut accelerometer_schema = init.add_encode::<Vector3>()?;
-        let accelerometer_channel = accelerometer_schema
+        init.add_encode::<Vector3>()?
             .add_channel("/accelerometer")
             .message_count(accelerometer_count as u64);
-        self.accelerometer_channel_id.replace(accelerometer_channel.id);
 
-        let mut temperature_schema = init.add_encode::<Temperature>()?;
-        let temperature_channel = temperature_schema
+        init.add_encode::<Temperature>()?
             .add_channel("/temperature")
             .message_count(temperature_count as u64);
-        self.temperature_channel_id.replace(temperature_channel.id);
 
-        Ok(init.build())
+        let built = init.build();
+        self.init.replace(Some(Rc::new(built.clone())));
+        Ok(built)
     }
 
     fn create_iter(&self, args: MessageIteratorArgs) -> Result<Self::MessageIterator, Self::Error> {
-        Ok(NDJsonIterator::open(
-            self.rows.clone(),
-            *self.accelerometer_channel_id.borrow(),
-            *self.temperature_channel_id.borrow(),
-            &args,
-        ))
+        let init: Rc<Initialization> = self.init.borrow().as_ref().unwrap().clone();
+        Ok(NDJsonIterator::open(self.rows.clone(), init, &args))
     }
 
     fn get_backfill(&self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let accelerometer_channel_id = *self.accelerometer_channel_id.borrow();
-        let temperature_channel_id = *self.temperature_channel_id.borrow();
-        let want_accelerometer = args.channels.contains(&accelerometer_channel_id);
-        let want_temperature = args.channels.contains(&temperature_channel_id);
+        let init: Rc<Initialization> = self.init.borrow().as_ref().unwrap().clone();
+        let accel_ch_id = init.get_channel("/accelerometer").unwrap().id;
+        let temp_ch_id = init.get_channel("/temperature").unwrap().id;
+        let want_accelerometer = args.channels.contains(&accel_ch_id);
+        let want_temperature = args.channels.contains(&temp_ch_id);
 
         let rows = self.rows.borrow();
         let mut backfill: Vec<Message> = vec![];
@@ -110,7 +104,7 @@ impl DataLoader for NDJsonLoader {
                 })
                 .last();
             if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
-                backfill.push(accel.to_message(accelerometer_channel_id));
+                backfill.push(accel.to_message(accel_ch_id));
             }
         }
         if want_temperature {
@@ -121,7 +115,7 @@ impl DataLoader for NDJsonLoader {
                 })
                 .last();
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
-                backfill.push(temperature.to_message(accelerometer_channel_id));
+                backfill.push(temperature.to_message(accel_ch_id));
             }
         }
         Ok(backfill)
@@ -134,25 +128,22 @@ struct NDJsonIterator {
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
-    accelerometer_channel_id: u16,
-    temperature_channel_id: u16,
+    init: Rc<Initialization>,
 }
 
 impl NDJsonIterator {
     fn open(
         rows: Rc<RefCell<Vec<Row>>>,
-        accelerometer_channel_id: u16,
-        temperature_channel_id: u16,
-        args: &MessageIteratorArgs
+        init: Rc<Initialization>,
+        args: &MessageIteratorArgs,
     ) -> Self {
         Self {
             rows: rows.clone(),
+            init,
             index: 0.into(),
             start: args.start_time.unwrap_or(0),
             end: args.end_time.unwrap_or(u64::MAX),
             channels: args.channels.iter().copied().collect(),
-            accelerometer_channel_id,
-            temperature_channel_id,
         }
     }
 }
@@ -161,6 +152,8 @@ impl MessageIterator for NDJsonIterator {
     type Error = anyhow::Error;
 
     fn next(&self) -> Option<Result<Message, Self::Error>> {
+        let acc_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
+        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
         loop {
             let index = *self.index.borrow();
             self.index.replace(index + 1);
@@ -177,13 +170,13 @@ impl MessageIterator for NDJsonIterator {
             match row {
                 None => return None,
                 Some(Row::Accelerometer(accel)) => {
-                    if self.channels.contains(&self.accelerometer_channel_id) {
-                        return Some(Ok(accel.to_message(self.accelerometer_channel_id)));
+                    if self.channels.contains(&acc_ch_id) {
+                        return Some(Ok(accel.to_message(acc_ch_id)));
                     }
                 }
                 Some(Row::Temperature(temperature)) => {
-                    if self.channels.contains(&self.temperature_channel_id) {
-                        return Some(Ok(temperature.to_message(self.temperature_channel_id)));
+                    if self.channels.contains(&temp_ch_id) {
+                        return Some(Ok(temperature.to_message(temp_ch_id)));
                     }
                 }
             };
