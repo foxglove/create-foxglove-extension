@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
-    "build": "foxglove-extension build",
+    "build": "npm run build:wasm && foxglove-extension build",
     "build:wasm": "cd rust && cargo build --release --target wasm32-unknown-unknown",
     "foxglove:prepublish": "npm run build:wasm && foxglove-extension build --mode production",
     "lint:ci": "eslint --report-unused-disable-directives .",
