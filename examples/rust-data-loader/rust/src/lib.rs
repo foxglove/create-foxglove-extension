@@ -118,7 +118,7 @@ impl DataLoader for NDJsonLoader {
             let option_backfill_accelerometer = self.rows
                 .iter()
                 .take_while(|row| {
-                    matches![row, Row::Accelerometer(accel) if seconds_to_nanos(accel.time) < args.time]
+                    matches![row, Row::Accelerometer(accel) if seconds_to_nanos(accel.time) <= args.time]
                 })
                 .last();
             if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
@@ -129,7 +129,7 @@ impl DataLoader for NDJsonLoader {
             let option_backfill_temperature = self.rows
                 .iter()
                 .take_while(|row| {
-                    matches![row, Row::Temperature(temperature) if seconds_to_nanos(temperature.time) < args.time]
+                    matches![row, Row::Temperature(temperature) if seconds_to_nanos(temperature.time) <= args.time]
                 })
                 .last();
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
