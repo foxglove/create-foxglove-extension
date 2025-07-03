@@ -7,8 +7,6 @@
 
 use anyhow::anyhow;
 use foxglove::Encode;
-use foxglove::schemas::Vector3;
-use prost::Message as ProstMessage;
 use std::{
     collections::BTreeSet,
     io::{BufRead, BufReader},
@@ -82,7 +80,7 @@ impl DataLoader for NDJsonLoader {
             .start_time(seconds_to_nanos(start_seconds))
             .end_time(seconds_to_nanos(end_seconds));
 
-        let vec3_schema = init.add_encode::<Vector3>()?;
+        let vec3_schema = init.add_encode::<Accelerometer>()?;
         init.add_channel("/accelerometer")
             .schema(&vec3_schema)
             .message_count(accelerometer_count as u64);
@@ -219,7 +217,7 @@ impl Row {
     }
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, foxglove::Encode, serde::Deserialize)]
 struct Accelerometer {
     time: f64, // in seconds
     x: f64,
@@ -240,16 +238,14 @@ struct Temperature {
 impl Accelerometer {
     fn to_message(&self, channel_id: u16) -> Message {
         let time_nanos = seconds_to_nanos(self.time);
+        let mut data = Vec::with_capacity(self.encoded_len().unwrap_or(0));
+        self.encode(&mut data)
+            .expect("failed to encode Accelerometer");
         Message {
             channel_id,
             log_time: time_nanos,
             publish_time: time_nanos,
-            data: Vector3 {
-                x: self.x,
-                y: self.y,
-                z: self.z,
-            }
-            .encode_to_vec(),
+            data,
         }
     }
 }
