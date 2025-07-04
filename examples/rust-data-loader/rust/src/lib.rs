@@ -112,24 +112,26 @@ impl DataLoader for NDJsonLoader {
         let want_temperature = args.channels.contains(&temp_ch_id);
 
         let mut backfill: Vec<Message> = vec![];
+        let search_start_index = self.rows[..]
+            .binary_search_by(|row| {
+                seconds_to_nanos(row.get_time())
+                    .partial_cmp(&args.time)
+                    .expect("time comparison failed")
+            })
+            .unwrap_or_else(|n| n);
+
         if want_accelerometer {
-            let option_backfill_accelerometer = self.rows
+            let option_backfill_accelerometer = self.rows[..search_start_index]
                 .iter()
-                .take_while(|row| {
-                    matches![row, Row::Accelerometer(accel) if seconds_to_nanos(accel.time) <= args.time]
-                })
-                .last();
+                .rfind(|row| matches![row, Row::Accelerometer(_)]);
             if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
                 backfill.push(accel.to_message(accel_ch_id));
             }
         }
         if want_temperature {
-            let option_backfill_temperature = self.rows
+            let option_backfill_temperature = self.rows[..search_start_index]
                 .iter()
-                .take_while(|row| {
-                    matches![row, Row::Temperature(temperature) if seconds_to_nanos(temperature.time) <= args.time]
-                })
-                .last();
+                .rfind(|row| matches![row, Row::Temperature(_)]);
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
                 backfill.push(temperature.to_message(accel_ch_id));
             }
