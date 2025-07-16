@@ -16,7 +16,7 @@ import {
   getPackageId,
   parsePackageName,
 } from "./extensions";
-import { info } from "./log";
+import { info, error } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -334,6 +334,7 @@ export async function removeExtensionsById(opts: {
   const extensions = await listExtensions(opts.rootFolder);
   for (const ext of extensions) {
     if (ext.id === opts.id) {
+      info(`Removing existing extension '${ext.id}' at '${ext.directory}'`);
       await rimraf(ext.directory);
     }
   }
@@ -348,22 +349,26 @@ export async function listExtensions(rootFolder: string): Promise<DesktopExtensi
 
   const rootFolderContents = await readdir(rootFolder, { withFileTypes: true });
   for (const entry of rootFolderContents) {
-    if (!entry.isDirectory()) {
-      continue;
+    try {
+      if (!entry.isDirectory()) {
+        continue;
+      }
+      const extensionRootPath = join(rootFolder, entry.name);
+      const packagePath = join(extensionRootPath, "package.json");
+      const packageData = await readFile(packagePath, { encoding: "utf8" });
+      const packageJson = JSON.parse(packageData) as ExtensionPackageJson;
+
+      const id = getPackageId(packageJson);
+      info(`Found existing extension '${id}' at '${extensionRootPath}'`);
+
+      extensions.push({
+        id,
+        packageJson,
+        directory: extensionRootPath,
+      });
+    } catch (err) {
+      error(err);
     }
-    info(`Loading extension at ${entry.name}`);
-    const extensionRootPath = join(rootFolder, entry.name);
-    const packagePath = join(extensionRootPath, "package.json");
-    const packageData = await readFile(packagePath, { encoding: "utf8" });
-    const packageJson = JSON.parse(packageData) as ExtensionPackageJson;
-
-    const id = getPackageId(packageJson);
-
-    extensions.push({
-      id,
-      packageJson,
-      directory: extensionRootPath,
-    });
   }
 
   return extensions;
