@@ -10,8 +10,13 @@ import { join, normalize, relative, sep } from "path";
 import { rimraf } from "rimraf";
 import { promisify } from "util";
 
-import { getPackageDirname, getPackageId, parsePackageName } from "./extensions";
-import { info } from "./log";
+import {
+  ExtensionPackageJson,
+  getPackageDirname,
+  getPackageId,
+  parsePackageName,
+} from "./extensions";
+import { info, error } from "./log";
 
 const cpR = promisify(ncp);
 
@@ -53,6 +58,12 @@ export interface PublishOptions {
   readme?: string;
   changelog?: string;
 }
+
+export type DesktopExtension = {
+  id: string;
+  packageJson: unknown;
+  directory: string;
+};
 
 enum FileType {
   File,
@@ -283,6 +294,7 @@ async function install(
   process.chdir(extensionPath);
 
   const dirName = getPackageDirname(pkg);
+  const id = getPackageId(pkg);
 
   // The snap package does not use the regular _home_ directory but instead uses a separate snap
   // application directory to limit filesystem access.
@@ -293,18 +305,76 @@ async function install(
   const snapAppDir = join(homedir(), "snap", "foxglove-studio", "current");
   if (await isDirectory(snapAppDir)) {
     info(`Detected snap install at ${snapAppDir}`);
+    await removeExtensionsById({
+      id,
+      rootFolder: join(snapAppDir, ".foxglove-studio", "extensions"),
+    });
+
     const extensionDir = join(snapAppDir, ".foxglove-studio", "extensions", dirName);
     await copyFiles(files, extensionDir);
     return;
   }
+
+  await removeExtensionsById({
+    id,
+    rootFolder: join(homedir(), ".foxglove-studio", "extensions"),
+  });
 
   // If there is no snap install present then we install to the home directory
   const defaultExtensionDir = join(homedir(), ".foxglove-studio", "extensions", dirName);
   await copyFiles(files, defaultExtensionDir);
 }
 
+// Remove previous extensions by id. There could be multiple extensions with a matching ID on
+// case-sensitive file systems since they are read by their directory name and may differ in case.
+export async function removeExtensionsById(opts: {
+  rootFolder: string;
+  id: string;
+}): Promise<void> {
+  const extensions = await listExtensions(opts.rootFolder);
+  for (const ext of extensions) {
+    if (ext.id === opts.id) {
+      info(`Removing existing extension '${ext.id}' at '${ext.directory}'`);
+      await rimraf(ext.directory);
+    }
+  }
+}
+
+export async function listExtensions(rootFolder: string): Promise<DesktopExtension[]> {
+  const extensions: DesktopExtension[] = [];
+
+  if (!(await pathExists(rootFolder, FileType.Directory))) {
+    return extensions;
+  }
+
+  const rootFolderContents = await readdir(rootFolder, { withFileTypes: true });
+  for (const entry of rootFolderContents) {
+    try {
+      if (!entry.isDirectory()) {
+        continue;
+      }
+      const extensionRootPath = join(rootFolder, entry.name);
+      const packagePath = join(extensionRootPath, "package.json");
+      const packageData = await readFile(packagePath, { encoding: "utf8" });
+      const packageJson = JSON.parse(packageData) as ExtensionPackageJson;
+
+      const id = getPackageId(packageJson);
+      info(`Found existing extension '${id}' at '${extensionRootPath}'`);
+
+      extensions.push({
+        id,
+        packageJson,
+        directory: extensionRootPath,
+      });
+    } catch (err) {
+      error(err);
+    }
+  }
+
+  return extensions;
+}
+
 async function copyFiles(files: string[], destDir: string): Promise<void> {
-  await rimraf(destDir);
   await mkdir(destDir, { recursive: true });
 
   info(`Copying files to ${destDir}`);
