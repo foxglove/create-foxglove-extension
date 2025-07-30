@@ -1,4 +1,4 @@
-# Example ndjson data loader version history
+# Template data loader version history
 
 ## 1.0.0
 
