@@ -1,5 +1,5 @@
 import { Experimental } from "@foxglove/extension";
-// @ts-expect-error: types aren't getting picked up for *.wasm
+
 import wasmUrl from "../rust/target/wasm32-unknown-unknown/release/example_foxglove_ndjson_data_loader.wasm";
 
 export function activate(extensionContext: Experimental.ExtensionContext): void {

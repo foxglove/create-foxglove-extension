@@ -13,17 +13,20 @@ use std::{
     rc::Rc,
 };
 
-foxglove_data_loader::export!(NDJsonLoader);
 use foxglove_data_loader::{
     BackfillArgs, DataLoader, DataLoaderArgs, Initialization, Message, MessageIterator,
     MessageIteratorArgs, console, reader,
 };
 
+// The ID for the /accelerometer channel
+const ACC_CHANNEL_ID: u16 = 1;
+// The ID for the /temperature channel
+const TEMP_CHANNEL_ID: u16 = 2;
+
 #[derive(Default)]
 struct NDJsonLoader {
     path: String,
     rows: Rc<Vec<Row>>,
-    init: Rc<Initialization>, // save the initialization so we can query channel ids by topic
 }
 
 impl DataLoader for NDJsonLoader {
@@ -81,35 +84,30 @@ impl DataLoader for NDJsonLoader {
             .end_time(seconds_to_nanos(end_seconds));
 
         let vec3_schema = init.add_encode::<Accelerometer>()?;
-        init.add_channel("/accelerometer")
+        init.add_channel_with_id(ACC_CHANNEL_ID, "/accelerometer")
+            .expect("channel should be free")
             .schema(&vec3_schema)
             .message_count(accelerometer_count as u64);
 
         let temp_schema = init.add_encode::<Temperature>()?;
-        init.add_channel("/temperature")
+        init.add_channel_with_id(TEMP_CHANNEL_ID, "/temperature")
+            .expect("channel should be free")
             .schema(&temp_schema)
             .message_count(temperature_count as u64);
 
-        self.init = Rc::new(init.build());
-        Ok((*self.init).clone())
+        Ok(init.build())
     }
 
     fn create_iter(
         &mut self,
         args: MessageIteratorArgs,
     ) -> Result<Self::MessageIterator, Self::Error> {
-        Ok(NDJsonIterator::open(
-            self.rows.clone(),
-            self.init.clone(),
-            &args,
-        ))
+        Ok(NDJsonIterator::open(self.rows.clone(), &args))
     }
 
     fn get_backfill(&mut self, args: BackfillArgs) -> Result<Vec<Message>, Self::Error> {
-        let accel_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
-        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
-        let want_accelerometer = args.channels.contains(&accel_ch_id);
-        let want_temperature = args.channels.contains(&temp_ch_id);
+        let want_accelerometer = args.channels.contains(&ACC_CHANNEL_ID);
+        let want_temperature = args.channels.contains(&TEMP_CHANNEL_ID);
 
         let mut backfill: Vec<Message> = vec![];
         let search_start_index = self.rows[..]
@@ -125,7 +123,7 @@ impl DataLoader for NDJsonLoader {
                 .iter()
                 .rfind(|row| matches![row, Row::Accelerometer(_)]);
             if let Some(Row::Accelerometer(accel)) = option_backfill_accelerometer {
-                backfill.push(accel.to_message(accel_ch_id));
+                backfill.push(accel.to_message());
             }
         }
         if want_temperature {
@@ -133,7 +131,7 @@ impl DataLoader for NDJsonLoader {
                 .iter()
                 .rfind(|row| matches![row, Row::Temperature(_)]);
             if let Some(Row::Temperature(temperature)) = option_backfill_temperature {
-                backfill.push(temperature.to_message(accel_ch_id));
+                backfill.push(temperature.to_message());
             }
         }
         Ok(backfill)
@@ -146,14 +144,12 @@ struct NDJsonIterator {
     start: u64,
     end: u64,
     channels: BTreeSet<u16>,
-    init: Rc<Initialization>,
 }
 
 impl NDJsonIterator {
-    fn open(rows: Rc<Vec<Row>>, init: Rc<Initialization>, args: &MessageIteratorArgs) -> Self {
+    fn open(rows: Rc<Vec<Row>>, args: &MessageIteratorArgs) -> Self {
         Self {
             rows: rows.clone(),
-            init,
             index: 0,
             start: args.start_time.unwrap_or(0),
             end: args.end_time.unwrap_or(u64::MAX),
@@ -166,8 +162,6 @@ impl MessageIterator for NDJsonIterator {
     type Error = anyhow::Error;
 
     fn next(&mut self) -> Option<Result<Message, Self::Error>> {
-        let acc_ch_id = self.init.get_channel("/accelerometer").unwrap().id;
-        let temp_ch_id = self.init.get_channel("/temperature").unwrap().id;
         loop {
             let row = self.rows.get(self.index);
             self.index += 1;
@@ -182,13 +176,13 @@ impl MessageIterator for NDJsonIterator {
             match row {
                 None => return None,
                 Some(Row::Accelerometer(accel)) => {
-                    if self.channels.contains(&acc_ch_id) {
-                        return Some(Ok(accel.to_message(acc_ch_id)));
+                    if self.channels.contains(&ACC_CHANNEL_ID) {
+                        return Some(Ok(accel.to_message()));
                     }
                 }
                 Some(Row::Temperature(temperature)) => {
-                    if self.channels.contains(&temp_ch_id) {
-                        return Some(Ok(temperature.to_message(temp_ch_id)));
+                    if self.channels.contains(&TEMP_CHANNEL_ID) {
+                        return Some(Ok(temperature.to_message()));
                     }
                 }
             };
@@ -238,13 +232,13 @@ struct Temperature {
 }
 
 impl Accelerometer {
-    fn to_message(&self, channel_id: u16) -> Message {
+    fn to_message(&self) -> Message {
         let time_nanos = seconds_to_nanos(self.time);
         let mut data = Vec::with_capacity(self.encoded_len().unwrap_or(0));
         self.encode(&mut data)
             .expect("failed to encode Accelerometer");
         Message {
-            channel_id,
+            channel_id: ACC_CHANNEL_ID,
             log_time: time_nanos,
             publish_time: time_nanos,
             data,
@@ -253,16 +247,18 @@ impl Accelerometer {
 }
 
 impl Temperature {
-    fn to_message(&self, channel_id: u16) -> Message {
+    fn to_message(&self) -> Message {
         let time_nanos = seconds_to_nanos(self.time);
         let mut data = Vec::with_capacity(self.encoded_len().unwrap_or(0));
         self.encode(&mut data)
             .expect("failed to encode Temperature");
         Message {
-            channel_id,
+            channel_id: TEMP_CHANNEL_ID,
             log_time: time_nanos,
             publish_time: time_nanos,
             data,
         }
     }
 }
+
+foxglove_data_loader::export!(NDJsonLoader);

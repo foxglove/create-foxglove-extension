@@ -1,8 +1,8 @@
 # ndjson foxglove data loader example
 
-## _A Foxglove Data Loader _
+## A Foxglove Data Loader
 
-This is a simple [Foxglove](http://foxglove.dev/) [extension panel](https://docs.foxglove.dev/docs/visualization/extensions/api/panel) that demonstrates loading a custom file format.
+This is a simple [Foxglove](http://foxglove.dev/) [extension](https://docs.foxglove.dev/docs/visualization/extensions/) that demonstrates loading a custom file format.
 
 ---
 
