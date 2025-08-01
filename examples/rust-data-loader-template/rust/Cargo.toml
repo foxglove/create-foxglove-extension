@@ -8,4 +8,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 anyhow = "1.0"
-foxglove_data_loader = { git = "https://github.com/foxglove/foxglove-sdk.git", rev = "a697f504d66c73ef42027c7f7d009608163835b4" }
+foxglove_data_loader = "0.1.0"
