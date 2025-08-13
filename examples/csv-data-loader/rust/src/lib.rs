@@ -3,20 +3,23 @@ use std::{
     io::{Cursor, Read},
 };
 
-use anyhow::bail;
-
-use csv::StringRecord;
 use foxglove_data_loader::{
     DataLoader, DataLoaderArgs, Initialization, Message, MessageIterator, MessageIteratorArgs,
     reader::{self},
 };
+
+use anyhow::bail;
+use csv::StringRecord;
 use serde_json::json;
 
 #[derive(Default)]
 struct CsvDataLoader {
-    paths: Vec<String>,
+    path: String,
+    /// Index of timestamp to byte offset
     indexes: BTreeMap<u64, u64>,
+    /// The index of the field containing timestamp
     log_time_index: usize,
+    /// The keys from the first row of the CSV
     keys: Vec<String>,
 }
 
@@ -25,35 +28,44 @@ impl DataLoader for CsvDataLoader {
     type Error = anyhow::Error;
 
     fn new(args: DataLoaderArgs) -> Self {
-        let DataLoaderArgs { paths } = args;
+        let DataLoaderArgs { mut paths } = args;
+        assert_eq!(
+            paths.len(),
+            1,
+            "data loader is configured to only get one file"
+        );
         Self {
-            paths,
+            path: paths.remove(0),
             ..Default::default()
         }
     }
 
     fn initialize(&mut self) -> Result<Initialization, Self::Error> {
-        let Some(path) = self.paths.first() else {
-            bail!("no paths provided to data loader");
-        };
-
         let mut reader = csv::ReaderBuilder::new()
             .has_headers(true)
-            .from_reader(reader::open(path));
+            .from_reader(reader::open(&self.path));
 
+        // Read the headers of the CSV and store them on the loader.
+        // We will turn each column into a topic so the CSV needs to have a header.
         let headers = reader.headers()?;
-
         self.keys = headers.iter().map(String::from).collect();
 
+        // Read through the keys and try to find a field called "timestamp_nanos". If this doesn't
+        // exit then we can't read the file as we have no way of knowing the log time.
         let Some(log_time_index) = self.keys.iter().position(|k| k == "timestamp_nanos") else {
             bail!("expected csv to contain column called timestamp_nanos")
         };
 
+        // Store the column index of the timestamp to be used for the log time.
         self.log_time_index = log_time_index;
 
         let mut record = StringRecord::new();
         let mut position = reader.position().byte();
 
+        // Read the entire file to build up an index of timestamps to byte position.
+        // Later on we'll use this index to make sure we can immediately start reading from the
+        // correct place. This will take a little bit of time when the file loads for the first
+        // time, but it will mean playback is snappy later on.
         while reader.read_record(&mut record)? {
             let timestamp_nanos: u64 = record[log_time_index].parse()?;
             self.indexes.insert(timestamp_nanos, position);
@@ -75,7 +87,8 @@ impl DataLoader for CsvDataLoader {
             );
 
         for (i, key) in self.keys.iter().enumerate() {
-            if key == "timestamp_nanos" {
+            // Don't add a channel for the column used for log time
+            if i == self.log_time_index {
                 continue;
             }
 
@@ -97,19 +110,20 @@ impl DataLoader for CsvDataLoader {
 
         match self.indexes.range(args.start_time.unwrap_or(0)..).next() {
             Some((_, byte_offset)) => {
-                let reader = reader::open(&self.paths[0]);
+                let reader = reader::open(&self.path);
                 reader.seek(*byte_offset);
 
                 Ok(CsvMessageIterator {
-                    messages_to_flush: Default::default(),
+                    row_to_flush: Default::default(),
                     log_time_index: self.log_time_index,
                     requested_channel_id,
                     reader: csv::Reader::from_reader(Box::new(reader)),
                 })
             }
+            // If there is no byte offset (we've gone past the last timestamp), return empty iter
             None => Ok(CsvMessageIterator {
-                messages_to_flush: Default::default(),
                 log_time_index: self.log_time_index,
+                row_to_flush: Default::default(),
                 requested_channel_id: Default::default(),
                 reader: csv::Reader::from_reader(Box::new(Cursor::new([]))),
             }),
@@ -118,13 +132,16 @@ impl DataLoader for CsvDataLoader {
 }
 
 struct CsvMessageIterator {
-    messages_to_flush: Vec<Message>,
+    row_to_flush: Vec<Message>,
     log_time_index: usize,
     requested_channel_id: BTreeSet<u16>,
     reader: csv::Reader<Box<dyn Read>>,
 }
 
-fn to_serde_value(value: &str) -> serde_json::Value {
+/// Try and coerce the string into a JSON value.
+///
+/// Try to convert to a f64, then bool, else finally return a string.
+fn to_json_value(value: &str) -> serde_json::Value {
     if let Ok(v) = value.parse::<f64>() {
         return json!(v);
     }
@@ -141,13 +158,14 @@ impl MessageIterator for CsvMessageIterator {
 
     fn next(&mut self) -> Option<Result<Message, Self::Error>> {
         loop {
-            if let Some(message) = self.messages_to_flush.pop() {
+            // We emit each column of a row as its own message.
+            if let Some(message) = self.row_to_flush.pop() {
                 return Some(Ok(message));
             }
 
-            let mut record = StringRecord::new();
+            let mut columns = StringRecord::new();
 
-            match self.reader.read_record(&mut record) {
+            match self.reader.read_record(&mut columns) {
                 Err(e) => {
                     return Some(Err(e.into()));
                 }
@@ -158,33 +176,32 @@ impl MessageIterator for CsvMessageIterator {
                 Ok(true) => {}
             }
 
-            let timestamp = match record[self.log_time_index].parse::<u64>() {
+            // Get the log time for the row. This will need to be on every message.
+            let timestamp = match columns[self.log_time_index].parse::<u64>() {
                 Ok(t) => t,
                 Err(e) => {
                     return Some(Err(e.into()));
                 }
             };
 
-            for (index, value) in record.iter().enumerate() {
-                // Don't emit the log time index as a
+            for (index, cell) in columns.iter().enumerate() {
+                // Don't emit the timestamp column as a message
                 if index == self.log_time_index {
                     continue;
                 }
 
                 let channel_id = index as u16;
 
+                // If this column wasn't requested, skip it
                 if !self.requested_channel_id.contains(&channel_id) {
                     continue;
                 }
 
-                let data = match serde_json::to_vec(&json!({ "value": to_serde_value(value) })) {
-                    Ok(d) => d,
-                    Err(e) => {
-                        return Some(Err(e.into()));
-                    }
-                };
+                let data = serde_json::to_vec(&json!({ "value": to_json_value(cell) }))
+                    .expect("json will not fail to serialize");
 
-                self.messages_to_flush.push(Message {
+                // Add this message to the row and continue onto the next column
+                self.row_to_flush.push(Message {
                     channel_id,
                     log_time: timestamp,
                     publish_time: timestamp,

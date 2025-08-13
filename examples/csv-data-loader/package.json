@@ -1,7 +1,7 @@
 {
   "name": "csv-data-loader",
-  "displayName": "CSV Foxglove Data Loader",
-  "description": "",
+  "displayName": "CSV Data Loader",
+  "description": "Data loader for loading CSV files. The file must have a field called 'timestamp_nanos' and be in ascending timestamp.",
   "publisher": "Foxglove",
   "version": "1.1.0",
   "license": "MIT",

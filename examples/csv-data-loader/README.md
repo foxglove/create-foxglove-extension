@@ -1,6 +1,7 @@
-# Foxglove Data Loader Template
+# CSV Data Loader
 
-This is a simple [Foxglove](http://foxglove.dev/) [extension](https://docs.foxglove.dev/docs/visualization/extensions) that provides the building blocks for writing support for a custom file format.
+This is a simple [Foxglove](http://foxglove.dev/) [extension](https://docs.foxglove.dev/docs/visualization/extensions) that loads a CSV file.
+The file must have a column called `timestamp_nanos` in order to be read.
 
 ## Building
 
