@@ -1,0 +1,13 @@
+[package]
+name = "csv-foxglove-data-loader"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+csv = "1.3.1"
+foxglove_data_loader = "0.1.0"
+serde_json = "1.0.142"
