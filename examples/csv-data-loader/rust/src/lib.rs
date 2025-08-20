@@ -43,6 +43,7 @@ impl DataLoader for CsvDataLoader {
     fn initialize(&mut self) -> Result<Initialization, Self::Error> {
         let mut reader = csv::ReaderBuilder::new()
             .has_headers(true)
+            .trim(csv::Trim::All)
             .from_reader(reader::open(&self.path));
 
         // Read the headers of the CSV and store them on the loader.
@@ -117,7 +118,10 @@ impl DataLoader for CsvDataLoader {
                     row_to_flush: Default::default(),
                     log_time_index: self.log_time_index,
                     requested_channel_id,
-                    reader: csv::Reader::from_reader(Box::new(reader)),
+                    reader: csv::ReaderBuilder::new()
+                        .has_headers(false)
+                        .trim(csv::Trim::All)
+                        .from_reader(Box::new(reader)),
                 })
             }
             // If there is no byte offset (we've gone past the last timestamp), return empty iter
