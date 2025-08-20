@@ -1,6 +1,6 @@
 # CSV Data Loader
 
-This is a simple [Foxglove](http://foxglove.dev/) [extension](https://docs.foxglove.dev/docs/visualization/extensions) that loads a CSV file.
+This is a simple [Foxglove](https://foxglove.dev/) [extension](https://docs.foxglove.dev/docs/visualization/extensions) that loads a CSV file.
 The file must have a column called `timestamp_nanos` in order to be read.
 
 ## Building
