@@ -60,11 +60,11 @@ export async function buildCommand(options: BuildOptions = {}): Promise<void> {
 function getErrorOutput(compilation: webpack.Compilation): string {
   const warnings = compilation
     .getWarnings()
-    .map((warning) => String(warning.message))
+    .map((warning) => warning.message)
     .join("\n");
   const errors = compilation
     .getErrors()
-    .map((error) => String(error.message))
+    .map((error) => error.message)
     .join("\n");
   let output = "";
   if (warnings.length > 0) {
