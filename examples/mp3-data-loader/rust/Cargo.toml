@@ -1,0 +1,13 @@
+[package]
+name = "foxglove-data-loader"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+foxglove = { version = "0.9.0", default-features = false }
+foxglove_data_loader = "0.1.0"
+nanomp3 = "0.1.1"
