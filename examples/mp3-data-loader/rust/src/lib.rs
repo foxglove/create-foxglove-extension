@@ -7,7 +7,6 @@ use foxglove_data_loader::{
 };
 
 use anyhow::Context;
-use std::collections::Bound;
 
 #[derive(Default)]
 struct Mp3DataLoader {
@@ -77,9 +76,7 @@ impl DataLoader for Mp3DataLoader {
             return Ok(Mp3MessageIterator::empty());
         }
         let end_time = args.end_time.unwrap_or(file_end_time);
-        let mut range = self
-            .indexes
-            .range((Bound::Included(start_time), Bound::Included(end_time)));
+        let mut range = self.indexes.range(start_time..=end_time);
         let Some((&cur_timestamp, &cur_pos)) = range.next() else {
             return Ok(Mp3MessageIterator::empty());
         };
@@ -168,7 +165,7 @@ impl MessageIterator for Mp3MessageIterator {
                 }));
             }
         }
-        return None;
+        None
     }
 }
 
