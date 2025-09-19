@@ -1,9 +1,9 @@
 {
-  "name": "foxglove-data-loader-template",
-  "displayName": "Foxglove Data Loader Template",
+  "name": "mp3-data-loader",
+  "displayName": "MP3 Data Loader",
   "description": "",
   "publisher": "Foxglove",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
