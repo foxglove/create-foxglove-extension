@@ -135,36 +135,38 @@ impl MessageIterator for Mp3MessageIterator {
                 .decoder
                 .decode(&self.content[self.cur_pos..], &mut samples);
             self.cur_pos += consumed;
-            if let Some(frame_info) = frame_info {
-                let valid =
-                    &samples[..frame_info.samples_produced * frame_info.channels.num() as usize];
-                let duration = len_ns(&frame_info);
-                let log_time = self.cur_timestamp;
-                self.cur_timestamp += duration;
-                let sec = (log_time / NS_PER_S) as u32;
-                let nsec = (log_time % NS_PER_S) as u32;
-                let msg = foxglove::schemas::RawAudio {
-                    timestamp: Some(foxglove::schemas::Timestamp::new(sec, nsec)),
-                    format: "pcm-s16".into(),
-                    data: valid
-                        .iter()
-                        .flat_map(|&i| ((i * i16::MAX as f32) as i16).to_le_bytes())
-                        .collect(),
-                    number_of_channels: frame_info.channels.num() as u32,
-                    sample_rate: frame_info.sample_rate,
-                };
-                self.last_encoded_message.clear();
-                if let Err(err) = msg.encode(&mut self.last_encoded_message) {
-                    return Some(Err(err.into()));
-                };
 
-                return Some(Ok(Message {
-                    channel_id: self.channel_id,
-                    log_time,
-                    publish_time: log_time,
-                    data: self.last_encoded_message.clone(),
-                }));
-            }
+            let Some(frame_info) = frame_info else {
+                continue;
+            };
+            let valid =
+                &samples[..frame_info.samples_produced * frame_info.channels.num() as usize];
+            let duration = len_ns(&frame_info);
+            let log_time = self.cur_timestamp;
+            self.cur_timestamp += duration;
+            let sec = (log_time / NS_PER_S) as u32;
+            let nsec = (log_time % NS_PER_S) as u32;
+            let msg = foxglove::schemas::RawAudio {
+                timestamp: Some(foxglove::schemas::Timestamp::new(sec, nsec)),
+                format: "pcm-s16".into(),
+                data: valid
+                    .iter()
+                    .flat_map(|&i| ((i * i16::MAX as f32) as i16).to_le_bytes())
+                    .collect(),
+                number_of_channels: frame_info.channels.num() as u32,
+                sample_rate: frame_info.sample_rate,
+            };
+            self.last_encoded_message.clear();
+            if let Err(err) = msg.encode(&mut self.last_encoded_message) {
+                return Some(Err(err.into()));
+            };
+
+            return Some(Ok(Message {
+                channel_id: self.channel_id,
+                log_time,
+                publish_time: log_time,
+                data: self.last_encoded_message.clone(),
+            }));
         }
         None
     }
