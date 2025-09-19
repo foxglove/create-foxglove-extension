@@ -8,6 +8,8 @@ use foxglove_data_loader::{
 
 use anyhow::Context;
 
+const NS_PER_S: u64 = 1_000_000_000;
+
 #[derive(Default)]
 struct Mp3DataLoader {
     path: String,
@@ -93,7 +95,6 @@ impl DataLoader for Mp3DataLoader {
 }
 
 fn len_ns(frame_info: &nanomp3::FrameInfo) -> u64 {
-    const NS_PER_S: u64 = 1_000_000_000;
     (frame_info.samples_produced as u64 * NS_PER_S) / (frame_info.sample_rate as u64)
 }
 
@@ -140,8 +141,8 @@ impl MessageIterator for Mp3MessageIterator {
                 let duration = len_ns(&frame_info);
                 let log_time = self.cur_timestamp;
                 self.cur_timestamp += duration;
-                let sec = (log_time / 1_000_000_000) as u32;
-                let nsec = (log_time % 1_000_000_000) as u32;
+                let sec = (log_time / NS_PER_S) as u32;
+                let nsec = (log_time % NS_PER_S) as u32;
                 let msg = foxglove::schemas::RawAudio {
                     timestamp: Some(foxglove::schemas::Timestamp::new(sec, nsec)),
                     format: "pcm-s16".into(),
