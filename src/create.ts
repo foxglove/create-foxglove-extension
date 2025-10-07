@@ -44,8 +44,15 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   const replacements = new Map([["${NAME}", name]]);
   const files = await listFiles(templateDir);
   for (const file of files) {
+    let remapped = file;
+    // .npmignore files are used by package developers to get around some issues,
+    // so npx <packagename> will install .gitignore files included in the package
+    // as .npmignore, but we explicity want to use a .gitignore here
+    if (file === ".npmignore") {
+      remapped = ".gitignore";
+    }
     const srcFile = path.resolve(templateDir, file);
-    const dstFile = path.resolve(extensionDir, file);
+    const dstFile = path.resolve(extensionDir, remapped);
     await copyTemplateFile(srcFile, dstFile, replacements);
   }
 
