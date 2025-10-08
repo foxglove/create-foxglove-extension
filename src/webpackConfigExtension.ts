@@ -48,9 +48,18 @@ export default (
     },
     module: {
       rules: [
+        // Allow importing files as a raw string
+        // import foo from 'foo.ts?raw';
+        {
+          resourceQuery: /\?raw$/,
+          type: "asset/source",
+        },
         {
           test: /\.tsx?$/,
           exclude: /node_modules/,
+          // Prevent the ts-loader from running on files with the raw query argument. We don't want
+          // these to compile via the loader and instead be imported exactly as they are.
+          resourceQuery: { not: [/\?raw$/] },
           use: [
             {
               loader: "ts-loader",
