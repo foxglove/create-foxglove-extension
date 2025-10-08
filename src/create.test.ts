@@ -20,7 +20,6 @@ jest.mock("./log.ts", () => ({
 beforeAll(async () => {
   setGracefulCleanup();
   tmpdir = dirSync({ unsafeCleanup: true }).name;
-  // this gets installed by the package outside of typescript
   await tar.create(
     {
       gzip: true,
