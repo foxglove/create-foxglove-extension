@@ -38,7 +38,7 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   const tempDir = await mkdtemp("extract-template-");
   await tar.extract({
     cwd: tempDir,
-    file: path.join(__dirname, "..", "template.tar.gz"),
+    file: path.join(__dirname, "template.tar.gz"),
   });
   const extensionDir = path.join(cwd, name);
   const templateDir = path.join(tempDir, "template");
