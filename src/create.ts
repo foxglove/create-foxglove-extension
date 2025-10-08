@@ -1,11 +1,12 @@
 import { spawn } from "child_process";
 import { constants } from "fs";
-import { access, readdir, readFile, writeFile } from "fs/promises";
-import { mkdirp } from "mkdirp";
+import { access, mkdtemp, readdir, readFile, writeFile } from "fs/promises";
 import * as path from "path";
 import sanitize from "sanitize-filename";
+import * as tar from "tar";
 
 import { info } from "./log";
+import { mkdirp } from "mkdirp";
 
 const DEPENDENCIES = [
   "@foxglove/eslint-plugin@^2",
@@ -34,8 +35,13 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   }
 
   const cwd = options.cwd ?? process.cwd();
-  const templateDir = path.join(__dirname, "..", "template");
+  const tempDir = await mkdtemp("extract-template");
+  await tar.extract({
+    cwd: tempDir,
+    file: path.join(__dirname, "..", "template.tar.gz"),
+  });
   const extensionDir = path.join(cwd, name);
+  const templateDir = path.join(tempDir, 'template')
 
   if (await exists(extensionDir)) {
     throw new Error(`Directory "${extensionDir}" already exists`);
@@ -44,15 +50,8 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   const replacements = new Map([["${NAME}", name]]);
   const files = await listFiles(templateDir);
   for (const file of files) {
-    let remapped = file;
-    // .npmignore files are used by package developers to get around some issues,
-    // so npx <packagename> will install .gitignore files included in the package
-    // as .npmignore, but we explicity want to use a .gitignore here
-    if (file === ".npmignore") {
-      remapped = ".gitignore";
-    }
     const srcFile = path.resolve(templateDir, file);
-    const dstFile = path.resolve(extensionDir, remapped);
+    const dstFile = path.resolve(extensionDir, file);
     await copyTemplateFile(srcFile, dstFile, replacements);
   }
 
