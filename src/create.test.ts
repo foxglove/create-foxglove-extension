@@ -24,7 +24,7 @@ beforeAll(async () => {
   await tar.create(
     {
       gzip: true,
-      file: "template.tar.gz",
+      file: path.join(tmpdir, "./template.tar.gz"),
     },
     ["./template"],
   );
@@ -32,7 +32,7 @@ beforeAll(async () => {
 
 describe("createCommand", () => {
   it("creates a skeleton extension package", async () => {
-    await createCommand({ name: "extension-test", cwd: tmpdir });
+    await createCommand({ name: "extension-test", cwd: tmpdir, dirname: tmpdir });
 
     const destDir = path.join(tmpdir, "extension-test");
     const contents = await readdir(destDir, { withFileTypes: true });

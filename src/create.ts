@@ -24,6 +24,7 @@ const DEPENDENCIES = [
 export interface CreateOptions {
   readonly name: string;
   readonly cwd?: string;
+  readonly dirname?: string;
 }
 
 export async function createCommand(options: CreateOptions): Promise<void> {
@@ -35,10 +36,11 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   }
 
   const cwd = options.cwd ?? process.cwd();
+  const dirname = options.dirname ?? __dirname;
   const tempDir = await mkdtemp("extract-template-");
   await tar.extract({
     cwd: tempDir,
-    file: path.join(__dirname, "template.tar.gz"),
+    file: path.join(dirname, "template.tar.gz"),
   });
   const extensionDir = path.join(cwd, name);
   const templateDir = path.join(tempDir, "template");
