@@ -1,9 +1,10 @@
 import { spawn } from "child_process";
 import { constants } from "fs";
-import { access, readdir, readFile, writeFile } from "fs/promises";
+import { access, mkdtemp, readdir, readFile, rm, writeFile } from "fs/promises";
 import { mkdirp } from "mkdirp";
 import * as path from "path";
 import sanitize from "sanitize-filename";
+import * as tar from "tar";
 
 import { info } from "./log";
 
@@ -23,6 +24,7 @@ const DEPENDENCIES = [
 export interface CreateOptions {
   readonly name: string;
   readonly cwd?: string;
+  readonly dirname?: string;
 }
 
 export async function createCommand(options: CreateOptions): Promise<void> {
@@ -34,24 +36,37 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   }
 
   const cwd = options.cwd ?? process.cwd();
-  const templateDir = path.join(__dirname, "..", "template");
-  const extensionDir = path.join(cwd, name);
+  const dirname = options.dirname ?? __dirname;
+  let tempDir;
+  try {
+    const extensionDir = path.join(cwd, name);
+    if (await exists(extensionDir)) {
+      throw new Error(`Directory "${extensionDir}" already exists`);
+    }
 
-  if (await exists(extensionDir)) {
-    throw new Error(`Directory "${extensionDir}" already exists`);
+    tempDir = await mkdtemp("extract-template-");
+    await tar.extract({
+      cwd: tempDir,
+      file: path.join(dirname, "template.tar.gz"),
+    });
+    const templateDir = path.join(tempDir, "template");
+
+    const replacements = new Map([["${NAME}", name]]);
+    const files = await listFiles(templateDir);
+    for (const file of files) {
+      const srcFile = path.resolve(templateDir, file);
+      const dstFile = path.resolve(extensionDir, file);
+      await copyTemplateFile(srcFile, dstFile, replacements);
+    }
+
+    await installDependencies(extensionDir, DEPENDENCIES);
+
+    info(`Created Foxglove extension "${name}" at ${extensionDir}`);
+  } finally {
+    if (tempDir) {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   }
-
-  const replacements = new Map([["${NAME}", name]]);
-  const files = await listFiles(templateDir);
-  for (const file of files) {
-    const srcFile = path.resolve(templateDir, file);
-    const dstFile = path.resolve(extensionDir, file);
-    await copyTemplateFile(srcFile, dstFile, replacements);
-  }
-
-  await installDependencies(extensionDir, DEPENDENCIES);
-
-  info(`Created Foxglove extension "${name}" at ${extensionDir}`);
 }
 
 async function exists(filename: string): Promise<boolean> {

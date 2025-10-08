@@ -1,5 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import * as path from "path";
+import * as tar from "tar";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { createCommand } from "./create";
@@ -16,14 +17,21 @@ jest.mock("./log.ts", () => ({
   }),
 }));
 
-beforeAll(() => {
+beforeAll(async () => {
   setGracefulCleanup();
   tmpdir = dirSync({ unsafeCleanup: true }).name;
+  await tar.create(
+    {
+      gzip: true,
+      file: path.join(tmpdir, "./template.tar.gz"),
+    },
+    ["./template"],
+  );
 });
 
 describe("createCommand", () => {
   it("creates a skeleton extension package", async () => {
-    await createCommand({ name: "extension-test", cwd: tmpdir });
+    await createCommand({ name: "extension-test", cwd: tmpdir, dirname: tmpdir });
 
     const destDir = path.join(tmpdir, "extension-test");
     const contents = await readdir(destDir, { withFileTypes: true });
@@ -40,6 +48,7 @@ describe("createCommand", () => {
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
     expect(files).toContain("package-lock.json");
+    expect(files).toContain(".gitignore");
     expect(files).not.toContain("yarn.lock");
 
     const packageJsonStr = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });
