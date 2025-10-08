@@ -55,7 +55,7 @@ export async function createCommand(options: CreateOptions): Promise<void> {
     await copyTemplateFile(srcFile, dstFile, replacements);
   }
 
-  await rm(tempDir);
+  await rm(tempDir, { recursive: true, force: true });
   await installDependencies(extensionDir, DEPENDENCIES);
 
   info(`Created Foxglove extension "${name}" at ${extensionDir}`);
