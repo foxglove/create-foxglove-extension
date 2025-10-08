@@ -1,5 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import * as path from "path";
+import * as tar from "tar";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { createCommand } from "./create";
@@ -16,9 +17,17 @@ jest.mock("./log.ts", () => ({
   }),
 }));
 
-beforeAll(() => {
+beforeAll(async () => {
   setGracefulCleanup();
   tmpdir = dirSync({ unsafeCleanup: true }).name;
+  // this gets installed by the package outside of typescript
+  await tar.create(
+    {
+      gzip: true,
+      file: "template.tar.gz",
+    },
+    ["./template"],
+  );
 });
 
 describe("createCommand", () => {
@@ -40,6 +49,7 @@ describe("createCommand", () => {
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
     expect(files).toContain("package-lock.json");
+    expect(files).toContain(".gitignore");
     expect(files).not.toContain("yarn.lock");
 
     const packageJsonStr = await readFile(path.join(destDir, "package.json"), { encoding: "utf8" });

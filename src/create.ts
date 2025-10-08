@@ -1,12 +1,12 @@
 import { spawn } from "child_process";
 import { constants } from "fs";
-import { access, mkdtemp, readdir, readFile, writeFile } from "fs/promises";
+import { access, mkdtemp, readdir, readFile, rm, writeFile } from "fs/promises";
+import { mkdirp } from "mkdirp";
 import * as path from "path";
 import sanitize from "sanitize-filename";
 import * as tar from "tar";
 
 import { info } from "./log";
-import { mkdirp } from "mkdirp";
 
 const DEPENDENCIES = [
   "@foxglove/eslint-plugin@^2",
@@ -35,13 +35,13 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   }
 
   const cwd = options.cwd ?? process.cwd();
-  const tempDir = await mkdtemp("extract-template");
+  const tempDir = await mkdtemp("extract-template-");
   await tar.extract({
     cwd: tempDir,
     file: path.join(__dirname, "..", "template.tar.gz"),
   });
   const extensionDir = path.join(cwd, name);
-  const templateDir = path.join(tempDir, 'template')
+  const templateDir = path.join(tempDir, "template");
 
   if (await exists(extensionDir)) {
     throw new Error(`Directory "${extensionDir}" already exists`);
@@ -55,6 +55,7 @@ export async function createCommand(options: CreateOptions): Promise<void> {
     await copyTemplateFile(srcFile, dstFile, replacements);
   }
 
+  await rm(tempDir);
   await installDependencies(extensionDir, DEPENDENCIES);
 
   info(`Created Foxglove extension "${name}" at ${extensionDir}`);
