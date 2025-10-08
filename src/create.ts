@@ -39,17 +39,17 @@ export async function createCommand(options: CreateOptions): Promise<void> {
   const dirname = options.dirname ?? __dirname;
   let tempDir;
   try {
+    const extensionDir = path.join(cwd, name);
+    if (await exists(extensionDir)) {
+      throw new Error(`Directory "${extensionDir}" already exists`);
+    }
+
     tempDir = await mkdtemp("extract-template-");
     await tar.extract({
       cwd: tempDir,
       file: path.join(dirname, "template.tar.gz"),
     });
-    const extensionDir = path.join(cwd, name);
     const templateDir = path.join(tempDir, "template");
-
-    if (await exists(extensionDir)) {
-      throw new Error(`Directory "${extensionDir}" already exists`);
-    }
 
     const replacements = new Map([["${NAME}", name]]);
     const files = await listFiles(templateDir);
