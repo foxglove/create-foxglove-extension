@@ -37,30 +37,36 @@ export async function createCommand(options: CreateOptions): Promise<void> {
 
   const cwd = options.cwd ?? process.cwd();
   const dirname = options.dirname ?? __dirname;
-  const tempDir = await mkdtemp("extract-template-");
-  await tar.extract({
-    cwd: tempDir,
-    file: path.join(dirname, "template.tar.gz"),
-  });
-  const extensionDir = path.join(cwd, name);
-  const templateDir = path.join(tempDir, "template");
+  let tempDir;
+  try {
+    tempDir = await mkdtemp("extract-template-");
+    await tar.extract({
+      cwd: tempDir,
+      file: path.join(dirname, "template.tar.gz"),
+    });
+    const extensionDir = path.join(cwd, name);
+    const templateDir = path.join(tempDir, "template");
 
-  if (await exists(extensionDir)) {
-    throw new Error(`Directory "${extensionDir}" already exists`);
+    if (await exists(extensionDir)) {
+      throw new Error(`Directory "${extensionDir}" already exists`);
+    }
+
+    const replacements = new Map([["${NAME}", name]]);
+    const files = await listFiles(templateDir);
+    for (const file of files) {
+      const srcFile = path.resolve(templateDir, file);
+      const dstFile = path.resolve(extensionDir, file);
+      await copyTemplateFile(srcFile, dstFile, replacements);
+    }
+
+    await installDependencies(extensionDir, DEPENDENCIES);
+
+    info(`Created Foxglove extension "${name}" at ${extensionDir}`);
+  } finally {
+    if (tempDir) {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   }
-
-  const replacements = new Map([["${NAME}", name]]);
-  const files = await listFiles(templateDir);
-  for (const file of files) {
-    const srcFile = path.resolve(templateDir, file);
-    const dstFile = path.resolve(extensionDir, file);
-    await copyTemplateFile(srcFile, dstFile, replacements);
-  }
-
-  await rm(tempDir, { recursive: true, force: true });
-  await installDependencies(extensionDir, DEPENDENCIES);
-
-  info(`Created Foxglove extension "${name}" at ${extensionDir}`);
 }
 
 async function exists(filename: string): Promise<boolean> {
