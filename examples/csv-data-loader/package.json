@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "2.0.0",
-    "@foxglove/extension": "2.29.0",
+    "@foxglove/extension": "2.40.0",
     "@foxglove/schemas": "1.6.4",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
