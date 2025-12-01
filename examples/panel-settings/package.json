@@ -4,7 +4,7 @@
   "description": "This is an example of the use of the settings api in an extension panel.",
   "publisher": "foxglove",
   "homepage": "",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "license": "UNLICENSED",
   "main": "./dist/extension.js",
   "keywords": [],
