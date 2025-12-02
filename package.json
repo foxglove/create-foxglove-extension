@@ -45,17 +45,16 @@
     "@types/node-fetch": "2.6.12",
     "@types/tmp": "0.2.6",
     "css-loader": "7.1.2",
-    "eslint": "9.15.0",
-    "jest": "29.7.0",
+    "eslint": "9.39.1",
+    "jest": "30.2.0",
     "prettier": "3.3.3",
     "style-loader": "4.0.0",
     "tmp": "0.2.4",
-    "ts-jest": "29.2.5",
+    "ts-jest": "29.4.6",
     "typescript": "5.6.3",
-    "typescript-eslint": "8.15.0"
+    "typescript-eslint": "8.48.1"
   },
   "dependencies": {
-    "clean-webpack-plugin": "4.0.0",
     "commander": "12.1.0",
     "jszip": "3.10.1",
     "mkdirp": "3.0.1",
@@ -64,9 +63,12 @@
     "path-browserify": "1.0.1",
     "rimraf": "6.0.1",
     "sanitize-filename": "1.6.3",
-    "tar": "7.5.1",
+    "tar": "7.5.2",
     "ts-loader": "9.5.1",
     "webpack": "5.96.1"
+  },
+  "resolutions": {
+    "glob": "^11.1.0"
   },
   "packageManager": "yarn@4.5.1"
 }
