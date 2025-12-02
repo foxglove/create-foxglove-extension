@@ -67,8 +67,5 @@
     "ts-loader": "9.5.1",
     "webpack": "5.96.1"
   },
-  "resolutions": {
-    "glob": "^11.1.0"
-  },
   "packageManager": "yarn@4.5.1"
 }
