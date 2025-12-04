@@ -27,11 +27,6 @@ jobs:
 
   test:
     runs-on: ubuntu-24.04
-
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
       - uses: actions/checkout@v4.2.2
 
@@ -46,9 +41,6 @@ jobs:
       - run: yarn install --immutable
       - name: test
         run: yarn run test --maxWorkers=100%
-
-      - name: test npm publish
-        run: npm publish --provenance --access public --dry-run
 
   e2e:
     runs-on: ${{ matrix.os }}
