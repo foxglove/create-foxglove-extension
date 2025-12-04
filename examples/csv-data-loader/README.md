@@ -19,3 +19,5 @@ npm run package
 ```
 
 These steps will produce a `.foxe` file you can install as an extension from the Foxglove settings page.
+
+The file sample_data.csv provides some simple sample data you can use to test the extension.
