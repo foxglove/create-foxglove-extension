@@ -11,7 +11,6 @@ jobs:
     permissions:
       # https://docs.npmjs.com/generating-provenance-statements#publishing-packages-with-provenance-via-github-actions
       id-token: write
-      contents: read
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -28,3 +27,5 @@ jobs:
 
       - run: yarn install --immutable
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLISH_TOKEN}}
