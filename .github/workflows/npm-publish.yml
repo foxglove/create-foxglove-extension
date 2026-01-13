@@ -27,4 +27,4 @@ jobs:
       - run: corepack enable
 
       - run: yarn install --immutable
-      - run: npx npm@latest publish --provenance --access public
+      - run: yarn npm publish --access public --provenance

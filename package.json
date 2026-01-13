@@ -67,5 +67,5 @@
     "ts-loader": "9.5.1",
     "webpack": "5.96.1"
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.12.0"
 }
