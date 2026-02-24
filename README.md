@@ -54,7 +54,6 @@ config file should look something like this:
 ```typescript
 module.exports = {
   webpack: (config) => {
-    config.devtool = "inline-source-map";
     config.module.rules.push({
       test: /\.css$/i,
       use: ["style-loader", "css-loader"],
@@ -62,19 +61,6 @@ module.exports = {
     return config;
   },
 };
-```
-
-For reliable stack traces in Foxglove extension runtime errors, keep TypeScript source
-maps enabled in your extension `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "module": "esnext",
-    "sourceMap": true,
-    "inlineSources": true
-  }
-}
 ```
 
 ## Publishing Your Extension
