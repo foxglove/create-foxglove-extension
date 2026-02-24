@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es2020",
     "lib": ["es2020"],
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "newLine": "lf",
+    "sourceMap": true,
+    "inlineSources": true,
 
     "allowJs": true,
     "composite": true,
