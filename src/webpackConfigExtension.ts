@@ -21,10 +21,9 @@ export default (
       libraryTarget: "commonjs2",
       clean: true,
     },
-    // Always use the eval-source-map option so the source map is included in the source file.
-    // Because Foxglove _evals_ the extension script to run it - the source map must be inline with
-    // the source file. Using a separate source map file does not work.
-    devtool: "eval-source-map",
+    // Use inline source maps so the map is shipped with extension.js while avoiding eval-based
+    // frames that make runtime stack remapping less reliable.
+    devtool: "inline-source-map",
     externals: {
       "@foxglove/extension": "@foxglove/extension",
     },
