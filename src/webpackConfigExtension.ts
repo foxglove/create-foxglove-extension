@@ -64,6 +64,11 @@ export default (
               loader: "ts-loader",
               options: {
                 configFile,
+                // Suppress TS5097: "An import path can only end with a '.ts' extension
+                // when 'allowImportingTsExtensions' is enabled." The tsconfig uses
+                // moduleResolution: "bundler" which correctly resolves .ts imports
+                // through webpack, but TypeScript still emits this diagnostic.
+                ignoreDiagnostics: [5097],
               },
             },
           ],
