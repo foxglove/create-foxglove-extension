@@ -64,11 +64,12 @@ export default (
               loader: "ts-loader",
               options: {
                 configFile,
-                // Suppress TS5097: "An import path can only end with a '.ts' extension
-                // when 'allowImportingTsExtensions' is enabled." The tsconfig uses
-                // moduleResolution: "bundler" which correctly resolves .ts imports
-                // through webpack, but TypeScript still emits this diagnostic.
-                ignoreDiagnostics: [5097],
+                // Skip type checking during the webpack build — webpack only needs
+                // the transpiled JS output. This also allows the tsconfig to use
+                // noEmit + allowImportingTsExtensions (required for dependencies
+                // like @foxglove/extension that ship .ts source with .ts import
+                // paths). Type checking is handled by the IDE and tsc --noEmit.
+                transpileOnly: true,
               },
             },
           ],
