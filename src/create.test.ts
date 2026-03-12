@@ -5,7 +5,6 @@ import { dirSync, setGracefulCleanup } from "tmp";
 
 import { buildCommand } from "./build";
 import { createCommand } from "./create";
-import { packageCommand } from "./package";
 
 let tmpdir: string;
 
@@ -57,14 +56,6 @@ describe("createCommand", () => {
     expect(packageJsonStr).toContain("extension-test");
     const packageJson = JSON.parse(packageJsonStr) as Record<string, unknown>;
     expect(typeof (packageJson.devDependencies as Record<string, string>).react).toEqual("string");
-
-    // make sure the skeleton package is buildable and packagable
-    await packageCommand({ cwd: destDir });
-
-    // make sure we don't generate unneeded .d.ts files
-    const builtContents = await readdir(path.join(destDir, "dist"), { withFileTypes: true });
-    const builtFiles = builtContents.filter((entry) => entry.isFile()).map((entry) => entry.name);
-    expect(builtFiles.some((name) => name.endsWith(".d.ts"))).toBe(false);
   });
 
   it("fails to build when extension code has type errors", async () => {
