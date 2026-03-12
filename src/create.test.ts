@@ -1,9 +1,10 @@
 import { spawn } from "child_process";
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, writeFile } from "fs/promises";
 import * as path from "path";
 import * as tar from "tar";
 import { dirSync, setGracefulCleanup } from "tmp";
 
+import { buildCommand } from "./build";
 import { createCommand } from "./create";
 import { packageCommand } from "./package";
 
@@ -83,5 +84,21 @@ describe("createCommand", () => {
     const builtContents = await readdir(path.join(destDir, "dist"), { withFileTypes: true });
     const builtFiles = builtContents.filter((entry) => entry.isFile()).map((entry) => entry.name);
     expect(builtFiles.some((name) => name.endsWith(".d.ts"))).toBe(false);
+  });
+
+  it("fails to build when extension code has type errors", async () => {
+    const destDir = path.join(tmpdir, "extension-test");
+
+    // Inject a type error into the extension source
+    const indexPath = path.join(destDir, "src", "index.ts");
+    const original = await readFile(indexPath, { encoding: "utf8" });
+    await writeFile(indexPath, original + "\nconst testVar: number = 'not a number';\n");
+
+    try {
+      await expect(buildCommand({ cwd: destDir })).rejects.toThrow("Type checking failed");
+    } finally {
+      // Restore original source so other tests are not affected
+      await writeFile(indexPath, original);
+    }
   });
 });
