@@ -1,3 +1,4 @@
+import { spawn } from "child_process";
 import { readdir, readFile } from "fs/promises";
 import * as path from "path";
 import * as tar from "tar";
@@ -34,6 +35,24 @@ describe("createCommand", () => {
     await createCommand({ name: "extension-test", cwd: tmpdir, dirname: tmpdir });
 
     const destDir = path.join(tmpdir, "extension-test");
+
+    // Override npm-installed create-foxglove-extension with the local build
+    // so the test exercises the current source, not the published version.
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn("npm", ["install", "--install-links", "--save-dev", path.resolve(".")], {
+        shell: true,
+        stdio: "inherit",
+        cwd: destDir,
+      });
+      child.on("close", (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`npm exited ${code ?? "<null>"}`));
+        }
+      });
+    });
+
     const contents = await readdir(destDir, { withFileTypes: true });
 
     const dirs = contents.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
