@@ -3,14 +3,7 @@
     "module": "esnext",
     "target": "es2020",
     "lib": ["es2020"],
-    // "bundler" is the correct setting for webpack-based builds and supports
-    // the "exports" field in package.json. "allowImportingTsExtensions" permits
-    // dependencies that use .ts import paths (e.g. @foxglove/extension) and
-    // requires "noEmit" since TypeScript won't rewrite .ts paths in emitted JS.
-    // Webpack handles emit via ts-loader (transpileOnly), so noEmit is fine.
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "newLine": "lf",
     "sourceMap": true,
