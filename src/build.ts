@@ -1,4 +1,3 @@
-import { spawn } from "child_process";
 import { existsSync } from "fs";
 import * as path from "path";
 import webpack from "webpack";
@@ -18,33 +17,12 @@ function objectIsWebpackConfig(
   return typeof obj === "object" && obj != undefined && "webpack" in obj;
 }
 
-async function typecheck(cwd: string): Promise<void> {
-  info("Type checking...");
-  await new Promise<void>((resolve, reject) => {
-    const child = spawn("tsc", ["--noEmit"], {
-      cwd,
-      shell: true,
-      stdio: "inherit",
-    });
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Type checking failed with exit code ${code ?? "<null>"}`));
-      }
-    });
-    child.on("error", reject);
-  });
-}
-
 export async function buildCommand(options: BuildOptions = {}): Promise<void> {
   const env =
     options.mode ?? (process.env.NODE_ENV === "production" ? "production" : "development");
   const extensionPath = path.resolve((options.cwd ?? process.cwd()).replace(/"$/, ""));
   const entryPoint = options.entryPoint ?? "./src/index.ts";
   const configPath = path.join(extensionPath, "config.ts");
-
-  await typecheck(extensionPath);
 
   let webpackConfig = buildWebpackConfig(extensionPath, entryPoint, env);
   if (existsSync(configPath)) {

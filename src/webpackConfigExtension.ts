@@ -64,12 +64,6 @@ export default (
               loader: "ts-loader",
               options: {
                 configFile,
-                // Skip type checking during the webpack build — webpack only needs
-                // the transpiled JS output. This also allows the tsconfig to use
-                // noEmit + allowImportingTsExtensions (required for dependencies
-                // like @foxglove/extension that ship .ts source with .ts import
-                // paths). Type checking is handled by the IDE and tsc --noEmit.
-                transpileOnly: true,
               },
             },
           ],
