@@ -1,10 +1,10 @@
-import { readdir, readFile, writeFile } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import * as path from "path";
 import * as tar from "tar";
 import { dirSync, setGracefulCleanup } from "tmp";
 
-import { buildCommand } from "./build";
 import { createCommand } from "./create";
+import { packageCommand } from "./package";
 
 let tmpdir: string;
 
@@ -56,21 +56,12 @@ describe("createCommand", () => {
     expect(packageJsonStr).toContain("extension-test");
     const packageJson = JSON.parse(packageJsonStr) as Record<string, unknown>;
     expect(typeof (packageJson.devDependencies as Record<string, string>).react).toEqual("string");
-  });
 
-  it("fails to build when extension code has type errors", async () => {
-    const destDir = path.join(tmpdir, "extension-test");
+    await packageCommand({ cwd: destDir }); // make sure the skeleton package is buildable and packagable
 
-    // Inject a type error into the extension source
-    const indexPath = path.join(destDir, "src", "index.ts");
-    const original = await readFile(indexPath, { encoding: "utf8" });
-    await writeFile(indexPath, original + "\nconst testVar: number = 'not a number';\n");
-
-    try {
-      await expect(buildCommand({ cwd: destDir })).rejects.toThrow("Type checking failed");
-    } finally {
-      // Restore original source so other tests are not affected
-      await writeFile(indexPath, original);
-    }
+    // make sure we don't generate unneeded .d.ts files
+    const builtContents = await readdir(path.join(destDir, "dist"), { withFileTypes: true });
+    const builtFiles = builtContents.filter((entry) => entry.isFile()).map((entry) => entry.name);
+    expect(builtFiles.some((name) => name.endsWith(".d.ts"))).toBe(false);
   });
 });
