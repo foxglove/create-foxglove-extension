@@ -84,15 +84,15 @@ impl DataLoader for NDJsonLoader {
             .end_time(seconds_to_nanos(end_seconds));
 
         let vec3_schema = init.add_encode::<Accelerometer>()?;
-        init.add_channel_with_id(ACC_CHANNEL_ID, "/accelerometer")
+        vec3_schema
+            .add_channel_with_id(ACC_CHANNEL_ID, "/accelerometer")
             .expect("channel should be free")
-            .schema(&vec3_schema)
             .message_count(accelerometer_count as u64);
 
         let temp_schema = init.add_encode::<Temperature>()?;
-        init.add_channel_with_id(TEMP_CHANNEL_ID, "/temperature")
+        temp_schema
+            .add_channel_with_id(TEMP_CHANNEL_ID, "/temperature")
             .expect("channel should be free")
-            .schema(&temp_schema)
             .message_count(temperature_count as u64);
 
         Ok(init.build())
