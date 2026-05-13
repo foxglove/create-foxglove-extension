@@ -21,9 +21,15 @@ export default (
       libraryTarget: "commonjs2",
       clean: true,
     },
-    // Use inline source maps so the map is shipped with extension.js while avoiding eval-based
-    // frames that make runtime stack remapping less reliable.
-    devtool: "inline-source-map",
+    // In development, use eval-source-map so each module is wrapped in its own eval() with a
+    // per-module //# sourceURL marker. DevTools uses those markers as discrete script identities,
+    // which is what allows breakpoints to bind when Foxglove evals the bundle at runtime. With a
+    // single inline-source-map at the bottom of the bundle, every module collapses to one
+    // anonymous eval script and per-file breakpoints do not bind.
+    //
+    // In production, keep inline-source-map: terser strips per-module eval markers regardless,
+    // and a single inline map yields cleaner stack traces in error reports.
+    devtool: isDev ? "eval-source-map" : "inline-source-map",
     externals: {
       "@foxglove/extension": "@foxglove/extension",
     },
