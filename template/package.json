@@ -9,8 +9,8 @@
   "main": "./dist/extension.js",
   "keywords": [],
   "scripts": {
-    "build": "foxglove-extension build",
-    "foxglove:prepublish": "foxglove-extension build --mode production",
+    "build": "tsc --noEmit && vp build --mode development",
+    "foxglove:prepublish": "tsc --noEmit && vp build --mode production",
     "lint": "eslint .",
     "lint:ci": "eslint .",
     "lint:fix": "eslint --fix .",

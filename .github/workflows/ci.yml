@@ -5,7 +5,8 @@ on:
     branches: main
     tags: v*
   pull_request:
-    branches: "*"
+    # "**" also matches base branches that contain a slash, such as those of stacked PRs
+    branches: "**"
 
 jobs:
   lint:
@@ -18,11 +19,11 @@ jobs:
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: yarn
 
       - run: yarn install --immutable
-      - run: yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
+      - run: yarn run tsc --noEmit
       - run: yarn lint:ci
 
   test:
@@ -35,12 +36,12 @@ jobs:
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: yarn
 
       - run: yarn install --immutable
       - name: test
-        run: yarn run test --maxWorkers=100%
+        run: yarn test
 
   e2e:
     runs-on: ${{ matrix.os }}
@@ -64,7 +65,7 @@ jobs:
       - name: Configure Node.js
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 20.x
+          node-version: 24.x
 
       - run: corepack enable
 
@@ -73,17 +74,19 @@ jobs:
       # pack into tarball so we can use it with npx
       - run: yarn pack
 
+      # install this build of create-foxglove-extension into the sample instead of the published release
       - name: create sample extension
-        run: npx package.tgz sample
-
-      # install local package.tgz to use the foxglove-scripts from this build
-      - run: npm install ../package.tgz
-        working-directory: sample
+        run: npx package.tgz sample --create-foxglove-extension-package package.tgz
 
       # confirm that the generated extension code passes lint
       - name: lint generated extension code
         working-directory: sample
         run: npm run lint
+
+      # confirm that the generated extension builds in development mode
+      - name: build generated extension
+        working-directory: sample
+        run: npm run build
 
       # confirm that the generated extension code can be packaged
       - name: package generated extension

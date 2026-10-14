@@ -2,16 +2,18 @@ import { mkdir, readFile, readdir, writeFile } from "fs/promises";
 import JSZip from "jszip";
 import * as path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
+import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
 
 import { packageCommand } from "./package";
 
 let tmpdir: string;
 
-jest.setTimeout(120 * 1000);
+vi.setConfig({ testTimeout: 120 * 1000 });
 
-jest.mock("./log.ts", () => ({
-  info: jest.fn(),
-  fatal: jest.fn((msg) => {
+vi.mock("./log", () => ({
+  info: vi.fn(),
+  error: vi.fn(),
+  fatal: vi.fn((msg: unknown) => {
     throw new Error(`fatal() called: ${String(msg)}`);
   }),
 }));
