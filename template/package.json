@@ -17,6 +17,7 @@
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "local-install": "foxglove-extension install",
-    "package": "foxglove-extension package"
+    "package": "foxglove-extension package",
+    "test": "vp test"
   }
 }
