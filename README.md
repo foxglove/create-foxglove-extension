@@ -75,6 +75,44 @@ Images, fonts, `.wasm` files, and CSS imported from your code are inlined into t
 file with `?raw` to get its contents as a string, or with `?worker&inline` to get a Web Worker
 constructor. Workers must use `?worker&inline`, because Foxglove only loads `extension.js`.
 
+## Testing Your Extension
+
+New extensions include tests that run with [Vitest](https://vitest.dev) in browser mode. Install
+Chromium for Playwright once, then run the tests:
+
+```sh
+npx playwright install chromium
+npm test
+```
+
+`create-foxglove-extension/testing` provides a mock Foxglove host for tests:
+
+```typescript
+import { cleanup, renderPanel } from "create-foxglove-extension/testing";
+import { afterEach, expect, it } from "vite-plus/test";
+import { page } from "vite-plus/test/browser";
+
+import { initExamplePanel } from "./ExamplePanel";
+
+afterEach(cleanup);
+
+it("lists topics", async () => {
+  const panel = await renderPanel(initExamplePanel);
+
+  await panel.render({
+    topics: [{ name: "/imu", schemaName: "sensor_msgs/Imu" }],
+  });
+
+  await expect.element(page.getByText("/imu")).toBeVisible();
+});
+```
+
+`renderPanel` mounts a panel and records the calls it makes to its context, such as
+`subscribe`, `advertise`, `publish`, `saveState`, and `updatePanelSettingsEditor`.
+`panel.render()` passes only the fields the panel watches, like Foxglove does, and waits for the
+panel to call `done()`. `createExtensionContext()` records what an extension's `activate` function
+registers.
+
 ## Publishing Your Extension
 
 All of the metadata for your extension is contained in the _package.json_ file. Before
