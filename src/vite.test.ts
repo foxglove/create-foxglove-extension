@@ -178,6 +178,7 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
       build({
         ...options,
         plugins: [foxgloveExtension()],
+        // eslint-disable-next-line typescript/no-deprecated
         build: { rollupOptions: { output: { entryFileNames: "x.js" } } },
       }),
     ).rejects.toThrow(/build\.lib/);

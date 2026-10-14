@@ -78,10 +78,10 @@ jobs:
       - name: create sample extension
         run: npx package.tgz sample --create-foxglove-extension-package package.tgz
 
-      # confirm that the generated extension code passes lint
-      - name: lint generated extension code
+      # confirm that the generated extension code passes format, lint, and type checks
+      - name: check generated extension code
         working-directory: sample
-        run: npm run lint
+        run: npm run check
 
       # confirm that the generated extension builds in development mode
       - name: build generated extension
