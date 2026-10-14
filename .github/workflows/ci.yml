@@ -23,6 +23,8 @@ jobs:
           cache: yarn
 
       - run: yarn install --immutable
+      # tsc checks with TypeScript 5, which builds use, and lint:ci runs `vp check`, which type checks
+      # with TypeScript 7. Both run because the two versions can disagree.
       - run: yarn run tsc --noEmit
       - run: yarn lint:ci
 
@@ -78,10 +80,10 @@ jobs:
       - name: create sample extension
         run: npx package.tgz sample --create-foxglove-extension-package package.tgz
 
-      # confirm that the generated extension code passes lint
-      - name: lint generated extension code
+      # confirm that the generated extension code passes format, lint, and type checks
+      - name: check generated extension code
         working-directory: sample
-        run: npm run lint
+        run: npm run check
 
       # confirm that the generated extension builds in development mode
       - name: build generated extension

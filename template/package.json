@@ -10,12 +10,13 @@
   "keywords": [],
   "scripts": {
     "build": "tsc --noEmit && vp build --mode development",
+    "check": "vp check",
+    "fmt": "vp fmt",
     "foxglove:prepublish": "tsc --noEmit && vp build --mode production",
-    "lint": "eslint .",
-    "lint:ci": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "vp check",
+    "lint:ci": "vp check",
+    "lint:fix": "vp check --fix",
     "local-install": "foxglove-extension install",
-    "package": "foxglove-extension package",
-    "pretest": "foxglove-extension pretest"
+    "package": "foxglove-extension package"
   }
 }

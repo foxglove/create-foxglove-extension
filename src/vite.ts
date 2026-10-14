@@ -15,6 +15,8 @@ export interface FoxgloveExtensionPluginOptions {
 }
 
 const EMPTY_MODULE_PREFIX = "\0foxglove-extension:empty:";
+/** Set by Vite+ while it loads a config only for its metadata. `lazyPlugins` checks the same flag. */
+const CONFIG_METADATA_ENV = "VP_RESOLVING_CONFIG_METADATA";
 const PATH_BROWSERIFY = require.resolve("path-browserify");
 
 // Node.js file system modules have no meaning inside an extension. They resolve to an empty module
@@ -131,11 +133,13 @@ function moduleCompatibilityPlugin(): Plugin {
  * @example
  * ```ts
  * // vite.config.mts
- * import { foxgloveExtension } from "create-foxglove-extension/vite";
+ * import { fmtConfig, foxgloveExtension, lintConfig } from "create-foxglove-extension/vite";
  * import { defineConfig } from "vite-plus";
  *
  * export default defineConfig({
  *   plugins: [foxgloveExtension()],
+ *   lint: lintConfig,
+ *   fmt: fmtConfig,
  * });
  * ```
  */
@@ -156,6 +160,18 @@ function buildPlugin(entry: string): Plugin {
     enforce: "pre",
 
     config(userConfig, { command, mode }) {
+      // A plugin instance can be resolved more than once, so start from a clean state each time
+      isBuild = false;
+      isDev = false;
+      hasSourceMap = true;
+      packageId = "unknown";
+      packageIdError = undefined;
+      isModulePackage = false;
+      // `vp check`, `vp fmt`, and editors load the config only to read settings such as `lint` and
+      // `fmt`. Vite+ marks that the way `lazyPlugins` expects, so skip the build-only work.
+      if (process.env[CONFIG_METADATA_ENV] === "1") {
+        return undefined;
+      }
       const shared = {
         worker: {
           plugins: () => [moduleCompatibilityPlugin()],
@@ -240,6 +256,9 @@ function buildPlugin(entry: string): Plugin {
     },
 
     configResolved(config) {
+      if (!isBuild) {
+        return;
+      }
       if (isModulePackage) {
         // Vite 8 follows Node.js rules for imports from a "type": "module" package, so a default
         // import of a CommonJS package that sets __esModule returns the whole module rather than
@@ -366,3 +385,5 @@ function assertNoWebpackConfig(root: string): void {
     `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts.`,
   );
 }
+
+export { fmtConfig, lintConfig } from "./viteConfig";

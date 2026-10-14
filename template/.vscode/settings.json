@@ -1,0 +1,10 @@
+{
+  // Oxfmt formats the TypeScript in src, as `npm run check` does
+  "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  // Oxfmt formats whole files, so format on save cannot be limited to the changed lines
+  "editor.formatOnSaveMode": "file",
+  // Use only the root config, as `vp check` does
+  "oxc.disableNestedConfig": true,
+  "oxc.fmt.disableNestedConfig": true
+}
