@@ -49,18 +49,22 @@ build output to the Foxglove extensions folder in your home directory. You can
 either reload Foxglove or close and reopen it to load your latest extension code.
 
 If you just want to confirm your code compiles without installing it locally, run `npm run build`,
-which type checks your code with TypeScript and then builds it.
+which type checks your code with TypeScript and then builds it. Run `npm run check` to check
+formatting, lint, and types with [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) and
+[Oxlint](https://oxc.rs/docs/guide/usage/linter). `npm run fmt` formats your code.
 
 Extensions are built with [Vite+](https://viteplus.dev). The `vite.config.ts` file in your
 extension includes the `foxgloveExtension()` plugin, which bundles your code into the single
 `dist/extension.js` file that Foxglove loads. Add Vite plugins or options to customize the build:
 
 ```typescript
-import { foxgloveExtension } from "create-foxglove-extension/vite";
+import { fmtConfig, foxgloveExtension, lintConfig } from "create-foxglove-extension/vite";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [foxgloveExtension()],
+  lint: lintConfig,
+  fmt: fmtConfig,
 });
 ```
 

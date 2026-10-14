@@ -42,8 +42,9 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json && tar czf dist/template.tar.gz ./template",
-    "lint:ci": "eslint .",
-    "lint": "eslint .",
+    "lint": "vp check",
+    "lint:ci": "vp check",
+    "lint:fix": "vp check --fix",
     "prepack": "yarn build",
     "prepublishOnly": "yarn lint:ci && yarn test",
     "test": "vp test run",
@@ -53,17 +54,13 @@
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
   "devDependencies": {
-    "@foxglove/eslint-plugin": "2.0.0",
     "@foxglove/tsconfig": "2.0.0",
     "@types/ncp": "2.0.8",
     "@types/node": "22.9.0",
     "@types/node-fetch": "2.6.12",
     "@types/tmp": "0.2.6",
-    "eslint": "9.39.1",
-    "prettier": "3.3.3",
     "tmp": "0.2.7",
     "typescript": "5.6.3",
-    "typescript-eslint": "8.48.1",
     "vite-plus": "1.1.0"
   },
   "dependencies": {
