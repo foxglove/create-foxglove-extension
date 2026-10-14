@@ -358,6 +358,17 @@ function cssInjectionSnippet(css: string): string {
   return `(function(){if(typeof document==="undefined"){return;}var style=document.createElement("style");style.setAttribute("data-foxglove-extension","");style.textContent=${JSON.stringify(css)};document.head.appendChild(style);})();`;
 }
 
+/**
+ * The migration guide as of this release. It links to the release tag, which exists as soon as the
+ * release is published, unlike the guide on the default branch.
+ */
+function migrationGuideUrl(): string {
+  const { version } = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"),
+  ) as { version: string };
+  return `https://github.com/foxglove/create-foxglove-extension/blob/v${version}/MIGRATING.md`;
+}
+
 function readManifest(root: string): {
   name: string;
   version: string;
@@ -383,7 +394,7 @@ function assertNoWebpackConfig(root: string): void {
     return;
   }
   throw new Error(
-    `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts.`,
+    `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts. See node_modules/create-foxglove-extension/MIGRATING.md or ${migrationGuideUrl()}`,
   );
 }
 
