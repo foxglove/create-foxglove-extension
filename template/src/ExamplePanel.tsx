@@ -1,5 +1,5 @@
 import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
-import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
+import { Fragment, ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactElement {
@@ -67,10 +67,10 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
         <b style={{ borderBottom: "1px solid" }}>Topic</b>
         <b style={{ borderBottom: "1px solid" }}>Schema name</b>
         {(topics ?? []).map((topic) => (
-          <>
-            <div key={topic.name}>{topic.name}</div>
-            <div key={topic.schemaName}>{topic.schemaName}</div>
-          </>
+          <Fragment key={topic.name}>
+            <div>{topic.name}</div>
+            <div>{topic.schemaName}</div>
+          </Fragment>
         ))}
       </div>
       <div>{messages?.length}</div>

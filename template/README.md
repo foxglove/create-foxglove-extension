@@ -20,6 +20,27 @@ npm run local-install
 
 Open the Foxglove desktop (or `ctrl-R` to refresh if it is already open). Your extension is installed and available within the app.
 
+## Test
+
+Tests run with [Vitest](https://vitest.dev) in browser mode, so panels render in Chromium the same
+way they do in Foxglove. Install the browser once, then run the tests:
+
+```sh
+npx playwright install chromium
+npm test
+```
+
+`src/ExamplePanel.test.tsx` and `src/index.test.ts` show how to test a panel and the extension's
+`activate` function with the helpers from `create-foxglove-extension/testing`:
+
+- `renderPanel(initPanel)` mounts a panel with a mock Foxglove context and records what the panel
+  does with it, such as subscriptions, published messages, and saved state.
+- `panel.render(renderState)` delivers render state the way Foxglove does and waits for the panel
+  to call `done()`.
+- `createExtensionContext()` records the panels and converters an extension registers.
+
+Run `npm run check` to check formatting, lint, and types.
+
 ## Package
 
 Extensions are packaged into `.foxe` files. These files contain the metadata (package.json) and the build code for the extension.
