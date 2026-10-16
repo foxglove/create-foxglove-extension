@@ -1,10 +1,10 @@
 // @ts-check
 
-const foxglove = require("@foxglove/eslint-plugin");
-const globals = require("globals");
-const tseslint = require("typescript-eslint");
+import foxglove from "@foxglove/eslint-plugin";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
-module.exports = tseslint.config({
+export default tseslint.config({
   files: ["src/**/*.ts", "src/**/*.tsx"],
   extends: [foxglove.configs.base, foxglove.configs.react, foxglove.configs.typescript],
   languageOptions: {
@@ -14,7 +14,7 @@ module.exports = tseslint.config({
     },
     parserOptions: {
       project: "tsconfig.json",
-      tsconfigRootDir: __dirname,
+      tsconfigRootDir: import.meta.dirname,
     },
   },
   rules: {

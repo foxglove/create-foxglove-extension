@@ -7,7 +7,7 @@ const tseslint = require("typescript-eslint");
 module.exports = tseslint.config({
   ignores: ["dist/**", "examples/**", "template/**"],
   files: ["src/**/*.ts", "src/**/*.tsx"],
-  extends: [foxglove.configs.base, foxglove.configs.jest, foxglove.configs.typescript],
+  extends: [foxglove.configs.base, foxglove.configs.typescript],
   languageOptions: {
     globals: {
       ...globals.node,
