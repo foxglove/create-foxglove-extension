@@ -15,13 +15,10 @@ const { version: OWN_VERSION } = JSON.parse(
 ) as { version: string };
 
 const DEPENDENCIES = [
-  "@foxglove/eslint-plugin@^2",
   "@foxglove/extension@^2",
   "@types/react@^18",
   "@types/react-dom@^18",
   `create-foxglove-extension@${OWN_VERSION}`,
-  "eslint@^9",
-  "prettier@^3",
   "react@^18",
   "react-dom@^18",
   "typescript@^5",
