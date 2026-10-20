@@ -118,6 +118,7 @@ function moduleCompatibilityPlugin(): Plugin {
  * - Dynamic `import()` calls are bundled into the same file.
  * - Inlined workers get the same `.wasm` and `fs` handling. Workers that would be emitted as
  *   separate files fail the build, since Foxglove cannot load them.
+ * - License comments from bundled dependencies are kept in the minified bundle.
  * - Production builds embed an inline source map. Development builds wrap the bundle in a direct
  *   `eval` with its own source map so DevTools breakpoints bind to the original sources.
  * - A leftover webpack `config.ts` from create-foxglove-extension 1.x fails the build instead of
@@ -226,6 +227,9 @@ function buildPlugin(entry: string): Plugin {
             output: {
               // Foxglove loads a single file, so dynamic imports cannot become separate chunks.
               codeSplitting: false,
+              // Keep the license notices of bundled dependencies, which the minifier drops by
+              // default. webpack wrote them to extension.js.LICENSE.txt in the .foxe.
+              comments: { legal: true, annotation: false, jsdoc: false },
               exports: "named",
               // Foxglove evaluates the bundle with only `module` and `require` in scope.
               intro: "var exports = module.exports;",
@@ -334,6 +338,17 @@ function cssInjectionSnippet(css: string): string {
   return `(function(){if(typeof document==="undefined"){return;}var style=document.createElement("style");style.setAttribute("data-foxglove-extension","");style.textContent=${JSON.stringify(css)};document.head.appendChild(style);})();`;
 }
 
+/**
+ * The migration guide as of this release. It links to the release tag, which exists as soon as the
+ * release is published, unlike the guide on the default branch.
+ */
+function migrationGuideUrl(): string {
+  const { version } = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"),
+  ) as { version: string };
+  return `https://github.com/foxglove/create-foxglove-extension/blob/v${version}/MIGRATING.md`;
+}
+
 function readManifest(root: string): {
   name: string;
   version: string;
@@ -359,6 +374,6 @@ function assertNoWebpackConfig(root: string): void {
     return;
   }
   throw new Error(
-    `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts. See node_modules/create-foxglove-extension/MIGRATING.md or https://github.com/foxglove/create-foxglove-extension/blob/main/MIGRATING.md`,
+    `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts. See node_modules/create-foxglove-extension/MIGRATING.md or ${migrationGuideUrl()}`,
   );
 }

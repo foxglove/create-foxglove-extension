@@ -25,7 +25,7 @@ const DEPENDENCIES = [
   "react@^18",
   "react-dom@^18",
   "typescript@^5",
-  "vite-plus@^1.1.0",
+  "vite-plus@~1.3.0",
 ];
 
 export interface CreateOptions {
@@ -105,7 +105,7 @@ function localPackageSpec(cwd: string, spec: string | undefined): string | undef
 
 /**
  * Quote an argument for the shell that `spawn` uses. cmd.exe treats `^` as an escape character
- * outside quotes, which would turn `vite-plus@^1.1.0` into an exact version.
+ * outside quotes, which would turn `@foxglove/extension@^2` into an exact version.
  */
 function shellQuote(arg: string): string {
   if (process.platform === "win32") {

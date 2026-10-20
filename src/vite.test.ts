@@ -233,8 +233,13 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
 
   it("fails when config.ts holds webpack configuration from 1.x", async () => {
     await writeFile(path.join(projectDir, "config.ts"), "module.exports = { webpack: (c) => c };");
+    const { version } = JSON.parse(await readFile("package.json", "utf8")) as { version: string };
 
-    await expect(buildFixture("production")).rejects.toThrow(/config\.ts/);
+    const build = buildFixture("production");
+
+    await expect(build).rejects.toThrow(/config\.ts/);
+    // The release tag exists when the release is published, unlike the guide on main
+    await expect(build).rejects.toThrow(`blob/v${version}/MIGRATING.md`);
   });
 
   it("detects webpack configuration under a quoted key", async () => {
@@ -341,6 +346,35 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
     });
 
     expect(warnings.join("\n")).toContain('"type": "module"');
+  });
+
+  it("keeps license comments from dependencies in the minified bundle", async () => {
+    const packageDir = path.join(projectDir, "node_modules", "licensed-lib");
+    await mkdir(packageDir, { recursive: true });
+    await writeFile(
+      path.join(packageDir, "package.json"),
+      JSON.stringify({ name: "licensed-lib", main: "index.js" }),
+    );
+    await writeFile(
+      path.join(packageDir, "index.js"),
+      `/**
+ * @license licensed-lib v1.0.0
+ * Copyright Example. MIT License.
+ */
+module.exports = function hello() { return "hello"; };`,
+    );
+    await writeFile(
+      path.join(projectDir, "src", "index.ts"),
+      `import hello from "licensed-lib";
+export function activate(ctx: { result: Record<string, unknown> }): void {
+  ctx.result.hello = hello();
+}`,
+    );
+
+    const source = await buildFixture("production");
+
+    expect(source).toContain("@license licensed-lib v1.0.0");
+    expect(evaluate(source).result.hello).toBe("hello");
   });
 
   it("keeps inlined files out of the source map", async () => {

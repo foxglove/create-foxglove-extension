@@ -95,7 +95,7 @@ async function loadVitePlus(extensionPath: string): Promise<typeof VitePlus> {
       throw err;
     }
     throw new Error(
-      `Building an extension requires vite-plus. Install it with "npm install --save-dev vite-plus@^1".`,
+      `Building an extension requires vite-plus. Install it with "npm install --save-dev vite-plus@~1.3.0".`,
     );
   }
 }
