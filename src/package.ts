@@ -209,7 +209,8 @@ async function prepublish(extensionPath: string, pkg: PackageManifest): Promise<
   await new Promise<void>((resolve, reject) => {
     const tool = "npm";
     const cwd = extensionPath;
-    const child = spawn(tool, ["run", "foxglove:prepublish"], {
+    // A single command string, since Node.js deprecates passing arguments with `shell: true`
+    const child = spawn(`${tool} run foxglove:prepublish`, {
       cwd,
       shell: true,
       stdio: "inherit",

@@ -16,43 +16,55 @@
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
+    "./tsconfig/tsconfig.json": "./tsconfig/tsconfig.json",
+    "./package.json": "./package.json",
+    "./client": {
+      "types": "./types/client.d.ts"
+    }
+  },
   "bin": {
     "create-foxglove-extension": "dist/bin/create-foxglove-extension.js",
     "foxglove-extension": "dist/bin/foxglove-extension.js"
   },
   "files": [
     "dist",
-    "tsconfig"
+    "tsconfig",
+    "types"
   ],
   "scripts": {
-    "build": "tsc && tar czf dist/template.tar.gz ./template",
+    "build": "rimraf dist && tsc -p tsconfig.build.json && tar czf dist/template.tar.gz ./template",
     "lint:ci": "eslint .",
     "lint": "eslint .",
     "prepack": "yarn build",
     "prepublishOnly": "yarn lint:ci && yarn test",
-    "test": "jest",
+    "test": "vp test run",
     "watch": "tsc --watch"
   },
   "engines": {
-    "node": ">= 14"
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "2.0.0",
     "@foxglove/tsconfig": "2.0.0",
-    "@types/jest": "29.5.14",
     "@types/ncp": "2.0.8",
     "@types/node": "22.9.0",
     "@types/node-fetch": "2.6.12",
     "@types/tmp": "0.2.6",
-    "css-loader": "7.1.2",
     "eslint": "9.39.1",
-    "jest": "30.2.0",
     "prettier": "3.3.3",
-    "style-loader": "4.0.0",
     "tmp": "0.2.7",
-    "ts-jest": "29.4.6",
     "typescript": "5.6.3",
-    "typescript-eslint": "8.48.1"
+    "typescript-eslint": "8.48.1",
+    "vite-plus": "1.3.0"
   },
   "dependencies": {
     "commander": "12.1.0",
@@ -63,9 +75,7 @@
     "path-browserify": "1.0.1",
     "rimraf": "6.1.2",
     "sanitize-filename": "1.6.3",
-    "tar": "7.5.21",
-    "ts-loader": "9.5.1",
-    "webpack": "5.96.1"
+    "tar": "7.5.21"
   },
   "packageManager": "yarn@4.12.0"
 }

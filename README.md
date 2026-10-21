@@ -11,9 +11,11 @@ using the `@foxglove/extension` SDK.
 
 ## Creating Your First Extension
 
-Make sure you have [Node.js](https://nodejs.org/) 14 or newer installed. In a terminal, go
-into the directory where you keep source code (ex: `cd ~/Code`) and run the following
-command:
+Make sure you have [Node.js](https://nodejs.org/) 24.11 or a newer 24.x release installed. Node.js
+22.18 and newer 22.x releases also work after upgrading to npm 11 with `npm install -g npm@11`, since
+npm 10 cannot install Vite+.
+In a terminal, go into the directory where you keep source code (ex: `cd ~/Code`) and run the
+following command:
 
 ```sh
 npm init foxglove-extension@latest helloworld
@@ -46,22 +48,28 @@ extension, you will need to run `npm run local-install` again to build it and co
 build output to the Foxglove extensions folder in your home directory. You can
 either reload Foxglove or close and reopen it to load your latest extension code.
 
-If you just want to confirm your code compiles without installing it locally, run `npm run build`.
+If you just want to confirm your code compiles without installing it locally, run `npm run build`,
+which type checks your code with TypeScript and then builds it.
 
-You can customize the build and install process by editing your `./config.ts` file. The
-config file should look something like this:
+Extensions are built with [Vite+](https://viteplus.dev). The `vite.config.mts` file in your
+extension includes the `foxgloveExtension()` plugin, which bundles your code into the single
+`dist/extension.js` file that Foxglove loads. Add Vite plugins or options to customize the build:
 
 ```typescript
-module.exports = {
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.css$/i,
-      use: ["style-loader", "css-loader"],
-    });
-    return config;
-  },
-};
+import { foxgloveExtension } from "create-foxglove-extension/vite";
+import { defineConfig } from "vite-plus";
+
+export default defineConfig({
+  plugins: [foxgloveExtension()],
+});
 ```
+
+The plugin sets the output format, so leave `build.lib` and `build.rolldownOptions.output` out of
+`vite.config.mts`.
+
+Images, fonts, `.wasm` files, and CSS imported from your code are inlined into the bundle. Import a
+file with `?raw` to get its contents as a string, or with `?worker&inline` to get a Web Worker
+constructor. Workers must use `?worker&inline`, because Foxglove only loads `extension.js`.
 
 ## Publishing Your Extension
 
@@ -101,10 +109,12 @@ Build the `create-foxglove-extension` package locally with:
 npm pack
 ```
 
-Run the extension generator:
+Run the extension generator. The hidden `--create-foxglove-extension-package` option installs the
+local build into the new extension instead of the published release:
 
 ```bash
- npx create-foxglove-extension-{VERSION}.tgz example-extension-name
+npx ./create-foxglove-extension-{VERSION}.tgz example-extension-name \
+  --create-foxglove-extension-package ./create-foxglove-extension-{VERSION}.tgz
 ```
 
 ### Release process
