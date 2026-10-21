@@ -366,3 +366,5 @@ function assertNoWebpackConfig(root: string): void {
     `Found webpack configuration in ${configPath}. Extensions are built with Vite as of create-foxglove-extension 2.0, and config.ts is no longer applied. Move any customizations into vite.config.mts and delete config.ts.`,
   );
 }
+
+export { fmtConfig, lintConfig } from "./viteConfig";
