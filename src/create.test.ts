@@ -60,7 +60,8 @@ describe("createCommand", () => {
     const dirs = contents.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
     const files = contents.filter((entry) => entry.isFile()).map((entry) => entry.name);
 
-    expect(dirs).toHaveLength(2);
+    expect(dirs).toHaveLength(3);
+    expect(dirs).toContain(".vscode");
     expect(dirs).toContain("node_modules");
     expect(dirs).toContain("src");
 

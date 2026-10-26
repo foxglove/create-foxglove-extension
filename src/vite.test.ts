@@ -76,6 +76,7 @@ interface ImportMeta { readonly env: { readonly DEV: boolean; readonly PROD: boo
 
 afterEach(() => {
   delete (globalThis as { document?: unknown }).document;
+  vi.unstubAllEnvs();
 });
 
 async function buildFixture(
@@ -178,6 +179,7 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
       build({
         ...options,
         plugins: [foxgloveExtension()],
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         build: { rollupOptions: { output: { entryFileNames: "x.js" } } },
       }),
     ).rejects.toThrow(/build\.lib/);
@@ -235,6 +237,47 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
     await writeFile(path.join(projectDir, "config.ts"), "module.exports = { webpack: (c) => c };");
 
     await expect(buildFixture("production")).rejects.toThrow(/config\.ts/);
+  });
+
+  it("uses the same config metadata marker as Vite+", async () => {
+    // The plugin skips build-only work under this marker. Vite+ uses it for lazyPlugins, so this
+    // fails if a Vite+ update renames it.
+    const { lazyPlugins } = await import("vite-plus");
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+
+    expect(lazyPlugins(() => [])).toBeUndefined();
+  });
+
+  it("leaves the config.ts check to builds, so linting and formatting still work", async () => {
+    await writeFile(path.join(projectDir, "config.ts"), "module.exports = { webpack: (c) => c };");
+    const { resolveConfig } = await import("vite-plus");
+
+    // `vp check` and `vp fmt` resolve the config only for its metadata, which Vite+ marks
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+    await expect(
+      resolveConfig(
+        { root: projectDir, configFile: false, logLevel: "silent", plugins: [foxgloveExtension()] },
+        "build",
+      ),
+    ).resolves.toBeDefined();
+    vi.unstubAllEnvs();
+    await expect(buildFixture("production")).rejects.toThrow(/config\.ts/);
+  });
+
+  it("leaves the output options check to builds too", async () => {
+    const { build, resolveConfig } = await import("vite-plus");
+    const options = {
+      root: projectDir,
+      configFile: false as const,
+      logLevel: "silent" as const,
+      plugins: [foxgloveExtension()],
+      build: { rolldownOptions: { output: { entryFileNames: "x.js" } } },
+    };
+
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+    await expect(resolveConfig(options, "build")).resolves.toBeDefined();
+    vi.unstubAllEnvs();
+    await expect(build(options)).rejects.toThrow(/build\.lib/);
   });
 
   it("detects webpack configuration under a quoted key", async () => {
