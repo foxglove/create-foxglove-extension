@@ -69,6 +69,7 @@ describe("createCommand", () => {
     expect(files).toContain("package.json");
     expect(files).toContain("README.md");
     expect(files).toContain("tsconfig.json");
+    expect(files).toContain("vite.config.mts");
     expect(files).toContain("package-lock.json");
     expect(files).toContain(".gitignore");
     expect(files).not.toContain("yarn.lock");

@@ -93,6 +93,13 @@ jobs:
         working-directory: sample
         run: npm run build
 
+      # confirm that the generated extension's tests pass in the browser
+      - name: test generated extension
+        working-directory: sample
+        run: |
+          npx playwright install --with-deps chromium
+          npm test
+
       # confirm that the generated extension code can be packaged
       - name: package generated extension
         working-directory: sample

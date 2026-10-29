@@ -73,7 +73,7 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
           </Fragment>
         ))}
       </div>
-      <div>{messages?.length}</div>
+      <p>Messages in the latest frame: {messages?.length ?? 0}</p>
     </div>
   );
 }
