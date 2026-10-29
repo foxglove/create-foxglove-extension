@@ -1,3 +1,14 @@
+export {
+  cleanup,
+  type AddedPanel,
+  renderPanel,
+  simulateFoxglove,
+  type RenderPanelOptions,
+  type ServiceCall,
+  type SimulateFoxgloveOptions,
+  type SimulatedFoxglove,
+  type SimulatedPanel,
+} from "./simulator.mjs";
 export { makeMessageEvent } from "./dataSource.mjs";
 export type {
   DataSource,
