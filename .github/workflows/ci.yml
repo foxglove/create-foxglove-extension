@@ -26,6 +26,8 @@ jobs:
       # tsc checks with TypeScript 5, which builds use, and lint:ci runs `vp check`, which type checks
       # with TypeScript 7. Both run because the two versions can disagree.
       - run: yarn run tsc --noEmit
+      # The test harness has its own settings, since it runs in the browser
+      - run: yarn run tsc --noEmit -p tsconfig.testing.json
       - run: yarn lint:ci
 
   test:

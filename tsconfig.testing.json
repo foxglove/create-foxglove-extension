@@ -1,0 +1,19 @@
+{
+  "extends": "@foxglove/tsconfig/base",
+  // The test harness runs in the browser and imports types from @foxglove/extension, which is
+  // published as TypeScript source that only resolves with bundler module resolution.
+  "include": ["./src/testing/**/*"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "importHelpers": false,
+
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false
+  }
+}
