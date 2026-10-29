@@ -44,6 +44,7 @@ jobs:
           cache: yarn
 
       - run: yarn install --immutable
+      - run: yarn playwright install --with-deps chromium
       - name: test
         run: yarn test
 
