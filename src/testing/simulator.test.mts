@@ -946,6 +946,48 @@ describe("settings sidebar", () => {
   });
 });
 
+describe("network", () => {
+  it("answers fetch with mocked routes and records requests", async () => {
+    const panel = await renderPanel(
+      (context) => {
+        void fetch("https://api.example.com/robots/1")
+          .then(async (response) => (await response.json()) as { name: string })
+          .then((robot) => {
+            context.panelElement.textContent = `Robot ${robot.name}`;
+          });
+      },
+      {
+        network: {
+          routes: [{ url: "https://api.example.com/robots/1", respond: () => ({ name: "Rover" }) }],
+        },
+      },
+    );
+
+    await expect.element(page.getByText("Robot Rover")).toBeVisible();
+    expect(panel.foxglove.requests.map((request) => [request.url, request.mocked])).toEqual([
+      ["https://api.example.com/robots/1", true],
+    ]);
+  });
+
+  it("fails requests to other servers that no route answers", async () => {
+    await renderPanel(() => undefined);
+
+    await expect(fetch("https://api.example.com/unmocked")).rejects.toThrow(
+      "No mocked response for GET https://api.example.com/unmocked",
+    );
+  });
+
+  it("restores fetch after cleanup", async () => {
+    const originalFetch = globalThis.fetch;
+    await renderPanel(() => undefined);
+    expect(globalThis.fetch).not.toBe(originalFetch);
+
+    cleanup();
+
+    expect(globalThis.fetch).toBe(originalFetch);
+  });
+});
+
 describe("loading extensions", () => {
   it("loads a built extension bundle the way Foxglove does", async () => {
     const source = `
@@ -1223,6 +1265,44 @@ describe("edge cases", () => {
       'onNewRangeIterator of panel "panel" threw for "/speed": not ready',
     ]);
   });
+
+  it("mocks requests that activate makes", async () => {
+    const foxglove = await simulateFoxglove({
+      extension: async (context: ExtensionContext) => {
+        const response = await fetch("https://api.example.com/config");
+        const config = (await response.json()) as { name: string };
+        context.registerPanel({ name: config.name, initPanel: () => undefined });
+      },
+      network: {
+        routes: [
+          { url: "https://api.example.com/config", respond: () => ({ name: "configured" }) },
+        ],
+      },
+    });
+
+    expect([...foxglove.extension.panels.keys()]).toEqual(["configured"]);
+    expect(foxglove.requests).toHaveLength(1);
+  });
+
+  it("lets data URLs through, matches patterns repeatedly, and answers empty responses", async () => {
+    await renderPanel(() => undefined, {
+      network: {
+        routes: [
+          { url: /\/robots\/\d+$/g, respond: () => ({ ok: true }) },
+          { method: "POST", url: "https://api.example.com/commands", respond: () => undefined },
+        ],
+      },
+    });
+
+    const dataUrl = await fetch("data:text/plain,hello");
+    expect(await dataUrl.text()).toBe("hello");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const robot = await fetch("https://api.example.com/robots/1");
+      expect(await robot.json()).toEqual({ ok: true });
+    }
+    const command = await fetch("https://api.example.com/commands", { method: "POST" });
+    expect(command.status).toBe(204);
+  });
 });
 
 describe("waiting for the backend", () => {
@@ -1255,6 +1335,35 @@ describe("waiting for the backend", () => {
     await panel.foxglove.settle();
 
     expect(panel.element.textContent).toContain('Reset: {"ok":true}');
+  });
+
+  it("waits for mocked network responses before settling", async () => {
+    const panel = await renderPanel(
+      (context) => {
+        void fetch("https://api.example.com/slow")
+          .then(async (response) => await response.text())
+          .then((text) => {
+            context.panelElement.textContent = text;
+          });
+      },
+      {
+        network: {
+          routes: [
+            {
+              url: "https://api.example.com/slow",
+              respond: async () => {
+                await new Promise((resolve) => setTimeout(resolve, 300));
+                return new Response("slow reply");
+              },
+            },
+          ],
+        },
+      },
+    );
+
+    await panel.foxglove.settle();
+
+    expect(panel.element.textContent).toBe("slow reply");
   });
 
   it("lets service handlers and onPublish answer through the robot", async () => {
@@ -1293,6 +1402,46 @@ describe("waiting for the backend", () => {
     expect(panel.foxglove.problems).toEqual([
       'onPublish failed for a message on "/cmd": A message on "/unknown" has no schemaName, and "/unknown" is not in the data source\'s topics. Add the topic to topics, or set schemaName on the message.',
     ]);
+  });
+});
+
+describe("other transports", () => {
+  async function xhr(url: string): Promise<{ status: number; body: unknown }> {
+    return await new Promise((resolve) => {
+      const request = new XMLHttpRequest();
+      request.open("GET", url);
+      request.responseType = "json";
+      request.onloadend = () => {
+        resolve({ status: request.status, body: request.response as unknown });
+      };
+      request.send();
+    });
+  }
+
+  it("answers XMLHttpRequest from the same routes, and blocks unmocked ones", async () => {
+    const panel = await renderPanel(() => undefined, {
+      network: {
+        routes: [{ url: "https://api.example.com/robots", respond: () => [{ id: 1 }] }],
+      },
+    });
+
+    await expect(xhr("https://api.example.com/robots")).resolves.toEqual({
+      status: 200,
+      body: [{ id: 1 }],
+    });
+    await expect(xhr("https://api.example.com/other")).resolves.toEqual({ status: 0, body: null });
+    expect(panel.foxglove.problems).toEqual([
+      "No mocked response for GET https://api.example.com/other (XMLHttpRequest). Add a route to the network option of simulateFoxglove(), or set network.allowUnmocked to reach the real server.",
+    ]);
+  });
+
+  it("blocks WebSocket connections to other servers", async () => {
+    const panel = await renderPanel(() => undefined);
+
+    expect(() => new WebSocket("wss://robot.example.com/stream")).toThrow(
+      "The simulated Foxglove blocked a WebSocket connection to wss://robot.example.com/stream",
+    );
+    expect(panel.foxglove.problems).toHaveLength(1);
   });
 });
 
@@ -1618,6 +1767,18 @@ describe("review fixes", () => {
     expect(second.renders.flatMap(frameMessages)).toEqual([{ value: 3 }]);
   });
 
+  it("matches route methods without regard to case", async () => {
+    await renderPanel(() => undefined, {
+      network: {
+        routes: [{ method: "PATCH", url: "https://api.example.com/x", respond: () => "ok" }],
+      },
+    });
+
+    const response = await fetch("https://api.example.com/x", { method: "patch" });
+
+    expect(await response.json()).toBe("ok");
+  });
+
   it("keeps the sidebar on the panel the test selected", async () => {
     const foxglove = await simulateFoxglove({
       extension: (context: ExtensionContext) => {
@@ -1773,6 +1934,92 @@ describe("review fixes, round 3", () => {
     await panel.foxglove.receive({ topic: "/state", message: { first: true } });
 
     expect(probe.renders.flatMap(frameMessages)).toContainEqual({ ready: true });
+  });
+
+  it("fails requests whose route throws, and supports aborting mocked requests", async () => {
+    await renderPanel(() => undefined, {
+      network: {
+        routes: [
+          {
+            url: "https://api.example.com/offline",
+            respond: () => {
+              throw new Error("offline");
+            },
+          },
+          {
+            url: "https://api.example.com/slow",
+            respond: async () => {
+              await new Promise((resolve) => setTimeout(resolve, 200));
+              return "late";
+            },
+          },
+        ],
+      },
+    });
+
+    await expect(fetch("https://api.example.com/offline")).rejects.toThrow(
+      "The mocked response for GET https://api.example.com/offline failed: offline",
+    );
+    const events: string[] = [];
+    await new Promise<void>((resolve) => {
+      const request = new XMLHttpRequest();
+      request.open("GET", "https://api.example.com/offline");
+      request.onerror = () => events.push("error");
+      request.onloadend = () => {
+        resolve();
+      };
+      request.send();
+    });
+    expect(events).toEqual(["error"]);
+
+    const controller = new AbortController();
+    const slow = fetch("https://api.example.com/slow", { signal: controller.signal });
+    controller.abort();
+    await expect(slow).rejects.toThrow();
+
+    const aborted = await new Promise<string[]>((resolve) => {
+      const seen: string[] = [];
+      const request = new XMLHttpRequest();
+      request.open("GET", "https://api.example.com/slow");
+      request.onabort = () => seen.push("abort");
+      request.onloadend = () => {
+        resolve(seen);
+      };
+      request.send();
+      request.abort();
+    });
+    expect(aborted).toEqual(["abort"]);
+  });
+
+  it("shows a fresh response when an XMLHttpRequest is reused", async () => {
+    let count = 0;
+    await renderPanel(() => undefined, {
+      network: {
+        routes: [
+          {
+            url: "https://api.example.com/count",
+            respond: () => {
+              count += 1;
+              return new Response(String(count), { status: count === 1 ? 201 : 200 });
+            },
+          },
+        ],
+      },
+    });
+    const request = new XMLHttpRequest();
+    const load = async () => {
+      await new Promise<void>((resolve) => {
+        request.onloadend = () => {
+          resolve();
+        };
+        request.open("GET", "https://api.example.com/count");
+        request.send();
+      });
+      return [request.status, request.responseText];
+    };
+
+    expect(await load()).toEqual([201, "1"]);
+    expect(await load()).toEqual([200, "2"]);
   });
 
   it("renders once without currentFrame after a frame with messages, like Foxglove", async () => {
@@ -1958,6 +2205,38 @@ describe("review fixes, round 4", () => {
     );
   });
 
+  it("handles XMLHttpRequest aborts like the browser does", async () => {
+    await renderPanel(() => undefined, {
+      network: { routes: [{ url: "https://api.example.com/x", respond: () => "ok" }] },
+    });
+
+    // An abort before send does not stop the request that follows
+    const loaded = await new Promise<number>((resolve) => {
+      const request = new XMLHttpRequest();
+      request.open("GET", "https://api.example.com/x");
+      request.abort();
+      request.onloadend = () => {
+        resolve(request.status);
+      };
+      request.send();
+    });
+    expect(loaded).toBe(200);
+
+    // An abort while waiting reports DONE before it resets
+    const states = await new Promise<number[]>((resolve) => {
+      const seen: number[] = [];
+      const request = new XMLHttpRequest();
+      request.open("GET", "https://api.example.com/x");
+      request.onreadystatechange = () => seen.push(request.readyState);
+      request.onloadend = () => {
+        resolve(seen);
+      };
+      request.send();
+      request.abort();
+    });
+    expect(states).toEqual([XMLHttpRequest.DONE]);
+  });
+
   it("checks play speeds, seeks before the start, and one-sided recording bounds", async () => {
     const panel = await renderPanel(() => undefined, {
       dataSource: {
@@ -2055,6 +2334,21 @@ describe("review fixes, round 5", () => {
     expect(allFrames.map((event) => event.message)).toEqual([{ checked: 1 }, { checked: 3 }]);
   });
 
+  it("does not recurse when a restored spy leaves the patched fetch in place", async () => {
+    await renderPanel(() => undefined);
+    const patched = globalThis.fetch;
+    cleanup();
+    // As vi.restoreAllMocks() would, if a spy was created while the simulation was open
+    globalThis.fetch = patched;
+    try {
+      await renderPanel(() => undefined);
+      const response = await fetch("data:text/plain,still works");
+      expect(await response.text()).toBe("still works");
+    } finally {
+      cleanup();
+    }
+  });
+
   it("clamps and rounds numbers typed in the sidebar, like Foxglove's number input", async () => {
     const sent: unknown[] = [];
     await renderPanel((context) => {
@@ -2113,6 +2407,24 @@ describe("review fixes, round 5", () => {
     finish!();
 
     expect(panel.renderCount).toBe(renders);
+  });
+
+  it("checks route URLs, and records only requests to other servers", async () => {
+    await expect(
+      renderPanel(() => undefined, {
+        network: { routes: [{ url: "http://[bad", respond: () => undefined }] },
+      }),
+    ).rejects.toThrow('The network route URL "http://[bad" is not a valid URL');
+
+    const panel = await renderPanel(() => undefined, {
+      network: { routes: [{ url: "https://api.example.com/x", respond: () => "ok" }] },
+    });
+    await fetch("data:text/plain,local");
+    await fetch("https://api.example.com/x");
+
+    expect(panel.foxglove.requests.map((request) => request.url)).toEqual([
+      "https://api.example.com/x",
+    ]);
   });
 
   it("keeps read-only text areas enabled, and describes toggles with their help", async () => {

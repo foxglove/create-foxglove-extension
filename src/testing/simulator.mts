@@ -38,6 +38,12 @@ import {
   type ExtensionRegistrations,
 } from "./extensionHost.mjs";
 import {
+  interceptNetwork,
+  type NetworkInterceptor,
+  type NetworkOptions,
+  type RecordedRequest,
+} from "./network.mjs";
+import {
   EMPTY_VARIABLES,
   PanelHost,
   type Advertisement,
@@ -74,6 +80,11 @@ export interface SimulateFoxgloveOptions {
   readonly variables?: Readonly<Record<string, VariableValue>>;
   /** App settings that panels can subscribe to with `context.subscribeAppSettings`. */
   readonly appSettings?: Readonly<Record<string, AppSettingValue>>;
+  /**
+   * Mocked responses for `fetch`. Requests to other servers fail unless a route answers them, so
+   * tests never depend on a real backend.
+   */
+  readonly network?: NetworkOptions;
   /**
    * How long to wait for a panel to call `done()` after a render, and for panels to settle, in
    * milliseconds. Defaults to 2000.
@@ -230,6 +241,8 @@ export interface SimulatedFoxglove {
    * registered open in the layout. Others, such as built-in panels, are only recorded here.
    */
   readonly addedPanels: readonly AddedPanel[];
+  /** Requests the extension made with `fetch`, in order. */
+  readonly requests: readonly RecordedRequest[];
 
   /** The layout's variables. */
   readonly variables: ReadonlyMap<string, VariableValue>;
@@ -248,9 +261,9 @@ export interface SimulatedFoxglove {
   readonly problems: readonly string[];
   /**
    * Wait until panels have finished rendering and stopped calling their context, and until
-   * service calls, `onPublish`, and range loading have finished. Call this after interacting with
-   * a panel, before checking what it recorded. While playing in real time, it waits only for the
-   * current frame.
+   * service calls, mocked network responses, `onPublish`, and range loading have finished. Call
+   * this after interacting with a panel, before checking what it recorded. While playing in real
+   * time, it waits only for the current frame.
    */
   settle(): Promise<void>;
   /** Unmount every panel and remove the simulated app from the page. */
@@ -328,6 +341,8 @@ class FoxgloveSimulation implements PanelEnvironment {
   readonly #tracked = new Set<Promise<unknown>>();
   readonly #failures: Error[] = [];
   readonly #converterInstances = new Map<string, { convert: TopicConvert; key: string }>();
+  readonly #restoreNetwork: () => void;
+  readonly #network: NetworkInterceptor;
   #queue: Promise<unknown> = Promise.resolve();
   #queueDepth = 0;
   #activity = 0;
@@ -373,8 +388,17 @@ class FoxgloveSimulation implements PanelEnvironment {
   public constructor(
     registrations: ExtensionHarness<Experimental.ExtensionContext>,
     options: SimulateFoxgloveOptions,
+    network: { interceptor: NetworkInterceptor; restore: () => void },
   ) {
     this.#registrations = registrations;
+    this.#network = network.interceptor;
+    this.#network.track = (promise) => {
+      this.track(promise);
+    };
+    this.#network.blocked = (message) => {
+      this.reportProblem(message);
+    };
+    this.#restoreNetwork = network.restore;
     this.#dataSource = options.dataSource;
     this.renderTimeoutMs = options.renderTimeoutMs ?? 2000;
     this.#frameNs = secondsToNanoseconds(options.frameDuration ?? 1 / 60);
@@ -724,6 +748,10 @@ class FoxgloveSimulation implements PanelEnvironment {
     return this.inputs.parameters;
   }
 
+  public get requests(): readonly RecordedRequest[] {
+    return this.#network.requests;
+  }
+
   public get variables(): ReadonlyMap<string, VariableValue> {
     return new Map(Object.entries(this.inputs.variables));
   }
@@ -1029,6 +1057,7 @@ class FoxgloveSimulation implements PanelEnvironment {
       }
     }
     this.element.remove();
+    this.#restoreNetwork();
     simulations.delete(this);
     if (errors.length > 0) {
       throw new AggregateError(errors, "A panel's cleanup function threw while closing");
@@ -1653,6 +1682,9 @@ function publicHandle(simulation: FoxgloveSimulation): SimulatedFoxglove {
     published: simulation.published,
     serviceCalls: simulation.serviceCalls,
     addedPanels: simulation.addedPanels,
+    get requests() {
+      return simulation.requests;
+    },
     get variables() {
       return simulation.variables;
     },
@@ -1686,8 +1718,8 @@ function publicHandle(simulation: FoxgloveSimulation): SimulatedFoxglove {
  * and a robot would: play and seek, send live messages, change variables and settings. Panels get
  * the render state, messages, and context behavior they get in Foxglove.
  *
- * Nothing reaches a real backend. Messages, service responses, and parameters all come from the
- * options.
+ * Nothing reaches a real backend. Messages, service responses, parameters, and `fetch` responses
+ * all come from the options.
  *
  * Call {@link cleanup} after each test to close the simulations it created.
  *
@@ -1709,9 +1741,21 @@ function publicHandle(simulation: FoxgloveSimulation): SimulatedFoxglove {
 export async function simulateFoxglove(
   options: SimulateFoxgloveOptions,
 ): Promise<SimulatedFoxglove> {
-  const registrations = await activateExtension(options.extension);
-  const simulation = new FoxgloveSimulation(registrations, options);
-  for (const message of simulation.extension.warnings) {
+  // Installed first, so requests that activate or the bundle make are mocked too
+  const network = interceptNetwork(options.network ?? {});
+  const blockedDuringActivation: string[] = [];
+  network.interceptor.blocked = (message) => {
+    blockedDuringActivation.push(message);
+  };
+  let simulation: FoxgloveSimulation;
+  try {
+    const registrations = await activateExtension(options.extension);
+    simulation = new FoxgloveSimulation(registrations, options, network);
+  } catch (caught) {
+    network.restore();
+    throw caught;
+  }
+  for (const message of [...blockedDuringActivation, ...simulation.extension.warnings]) {
     simulation.reportProblem(message);
   }
   return publicHandle(simulation);
