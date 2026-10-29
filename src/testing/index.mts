@@ -22,4 +22,5 @@ export {
   type UserScriptUtilityRegistration,
   type VideoDecoderRegistration,
 } from "./extensionHost.mjs";
+export type { Advertisement, OpenPanelOptions, PanelSettings } from "./panelHost.mjs";
 export type { TimeInput } from "./time.mjs";
