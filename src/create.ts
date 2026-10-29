@@ -79,12 +79,40 @@ export async function createCommand(options: CreateOptions): Promise<void> {
           );
     await installDependencies(extensionDir, dependencies);
 
+    // The Vitest browser provider must match the version vite-plus asks for exactly, so it is
+    // installed once vite-plus has resolved.
+    const providerVersion = await browserProviderVersion(extensionDir);
+    await installDependencies(extensionDir, [
+      `@vitest/browser-playwright@${providerVersion}`,
+      "playwright@^1",
+    ]);
+
     info(`Created Foxglove extension "${name}" at ${extensionDir}`);
+    info(`Run "npx playwright install chromium" once before running "npm test".`);
   } finally {
     if (tempDir) {
       await rm(tempDir, { recursive: true, force: true });
     }
   }
+}
+
+async function browserProviderVersion(extensionDir: string): Promise<string> {
+  // Resolved like an import, so that it is found when npm hoists it, as in a workspace
+  const packageJsonPath = require.resolve("vite-plus/package.json", { paths: [extensionDir] });
+  const packageJson = JSON.parse(await readFile(packageJsonPath, { encoding: "utf8" })) as {
+    dependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+  };
+  // vite-plus names the provider version it supports, which matches the Vitest it bundles
+  const version =
+    packageJson.peerDependencies?.["@vitest/browser-playwright"] ??
+    packageJson.dependencies?.vitest;
+  if (version == undefined) {
+    throw new Error(
+      `Could not find the Vitest browser provider version that vite-plus needs in ${packageJsonPath}`,
+    );
+  }
+  return version;
 }
 
 /**

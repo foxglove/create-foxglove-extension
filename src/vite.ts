@@ -178,7 +178,8 @@ function buildPlugin(entry: string): Plugin {
         },
       };
       if (command !== "build") {
-        return shared;
+        // Tests run the extension's source through the dev server, so match the build here
+        return { ...shared, define: { global: "globalThis" } };
       }
 
       // Vite merges arrays from the two configs, which would add outputs rather than replace them

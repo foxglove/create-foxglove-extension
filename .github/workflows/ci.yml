@@ -26,6 +26,8 @@ jobs:
       # tsc checks with TypeScript 5, which builds use, and lint:ci runs `vp check`, which type checks
       # with TypeScript 7. Both run because the two versions can disagree.
       - run: yarn run tsc --noEmit
+      # The test harness has its own settings, since it runs in the browser
+      - run: yarn run tsc --noEmit -p tsconfig.testing.json
       - run: yarn lint:ci
 
   test:
@@ -42,6 +44,7 @@ jobs:
           cache: yarn
 
       - run: yarn install --immutable
+      - run: yarn playwright install --with-deps chromium
       - name: test
         run: yarn test
 
@@ -89,6 +92,13 @@ jobs:
       - name: build generated extension
         working-directory: sample
         run: npm run build
+
+      # confirm that the generated extension's tests pass in the browser
+      - name: test generated extension
+        working-directory: sample
+        run: |
+          npx playwright install --with-deps chromium
+          npm test
 
       # confirm that the generated extension code can be packaged
       - name: package generated extension

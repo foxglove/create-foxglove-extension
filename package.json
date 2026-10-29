@@ -29,6 +29,10 @@
     "./package.json": "./package.json",
     "./client": {
       "types": "./types/client.d.ts"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.mts",
+      "default": "./dist/testing/index.mjs"
     }
   },
   "bin": {
@@ -41,7 +45,7 @@
     "types"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json && tar czf dist/template.tar.gz ./template",
+    "build": "rimraf dist && tsc -p tsconfig.build.json && tsc -p tsconfig.testing.json && rimraf --glob \"dist/**/*.test.*\" && tar czf dist/template.tar.gz ./template",
     "lint": "vp check",
     "lint:ci": "vp check",
     "lint:fix": "vp check --fix",
@@ -53,12 +57,23 @@
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
+  "peerDependencies": {
+    "@foxglove/extension": "^2 || ^3"
+  },
+  "peerDependenciesMeta": {
+    "@foxglove/extension": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@foxglove/extension": "2.59.0",
     "@foxglove/tsconfig": "2.0.0",
     "@types/ncp": "2.0.8",
     "@types/node": "22.9.0",
     "@types/node-fetch": "2.6.12",
     "@types/tmp": "0.2.6",
+    "@vitest/browser-playwright": "5.0.5",
+    "playwright": "1.64.0",
     "tmp": "0.2.7",
     "typescript": "5.6.3",
     "vite-plus": "1.3.0"

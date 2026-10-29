@@ -75,6 +75,98 @@ Images, fonts, `.wasm` files, and CSS imported from your code are inlined into t
 file with `?raw` to get its contents as a string, or with `?worker&inline` to get a Web Worker
 constructor. Workers must use `?worker&inline`, because Foxglove only loads `extension.js`.
 
+## Testing Your Extension
+
+New extensions include tests that run with [Vitest](https://vitest.dev) in Chromium, through
+Playwright. Install Chromium once, then run the tests:
+
+```sh
+npx playwright install chromium
+npm test
+```
+
+`create-foxglove-extension/testing` simulates Foxglove in the test's browser page. It loads your
+extension, opens a data source with the topics and messages you give it, and runs your panels the
+way Foxglove does. Nothing reaches a real backend: messages, service responses, parameters, and
+`fetch` responses all come from the test.
+
+```typescript
+import { cleanup, simulateFoxglove } from "create-foxglove-extension/testing";
+import { afterEach, expect, it } from "vite-plus/test";
+import { page } from "vite-plus/test/browser";
+
+import { activate } from "./index";
+
+afterEach(cleanup);
+
+it("shows the latest speed", async () => {
+  const foxglove = await simulateFoxglove({
+    extension: { activate },
+    dataSource: {
+      type: "recording",
+      topics: [{ name: "/speed", schemaName: "Speed" }],
+      messages: [
+        { topic: "/speed", receiveTime: 1, message: { value: 2 } },
+        { topic: "/speed", receiveTime: 2, message: { value: 3 } },
+      ],
+    },
+  });
+  await foxglove.openPanel("speed-panel");
+
+  await foxglove.advanceTo(2);
+
+  await expect.element(page.getByText("3 m/s")).toBeVisible();
+});
+```
+
+What the simulation does, like Foxglove:
+
+- Panels get only the render state fields they watch, in one render state object, and render again
+  only after they call `done()`. A panel that never calls `done()` fails the test.
+- Playback delivers messages only on subscribed topics. Seeking, and changing subscriptions, gives
+  each topic its latest message and sets `didSeek`. `advanceTo()` plays frame by frame, and `play()`
+  plays in real time.
+- The extension's message converters, topic converters, and topic aliases run. Variables, shared
+  panel state, and the preview time that panels set come back to them as render state.
+- The panel's settings tree appears in a settings sidebar as labeled form controls. Tests can click
+  and type in it with `page`, or call `panel.settings.update(path, value)`.
+- A recording can seek and load message ranges. A live data source (`type: "live"`) can publish,
+  call services, and set parameters. Tests send live messages with `foxglove.receive()`. Service
+  handlers in `services` and `onPublish` play the robot: they get a `robot` that can send messages
+  back.
+- Requests made with `fetch` and `XMLHttpRequest` get the responses in `network.routes`. Requests
+  to other servers that no route answers fail, and so do WebSocket and EventSource connections to
+  other servers. Images, stylesheets, and fonts from other servers, and requests from workers, are
+  not intercepted.
+
+After clicking or typing, `await foxglove.settle()` waits until panels have rendered and until
+service calls, mocked responses, and `onPublish` have finished. Expectations made with
+`expect.element()` and `expect.poll()` retry on their own.
+
+To find elements in one panel, use its test id: `page.getByTestId(panel.testId).getByText("...")`.
+The settings sidebar has its own: `page.getByTestId(panel.settings.testId)`.
+
+`foxglove.problems` lists what Foxglove would warn about, such as a converter that threw or a
+blocked request. `renderPanel(initPanel)` opens one panel without an `activate` function.
+`createExtensionContext()` records what `activate` registers, and `makeMessageEvent()` builds an
+event to call a message converter with directly.
+
+Tests run your source. To test the built `dist/extension.js` the way Foxglove loads it, run
+`npm run build` first, then pass the file's contents as `extension: { source }`. One way to read it
+without failing when it has not been built:
+
+```typescript
+const [source] = Object.values(
+  import.meta.glob<string>("../dist/extension.js", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }),
+);
+```
+
+Tests run headless. To watch them in a browser window, run `npx vp test --browser.headless=false`.
+
 ## Publishing Your Extension
 
 All of the metadata for your extension is contained in the _package.json_ file. Before

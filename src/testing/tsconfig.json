@@ -1,0 +1,4 @@
+{
+  // Lets editors and type-aware lint find the harness's settings, which differ from the rest of src
+  "extends": "../../tsconfig.testing.json"
+}
