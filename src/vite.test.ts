@@ -235,8 +235,13 @@ export function activate(ctx: { result: Record<string, unknown> }): void {
 
   it("fails when config.ts holds webpack configuration from 1.x", async () => {
     await writeFile(path.join(projectDir, "config.ts"), "module.exports = { webpack: (c) => c };");
+    const { version } = JSON.parse(await readFile("package.json", "utf8")) as { version: string };
 
-    await expect(buildFixture("production")).rejects.toThrow(/config\.ts/);
+    const build = buildFixture("production");
+
+    await expect(build).rejects.toThrow(/config\.ts/);
+    // The release tag exists when the release is published, unlike the guide on main
+    await expect(build).rejects.toThrow(`blob/v${version}/MIGRATING.md`);
   });
 
   it("uses the same config metadata marker as Vite+", async () => {

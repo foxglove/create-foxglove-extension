@@ -9,6 +9,12 @@
 that is loaded and executed inside the Foxglove application. Extensions are authored in TypeScript
 using the `@foxglove/extension` SDK.
 
+## Upgrading from 1.x
+
+Version 2.0 builds extensions with Vite+ instead of webpack, replaces ESLint and Prettier with
+Oxlint and Oxfmt, and adds browser tests. Projects created with 1.x do not update on their own.
+Follow [MIGRATING.md](./MIGRATING.md) to upgrade one by hand or with a coding agent.
+
 ## Creating Your First Extension
 
 Make sure you have [Node.js](https://nodejs.org/) 24.11 or a newer 24.x release installed. Node.js
